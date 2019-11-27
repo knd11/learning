@@ -465,6 +465,16 @@ A/B=A*pinv(B)
 
 # Latex
 
+#### 并排显示图片
+
+有多少图片写多少个标签
+
+```HTML
+<center class="half">
+    <img src="Hadoop_pic/4.png" width="200"/><img src="Hadoop_pic/5.png" width="200"/>
+</center>
+```
+
 #### 转换:
 
 ```
@@ -717,7 +727,7 @@ $\left[~\right] ,\Vert ,\mid,\|,\nabla,\propto$              `\left[~\right] ,\V
    \begin{equation}W_{\bf S}(t,\omega) = \int\limits_{-\infty}^{\infty} {  {\cal R}_{\bf S}(t,\tau) e^{-j\omega\tau} \,d \tau }\label{LABELLING}\end{equation}
    $$
 
-- 上下式子  ${x \atop y}​$    
+- 上下式子  ${x \atop y}$    
 
    ${n + 1 \choose 3}$        
 
@@ -744,7 +754,7 @@ $\left[~\right] ,\Vert ,\mid,\|,\nabla,\propto$              `\left[~\right] ,\V
      \end{equation}
    $$
 
-   ​​
+   ​
 
 
 

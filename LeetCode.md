@@ -1,19 +1,6 @@
-#### 1. Two sum
+## 1. Two sum
 
-Given an array of integers, return **indices** of the two numbers such that they add up to a specific target.
-
-You may assume that each input would have **exactly** one solution, and you may not use the *same* element twice.
-
-**Example:**
-
-```
-Given nums = [2, 7, 11, 15], target = 9,
-
-Because nums[0] + nums[1] = 2 + 7 = 9,
-return [0, 1].
-```
-
-My Test：
+![1](Leetcode_pic/1.png)
 
 ```java
 import java.util.HashMap;
@@ -38,27 +25,15 @@ class Soulution {
 }
 ```
 
+## 2. Add Two Numbers
 
-
-#### 2. Add Two Numbers
-
-You are given two **non-empty** linked lists（链表） representing two non-negative integers. The digits are stored in **reverse order** and each of their nodes contain a single digit. Add the two numbers and return it as a linked list.
-
-You may assume the two numbers do not contain any leading zero, except the number 0 itself.
-
-**Example:**
-
-```
-Input: (2 -> 4 -> 3) + (5 -> 6 -> 4)
-Output: 7 -> 0 -> 8
-Explanation: 342 + 465 = 807.
-```
+![2](Leetcode_pic/2.png)
 
 **链表简介:**
 
 - 单链表中的每个结点不仅包含值，**还包含链接到下一个结点的引用字段**。
 
-![2_List1](D:\1Explore\1Note\2_List1.PNG)
+![2_List1](Leetcode_pic/2_List1.PNG)
 
 - 与数组不同，我们无法在常量时间内访问单链表中的随机元素。
 
@@ -81,6 +56,7 @@ Explanation: 342 + 465 = 807.
 - 设计链表的实现。您可以选择使用单链表或双链表。
 
   单链表中的节点应该具有两个属性：val 和 next。 
+
   - val 是当前节点的值
 
 - - next 是指向下一个节点的指针/引用
@@ -99,17 +75,11 @@ Explanation: 342 + 465 = 807.
 
 - deleteAtIndex(index)：如果索引 index 有效，则删除链表中的第 index 个节点
 
+![2_two_sum](Leetcode_pic/2_two_sum.gif)
 
+## 22. Generate Parentheses
 
-
-
-
-
-![2_two_sum](D:\1Explore\1Note\2_two_sum.gif)
-
-
-
-
+![22](Leetcode_pic/22.png)
 
 
 
