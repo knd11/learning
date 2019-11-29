@@ -213,9 +213,219 @@
 
    
 
-   
+# 5. Linux <a href="http://archive.cloudera.com/cdh5/cdh/5/hadoop-2.6.0-cdh5.9.3/hadoop-project-dist/hadoop-common/SingleCluster.html">Hadoop安装</a>
 
-   
+**Required Software** 
+
+Required software for Linux include:
+
+1. Java™ must be installed. Recommended Java versions are described at [ HadoopJavaVersions](http://wiki.apache.org/hadoop/HadoopJavaVersions).
+2. ssh must be installed and sshd must be running to use the Hadoop scripts that manage remote Hadoop daemons.
+
+**安装**
+
+### 5.1 Java安装
+
+- 解压安装包到 ~/app
+
+- 设置 JAVA_HOME
+
+  到根目录下执行：
+
+  ```shell
+  $ vi .bash_profile
+  ```
+
+  设置 JAVA_HOME
+
+  ```
+  export JAVA_HOME=/home/cxy/Hdp/app/jdk1.8.0_231
+  export PATH=$JAVA_HOME/bin:$PATH
+  ```
+
+  保存退出，使设置生效：
+
+  ```shell
+  $ source .bash_profile
+  ```
+
+  测试：
+
+  ```shell
+  $ cd $JAVA_HOME
+  or
+  $ java -version
+  ```
+
+### 5.2  ssh免密登陆 
+
+If your cluster doesn't have the requisite software you will need to install it.
+
+For example on Ubuntu Linux:
+
+```
+  $ sudo apt-get install ssh
+  $ sudo apt-get install rsync
+```
+
+`$ ssh localhost或者 $ ssh 主机名` （`$ exit退出`）都会要求输入密码，使得有些交互无法进行，故需要设置免密登陆。
+
+免密配置：
+
+```shell
+$ ssh-keygen -t rsa
+```
+
+一路回车或yes
+
+```shell
+$ ls -a //-a查看隐藏文件夹，.开头的是隐藏文件夹
+$ cd .ssh
+$ ls
+id_rsa  id_rsa.pub  known_hosts
+$ ll
+-rw-------  1 cxy cxy 1679 11月 29 19:16 id_rsa  私钥
+-rw-r--r--  1 cxy cxy  389 11月 29 19:16 id_rsa.pub 公钥
+-rw-r--r--  1 cxy cxy 2354 11月 29 19:15 known_hosts
+
+$ cat id_rsa.pub >> authorized_keys //复制id_rsa.pub 到 authorized_keys
+$ chmod 600 authorized_keys //设置权限
+
+/**测试**/
+$ ssh Cxy  //不用输密码了
+```
+
+### 5.3 Hadoop安装
+
+- 下载：http://archive.cloudera.com/cdh5/cdh/5/
+
+  ​           hadoop-2.6.0-cdh5.9.3.tar.gz   hive-1.1.0-cdh5.9.3.tar.gz
+
+- 解压到 ： ~/app
+
+- **配置：**
+
+  1)  **etc/hadoop-env.sh**
+
+  ```
+    # set to the root of your Java installation
+    export JAVA_HOME=/usr/java/latest
+  
+    # Assuming your installation directory is /usr/local/hadoop
+    export HADOOP_PREFIX=/usr/local/hadoop
+  ```
+
+  修改Hadoop配置文件, 添加HADOOP_HOME/bin到系统环境变量
+
+  ```shell
+  $ vi ~/app/hadoop-2.6.0-cdh5.9.3/etc/hadoop/hadoop-env.sh
+  $ echo $JAVA_HOME //查看$JAVA_HOME（Linux系统自带Java）
+  ```
+
+  为了防止自动获取JAVA_HOME失败，手动添加。将原来的`export JAVA_HOME=${JAVA_HOME}`语句注释掉，改为(后面的地址写自己的JAVA_HOME地址)：
+
+  ```shell
+  export JAVA_HOME=/home/cxy/Hdp/app/jdk1.8.0_231
+  ```
+
+  2)  **etc/hadoop/core-site.xml**
+
+  将下面<configuration></configuration>里的内容存到配置文件的<configuration></configuration>里
+
+  ```
+  <configuration>
+      <property>
+          <name>fs.defaultFS</name>
+          <value>hdfs://localhost:8020</value>
+      </property>
+  </configuration>
+  ```
+
+  3) **etc/hadoop/hdfs-site.xml**
+
+  ```
+  <configuration>
+      <property>
+          <name>dfs.replication</name>
+          <value>1</value>
+      </property>
+      
+      <property>
+          <name>hadoop.tmp.dir</name>
+          <value>/home/cxy/Hdp/app/tmp</value>
+      </property>
+      
+  </configuration>
+  ```
+
+  注：第二个属性中/home/cxy/Hdp/app/tmp路径用来存放临时文件，因为hadoop.tmp.dir的默认路径...tmp重启会被清空
+
+  4)  **etc/hadoop/slaves**
+
+  ```shell
+  $ vi slaves
+  ```
+
+  将localhost改为你的主机名
+
+  5) 到根目录下将Hadoop配置到环境变量
+
+  ```shell
+  $ vi ~/.bash_profile
+  ```
+
+  输入：
+
+  ```
+  export HADOOP_HOME=/home/cxy/Hdp/app/hadoop-2.6.0-cdh5.9.3
+  export PATH=$HADOOP_HOME/bin:$PATH
+  ```
+
+  `:x`或`:wq`保存退出
+
+  ```shell
+   $ source ~/.bash_profile
+  ```
+
+  以上配置完成后，第一次启动Hadoop必须要格式化，格式化不要重复执行
+
+  ```shell
+  $ cd $HADOOP_HOME/bin
+  $ hdfs namenode -format //格式化
+  ```
+
+  如果格式化没报错则配置完成
+
+### 5.4 启动集群
+
+执行$HADOOP_HOME/sbin/start-dfs.sh
+
+```shell
+$ ./start-dfs.sh
+```
+
+提示输入yes
+
+```shell
+$ jps
+21364 DataNode
+28201 Jps
+21023 NameNode
+```
+
+DataNode，NameNode创建成功，启动成功
+
+
+
+
+
+# 6. 
+
+
+
+
+
+
 
 
 
