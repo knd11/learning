@@ -417,3 +417,64 @@ $ ssh Cxy  //不用输密码了
 
   DataNode，NameNode创建成功，启动成功
 
+#### 7. 启动、关闭NN DN
+
+start/stop-dfs.sh 与 hadoop-daemons.sh的关系
+
+```shell
+start-dfs.sh = 
+	hadoop-daemons.sh start namenode
+	hadoop-daemons.sh start datanode
+	hadoop-daemons.sh start secondarynamenode
+	...
+stop-dfs.sh = 
+	hadoop-daemons.sh stop namenode
+	hadoop-daemons.sh stop datanode
+	hadoop-daemons.sh stop secondarynamenode
+	...
+```
+
+http://192.168.199.233:50070
+
+#### 8. Hadoop命令操作详解
+
+上次开机打开的hadoop再次使用时，需重新配置路径
+
+```shell
+ $ source ~/.bash_profile
+```
+
+bin目录下的Hadoop命令：
+
+```shell
+cxy@Cxy:~/Hdp/app/hadoop-2.6.0-cdh5.9.3/bin$ ./hadoop
+Usage: hadoop [--config confdir] COMMAND
+       where COMMAND is one of:
+  fs                   run a generic filesystem user client
+  version              print the version
+  jar <jar>            run a jar file
+  checknative [-a|-h]  check native hadoop and compression libraries availability
+  distcp <srcurl> <desturl> copy file or directories recursively
+  archive -archiveName NAME -p <parent path> <src>* <dest> create a hadoop archive
+  classpath            prints the class path needed to get the
+  credential           interact with credential providers
+                       Hadoop jar and the required libraries
+  daemonlog            get/set the log level for each daemon
+  trace                view and modify Hadoop tracing settings
+ or
+  CLASSNAME            run the class named CLASSNAME
+
+Most commands print help when invoked w/o parameters.
+```
+
+` hadoop + COMMAND`查看COMMAND的帮助文档（没有./了）
+
+```
+$ hadoop fs -ls
+
+```
+
+ 
+
+
+
