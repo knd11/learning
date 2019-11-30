@@ -270,6 +270,8 @@ For example on Ubuntu Linux:
 
 免密配置：
 
+zhu: 如果已经生成过ssh-key则不用生成了否则将把原来的覆盖，使有些操作失效。如git不能推送到远程仓库
+
 ```shell
 $ ssh-keygen -t rsa
 ```
