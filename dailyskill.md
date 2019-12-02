@@ -550,7 +550,7 @@ http://www.tablesgenerator.com/#
 
 #### 参考文献
 
-环境（配置如下），但一般模板会配置好
+环境（配置如下），但很麻烦
 
 ```latex
 \begin{thebibliography}{}
@@ -560,7 +560,7 @@ http://www.tablesgenerator.com/#
 \end{thebibliography}
 ```
 
-然后需要一个.bib格式的文件，用来装文献引用
+简单方式：需要一个.bib格式的文件（可从模板里复制），用来装文献引用
 
 主程序中：
 
@@ -568,8 +568,9 @@ http://www.tablesgenerator.com/#
 \documentalass{ article}
 \begin{document}
 Knowing yourself is the beginning of all wisdom \cite{20}.%要引用的文献才会显示
-He who would climb the ladder must begin at the bottom \eite{31}.
+He who would climb the ladder must begin at the bottom \cite{31}.
 \bibliographystyle{unsrt}%设置参考文献风格
+\addtolength{\itemsep}{-2.5ex}%缩小行间距
 \bibliography{a}  %a.bib,即那个装bibtex参考文献的文件
 \end{document}
 ```
@@ -644,7 +645,7 @@ He who would climb the ladder must begin at the bottom \eite{31}.
 
 
 
-### 希腊字母
+#### 希腊字母
 
 - 在word中敲入26个英文字母“ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
@@ -717,7 +718,7 @@ $\left[~\right] ,\Vert ,\mid,\|,\nabla,\propto$              `\left[~\right] ,\V
 
 ​	
 
-### 数学公式
+#### 数学公式
 
 - $\sum\limits_{i=0}^2$
 
@@ -770,7 +771,7 @@ $$
 \end{equation}
 $$
 
-### 修改图片比例大小
+#### 修改图片比例大小
 
 ```
 <img src="Pic/图2.jpg" width="50%" height="50%">
@@ -778,7 +779,7 @@ $$
 
 
 
-### WinEdt Note
+#### WinEdt Note
 
 ​	**分段**：空一行，或\par（默认是首行缩进的），用\\ 或者\newline 可以强制换行在下一行继续，且在下一行不会有缩进。
 
@@ -928,7 +929,7 @@ frame=single,
 word2016，在公式的最后键入#和标号，然后回车就有了标号
 ```
 
-### Latex简易模板
+#### Latex简易模板
 
 ```latex
 \documentclass{article}
@@ -989,7 +990,7 @@ word2016，在公式的最后键入#和标号，然后回车就有了标号
 
 
 
-### 表格合并单元格
+#### 表格合并单元格
 
 <table>
   <tr>
@@ -1011,13 +1012,22 @@ word2016，在公式的最后键入#和标号，然后回车就有了标号
     <td>c3</td>
   </tr>
 </table>
-### 报错
+#### 报错
 
 - ! Missing $ inserted.
 
   编译出现这样的错误。原因是在图的caption里使用了下标线“_”。因为latex会把它作为有特殊意义的标号或作为数学模式(math mode)进行编译。
 
-- 
+
+#### 超链接的颜色改不了
+
+页内链接和URL的颜色是分开设置的，加上 urlcolor=black
+
+```latex
+\usepackage[bookmarks=true,colorlinks,linkcolor=blue,urlcolor=black,anchorcolor=blue,citecolor=blue]{hyperref}
+```
+
+
 
 # JupyterNotebook & Anaconda
 
