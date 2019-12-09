@@ -174,6 +174,14 @@ print(y.shape)
 
 ```
 
+#### 复制数组
+
+```java
+// 1.将要复制的数组  2.从将要复制的数组的第几个元素开始  
+//3.目标数组   4.将要放到目标数组的那个位置   5.复制多少个元素
+System.arraycopy(str1,0,str3,0,str1.length);
+```
+
 
 
 # Matlab
@@ -755,7 +763,7 @@ $\left[~\right] ,\Vert ,\mid,\|,\nabla,\propto$              `\left[~\right] ,\V
      \end{equation}
    $$
 
-   ​
+   
 
 
 
