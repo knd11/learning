@@ -211,7 +211,6 @@
    $ git push origin master
    ```
 
-   
 
 # 5. Linux <a href="http://archive.cloudera.com/cdh5/cdh/5/hadoop-2.6.0-cdh5.9.3/hadoop-project-dist/hadoop-common/SingleCluster.html">Hadoop安装</a>
 
@@ -417,11 +416,117 @@ $ jps
 
 DataNode，NameNode创建成功，启动成功
 
+# 6. VS Code + Java开发
 
+## 6.1 Maven
 
+环境搭建：
 
+extension：
 
-# 6. 
+Maven for Java;
+
+创建project：
+
+Ctrl + shift + p 或者左侧浏览器MAVEN PROJECT 处点 +  --> 选择 maven-archetype-quicksstart  --> 选择目录地址 --> 选择版本1.0 --> 选择包名
+
+# 6. 如何使用VS Code编写Spring Boot
+
+Java框架
+
+浏览数:214
+
+2019-7-24
+
+​      本篇文章将教你如何使用VS Code编写Spring Boot程序。你不需要用Eclipse，也不需要用IDEA。已经习惯了VS，其他的IDE…… 但不得不说VS Code很厉害，一用就喜欢。微软给VS Code提供了编写Java的插件，你可以在VS Code上愉快地写Java。
+
+### 一、环境搭建
+
+（1） 安装Java、配置环境变量。（教程很多，这里不多说）
+
+（2） 安装Maven和配置。参考<https://www.cnblogs.com/eagle6688/p/7838224.html>
+
+（3） 安装VS Code
+
+（4） 安装Java开发插件，配置VS Code的Java开发环境。（这一步微软替我们简化了，下载Vs Code Java安装程序，直接安装就可以编写Java代码了，下载连接 <http://aka.ms/vscode-java-installer-win> 此安装程序可以重复运行）
+
+### 二、构建Maven项目
+
+（1）访问 <http://start.spring.io/>
+
+（2）选择Maven Project、Java、Spring Boot 版本 2.1.6，如图
+
+![img](http://www.jqhtml.com/wp-content/uploads/2019/7/MNBju2.png)
+
+点击 Generate the Project 下载项目压缩包
+
+ 
+
+（3）解压后用VS Code打开此文件夹
+
+![img](http://www.jqhtml.com/wp-content/uploads/2019/7/bAbmm2.png)
+
+2.16版本官方推荐的项目结构如下：
+
+![img](http://www.jqhtml.com/wp-content/uploads/2019/7/VrE3qm.png)
+
+目前用得更多的是类似这种结构：
+
+![img](http://www.jqhtml.com/wp-content/uploads/2019/7/fymaeu.png)
+
+### 三、编写接口，输入Hello World
+
+（1）pom.xml中添加支持web的模块，然后保存
+
+```
+`<dependency>``    ``<groupId>org.springframework.boot<``/groupId``>``    ``<artifactId>spring-boot-starter-web<``/artifactId``>``<``/dependency``>`
+```
+
+​       
+
+保存后VS Code自动下载该模块，也可以右键pom.xml，点击Update project configuration手动更新配置      
+
+![img](http://www.jqhtml.com/wp-content/uploads/2019/7/M3A7by.png)
+
+pom.xml 文件中默认有两个模块：
+
+spring-boot-starter ：核心模块，包括自动配置支持、日志和 YAML，如果引入了 spring-boot-starter-web web 模块可以去掉此配置，因为 spring-boot-starter-web 自动依赖了 spring-boot-starter。
+
+spring-boot-starter-test ：测试模块，包括 JUnit、Hamcrest、Mockito。
+
+ 
+
+（2）编写Controller 内容
+
+```
+`@RestController``public class HelloWorldController {``    ``@RequestMapping(``"/hello"``)``    ``public String index() {``        ``return` `"Hello World"``;``    ``}``}`
+```
+
+@开头的是Spring的注解
+
+@RestController 的意思就是 Controller 里面的方法都以 json 格式输出，不用再写什么 jackjson 配置的了。
+
+@RequestMapping 用于映射Web请求，包括访问路径和参数，用于类或方法上。
+
+ 
+
+（3）点调试，然后添加配置，自动生成启动Java配置文件
+
+![img](http://www.jqhtml.com/wp-content/uploads/2019/7/EJRV7b.png)
+
+运行调试
+
+![img](http://www.jqhtml.com/wp-content/uploads/2019/7/2iYNvq.png)
+
+浏览器访问：<http://localhost:8080/hello>    成功输出Hello World
+
+一切看上去都很简单，现在可以愉快地使用VS Code编写Spring Boot代码了
+
+Demo GitHub地址：<https://github.com/ityouknow/spring-boot-examples/tree/master/spring-boot-helloWorld>
+
+参考文章：<http://www.ityouknow.com/springboot/2016/01/06/spring-boot-quick-start.html>
+
+推荐Spring Boot入门学习项目：<https://github.com/ityouknow/spring-boot-examples>
 
 
 
