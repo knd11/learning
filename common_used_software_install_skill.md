@@ -430,7 +430,7 @@ Maven for Java;
 
 Ctrl + shift + p 或者左侧浏览器MAVEN PROJECT 处点 +  --> 选择 maven-archetype-quicksstart  --> 选择目录地址 --> 选择版本1.0 --> 选择包名
 
-# 6. 如何使用VS Code编写Spring Boot
+# 7. 如何使用VS Code编写Spring Boot
 
 Java框架
 
@@ -528,6 +528,29 @@ Demo GitHub地址：<https://github.com/ityouknow/spring-boot-examples/tree/mast
 
 推荐Spring Boot入门学习项目：<https://github.com/ityouknow/spring-boot-examples>
 
+# 8. Tomcat安装
+
+[下载地址](#<http://tomcat.apache.org/>)
+
+1. 解压到安装目录
+
+2. 配置环境变量
+
+   | 变量名        | 变量值                                       |
+   | ------------- | -------------------------------------------- |
+   | CATALINA_BASE | D:\Program files\Apache\apache-tomcat-8.5.51 |
+   | CATALINA_HOME | D:\Program files\Apache\apache-tomcat-8.5.51 |
+   | Path          | %CATALINA_HOME%\bin                          |
+
+3. 启动
+
+   命令行中输入startup，然后在浏览器地址栏输入如下验证：
+
+   ```html
+   localhost:8080
+   //或
+   127.0.0.1:8080
+   ```
 
 
 
