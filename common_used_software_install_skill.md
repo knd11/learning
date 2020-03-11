@@ -544,7 +544,7 @@ Demo GitHub地址：<https://github.com/ityouknow/spring-boot-examples/tree/mast
 
 3. 启动
 
-   命令行中输入startup，然后在浏览器地址栏输入如下验证：
+   命令行中输入`startup` 或 `catalina run`，然后在浏览器地址栏输入如下验证：
 
    ```html
    localhost:8080
@@ -552,6 +552,89 @@ Demo GitHub地址：<https://github.com/ityouknow/spring-boot-examples/tree/mast
    127.0.0.1:8080
    ```
 
+# 9. Mysql 安装
+
+1. 在官网下载 [MySQL](https://dev.mysql.com/downloads/mysql/) ， [安装版MySQL](https://link.zhihu.com/?target=https%3A//link.jianshu.com/%3Ft%3Dhttp%3A//dev.mysql.com/downloads/installer/)
+
+2. 配置初始化的my.ini文件的文件
+
+   解压后的目录并没有的my.ini文件，没关系可以自行创建在安装根目录下添加的my.ini（新建文本文件，将文件类型改为的.ini），写入基本配置： 记得改路径，Data文件夹会自动生成，无需创建
+
+   ```ini
+   [client]
+   # 设置mysql客户端默认字符集
+   default-character-set=utf8
+    
+   [mysqld]
+   # 设置3306端口
+   port = 3306
+   # 设置mysql的安装目录
+   basedir=D:\\Program files\\Oracle\\mysql-8.0.19-winx64
+   # 设置 mysql数据库的数据的存放目录，MySQL 8+ 不需要以下配置，系统自己生成即可，否则有可能报错
+   # datadir=D:\\Program files\\Oracle\\mysql-8.0.19-winx64\\Data
+   # 允许最大连接数
+   max_connections=20
+   # 服务端使用的字符集默认为8比特编码的latin1字符集
+   character-set-server=utf8
+   # 创建新表时将使用的默认存储引擎
+   default-storage-engine=INNODB
+   ```
+
+   配置文件中的路径要和实际存放的路径一致
+
+3. 初始化MySQL
+
+   > 运行`mysqld --initialize-insecure`自动生成无密码的root用户。
+   > 运行`mysqld --initialize`自动生成带随机密码的root用户
+   >
+   >
+   >
+   > 以管理员的方式打开cmd， 切换到安装目录下的bin目录下，执行：
+   >
+   > ```shell
+   > mysqld --initialize --console
+   > ```
+   >
+   > 输出：
+   >
+   > ```shell
+   > ...
+   > 2020-03-11T02:38:19.492703Z 5 [Note] [MY-010454] [Server] A temporary password is generated for root@localhost: OWMyd1?KzWj4
+   > ```
+   >
+   > 记录下密码：OWMyd1?KzWj4
+   >
+   > 一定要以管理员的方式打开，不然会报错：Install/Remove of the Service Denied
+
+4. 安装MySQL服务 + 启动MySQL 服务
+
+   >安装：
+   >
+   >```shell
+   >mysqld --install [服务名]（服务名可以不加默认为mysql）
+   >```
+   >
+   >启动：
+   >
+   >```shell
+   >net start mysql
+   >```
+
+5. 连接 MySQL
+
+   > 下载 [Navicat](https://www.navicat.com.cn/download/navicat-premium)
+   >
+   > MySQL的服务已经开启了就直接打开的Navicat去连接
+   >
+   > ![新建的MySQL的连接](pic/%E6%96%B0%E5%BB%BA%E7%9A%84MySQL%E7%9A%84%E8%BF%9E%E6%8E%A5.png)
+   >
+   > **还记得刚刚让你复制的root @ localhost：后面的初始密码了吗？现在要用到它了复制粘贴上去！**
+   >
+   >
+
+6. 修改密码
+
+   在 Navicat 中双击连接名，修改密码
 
 
 
