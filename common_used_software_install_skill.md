@@ -1,3 +1,5 @@
+
+
 # 1. linux mplayer 
 
 - 安装
@@ -636,7 +638,56 @@ Demo GitHub地址：<https://github.com/ityouknow/spring-boot-examples/tree/mast
 
    在 Navicat 中双击连接名，修改密码
 
+# 10. IDEA 部署 Tomcat
 
+使用Idea的时候，修改了代码，需要反复的重启Tomcat，查看效果，是不是贼烦？还记得刚上手idea的时候，瞎配置部署Tomcat，结果最后修改一个jsp都要重新启动服务器，我这金牛座程序员能忍？~这个时候就必须砸电脑了~这个时候就可以在项目中加入热部署，这样才会大大节省开发效率！
+
+#### Tomcat 下载~
+
+官网地址-点击进入 <http://tomcat.apache.org/>
+
+#### Tomcat 安装
+
+解压即可，安装就over了，但解压路径最好不要是C盘，可能会出现拒绝访问等各种奇葩问题，还有解压路径不要有中文和特殊字符，切记！！！
+
+#### Tomcat 热部署到IDEA
+
+intellij idea默认文件是自动保存的，但是手头有个项目jsp文件改动后，在tomcat中不能立即响应变化
+这时就需要热部署。
+
+> 看过来 ： 如果各位觉得烦可以不看下面一大串文字~当我在放P~，直接按图操作也是完全OK滴！！！
+
+在idea tomcat 中server的配置里，有个on frame deactivation，选择update classes and resources。另外有个配置on update action，就是手动操作的时候采取什么动作，可以重启服务器，也可以像上面一样更新类和资源文件，我选的是Redeploy。可是当前项目没有update classes and resources这个选项，有个Hot Swap classes。这是由于服务器添加的Artifact类型问题，一般一个module对应两种类型的Artifact，一种是war，一种是war explored。war就是已war包形式发布，当前项目是这种形式，在这种形式下on frame deactivation配置没有update classes and resources选项。war explored是发布文件目录，选择这种形式，on frame deactivation中就出现update classes and resources选项了。具体操作如下：
+
+![IDEA连接Tomcat1](pic/IDEA连接Tomcat1-1584088725961.png)
+
+![IDEA连接Tomcat2](pic/IDEA连接Tomcat2.png)
+
+![IDEA连接Tomcat3](pic/IDEA连接Tomcat3.png)
+
+![IDEA连接Tomcat4](pic/IDEA连接Tomcat4.png)
+
+![IDEA连接Tomcat5](pic/IDEA连接Tomcat5.png)
+
+![IDEA连接Tomcat6](software_pic/IDEA连接Tomcat6.png)
+
+到这里，Tomcat热部署上idea了，over~
+
+## idea两种热部署设置方法
+
+第二种方法：在pom.xml添加相应依赖（不太建议使用），至于为什么不建议是因为之后开发没有那么多闲功夫注重有没有引入热部署坐标依赖，还不如直接在idea上配置，所谓一劳百益嘛！！！具体操作类似入下
+
+```
+ <!--支持热部署依赖-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-devtools</artifactId>
+            <scope>runtime</scope>
+            <optional>true</optional>
+        </dependency>
+```
+
+到这里，两种方法也讲完了，哎哎这不就讲了一种吗，我顶你个肺....兄弟别冲动别急着顶我个fei，第一种方法就是idea自带的设置，上面已经配好了！挥爪，告辞~那个要顶我fei的同学放学别走啊~...
 
 
 
