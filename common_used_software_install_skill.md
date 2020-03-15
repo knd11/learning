@@ -1,5 +1,7 @@
 
 
+[TOC]
+
 # 1. linux mplayer 
 
 - 安装
