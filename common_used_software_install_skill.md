@@ -591,7 +591,7 @@ Demo GitHub地址：<https://github.com/ityouknow/spring-boot-examples/tree/mast
    >
    >
    >
-   > 以管理员的方式打开cmd， 切换到安装目录下的bin目录下，执行：
+   > 以==管理员的方式打开cmd==， 切换到安装目录下的bin目录下，执行：
    >
    > ```shell
    > mysqld --initialize --console
@@ -671,7 +671,7 @@ intellij idea默认文件是自动保存的，但是手头有个项目jsp文件�
 
 ![IDEA连接Tomcat6](software_pic/IDEA连接Tomcat6.png)
 
-到这里，Tomcat热部署上idea了，over~
+注：Artifict在project structure里设置
 
 ## idea两种热部署设置方法
 
