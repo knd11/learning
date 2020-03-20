@@ -1635,11 +1635,43 @@ ESC后输入 :set nu #显示当前行号
 ESC后输入 :set nu #显示所有行号
 ```
 
-#####从本地上传文件
+##### 从本地上传文件
 
 ```
 scp D:\Biopysics\Discipline\Perl\201821140611_Caixiyu.pdf simone@202.115.22.242:/home/simone/2019/2019Presentation
 ```
 
 注：scp是服务器与服务器安全传输协议，所以要在终端里输入上述代码，不能在bash里传。
+
+##### 删除桌面图标：
+
+```shell
+sudo  nautilus  /usr/share/applications
+```
+
+##### 修改 hosts 文件
+
+```shell
+sudo vi /etc/hosts
+
+或者
+
+su进去root，直接vi修改
+```
+
+##### 添加桌面图标
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

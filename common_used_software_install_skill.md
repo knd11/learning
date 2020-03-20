@@ -151,13 +151,17 @@
 
   1. 在官网下载<a href="https://www.jetbrains.com/idea/download/#section=linux">linux安装包</a>，community版的是免费的
 
-  2. 解压到安装目录后到安装包的bin目录下打开终端，执行：
+  2. 解压到安装目录
 
+  3. 安装包的bin目录下打开终端，执行：
+  
      ```
-     sh ./idea.sh
+   sh ./idea.sh
      ```
-
-  3. 设置部分自己视情况而定
+  
+  4. <a href="https://zhile.io/2018/08/17/jetbrains-license-server-crack.html">破解</a> 
+  
+  5. 设置部分自己视情况而定
 
 # 4. 用git上传文件到Github
 
@@ -534,6 +538,8 @@ Demo GitHub地址：<https://github.com/ityouknow/spring-boot-examples/tree/mast
 
 # 8. Tomcat安装
 
+## Windows 环境
+
 [下载地址](#<http://tomcat.apache.org/>)
 
 1. 解压到安装目录
@@ -556,7 +562,31 @@ Demo GitHub地址：<https://github.com/ityouknow/spring-boot-examples/tree/mast
    127.0.0.1:8080
    ```
 
+### Linux 环境
+
+```shell
+#将压缩包移动到新建文件夹，解压，删除压缩包
+sudo mkdir /usr/local/Tomcat
+sudo cp apache-tomcat-9.0.33.tar.gz /usr/local
+sudo tar -zxvf apache-tomcat-9.0.33.tar.gz
+sudo rm apache-tomcat-9.0.33.tar.gz
+
+#设置权限，进入解压路径下的bin目录
+sudo chmod 755 -R apache-tomcat-9.0.33
+cd apache-tomcat-9.0.33/bin
+
+#启动Tomcat
+sudo ./startup.sh
+
+#验证，通过在浏览器中输入下面地址，如果进入Tomcat首页即安装成功
+localhost:8080
+```
+
+
+
 # 9. Mysql 安装
+
+## 9.1 Windows 环境
 
 1. 在官网下载 [MySQL](https://dev.mysql.com/downloads/mysql/) ， [安装版MySQL](https://link.zhihu.com/?target=https%3A//link.jianshu.com/%3Ft%3Dhttp%3A//dev.mysql.com/downloads/installer/)
 
@@ -642,6 +672,255 @@ Demo GitHub地址：<https://github.com/ityouknow/spring-boot-examples/tree/mast
 
    在 Navicat 中双击连接名，修改密码
 
+## 9.2 Linux 环境
+
+<a href = "https://dev.mysql.com/downloads/mysql/">MySQL下载</a>
+
+### mysql 安装
+
+```mysql
+# 安装MySQL的依赖库
+sudo apt install yum
+sudo apt install numactl
+sudo apt install libaio-dev
+
+#解压mysql压缩包到 /usr/local/mysql 下
+tar -zxvf mysql-8.0.19-linux-glibc2.12-x86_64.tar.xz  /usr/local/mysql
+#也可解压后重命名为mysql，再移动到/usr/local/
+sudo mv mysql /usr/local
+
+#给Ubuntu系统添加一个mysql的用户组
+groupadd mysql
+
+#添加一个mysql用户到mysql用户组中
+useradd -r -g mysql -s /bin/false/mysql
+
+#切换到/usr/local/mysql目录
+cd /usr/local/mysql
+
+#然后给移动后的文件夹添加目录权限到mysql用户组
+sudo mkdir mysql-files
+sudo chown mysql:mysql mysql-files
+sudo chmod 750 mysql-files
+
+#对mysql数据库执行初始化命令
+bin/mysqld --initialize --user=mysql
+
+#开启MySQL服务
+bin/mysqld_safe --user=mysql&
+```
+
+测试是否安装成功
+
+```shell
+mysqladmin --version
+```
+
+ linux上该命令将输出以下结果，该结果基于你的系统信息：
+
+```shell
+mysqladmin  Ver 8.42 Distrib 5.7.29, for Linux on x86_64
+```
+
+ 如果以上命令执行后未输出任何信息，说明你的Mysql未安装成功。 
+
+
+
+### 使用 MySQL Client(Mysql客户端) 执行简单的SQL命令
+
+ 你可以在 MySQL Client(Mysql客户端) 使用 mysql 命令连接到 MySQL 服务器上，默认情况下 MySQL 服务器的登录密码为空，所以本实例不需要输入密码。
+
+命令如下：
+
+```
+[root@host]# mysql
+```
+
+ 以上命令执行后会输出 mysql>提示符，这说明你已经成功连接到Mysql服务器上，你可以在 mysql> 提示符执行SQL命令：
+
+```mysql
+mysql> SHOW DATABASES;
+```
+
+### Mysql安装后需要做的
+
+ Mysql安装成功后，默认的root用户密码为空，你可以使用以下命令来创建root用户的密码：
+
+```mysql
+[root@host]# mysqladmin -u root password "new_password";
+```
+
+ 现在你可以通过以下命令来连接到Mysql服务器：
+
+```mysql
+[root@host]# mysql -u root -p
+Enter password:*******
+
+use mysql;
+update user set host = '%' where user = 'root'; 
+select host, user from user; 
+flush privileges;#授权之后必须刷新权限才生生效
+```
+
+ **注意：**在输入密码时，密码是不会显示了，你正确输入即可。
+
+### MySQL提示ERROR 1698 (28000): Access denied for user 'root'@'localhost'错误解决办法
+
+#### Step1：修改mysqld.cnf配置文件
+
+在ubuntu的terminal（也即终端）上输入
+
+```shell
+sudo vim /etc/mysql/mysql.conf.d/mysqld.cnf
+```
+
+进入到配置文件后在这个配置文件中的 **[mysqld]** 这一块中加入skip-grant-tables这句话。
+
+[![复制代码](pic/copycode.gif)](javascript:void(0);)
+
+```
+ 1 [mysqld]
+ 2 #
+ 3 # * Basic Settings
+ 4 #
+ 5 user            　 = mysql
+ 6 pid-file        　 = /var/run/mysqld/mysqld.pid
+ 7 socket        　　 = /var/run/mysqld/mysqld.sock
+ 8 port            　 = 3306
+ 9 basedir        　　= /usr
+10 datadir       　　 = /var/lib/mysql
+11 tmpdir       　　　= /tmp
+12 lc-messages-dir   = /usr/share/mysql
+13 skip-external-locking
+14 character-set-server=utf8
+15 collation-server=utf8_general_ci
+16 skip-grant-tables　　　　<-- add here
+```
+
+**保存:wq，退出**。
+
+```mysql
+service mysql restart #重新启动mysql
+```
+
+#### step2：设置root密码
+
+在终端上输入mysql -u root -p，遇见输入密码的提示直接回车即可,进入mysql后，分别执行下面三句话：
+
+```mysql
+use mysql;
+update user set authentication_string=password("12345c") where user="root"; 
+flush privileges;
+
+select user, plugin from user;
+
+#如果plugin root的字段是auth_socket，那我们改掉它
+#改为下面的 mysql_native_password，如果和该字段内其它值一样，就直接quit
+update user set authentication_string = password("12345c"),plugin = 'mysql_native_password' where user='root';
+
+flush privileges;
+select user,plugin from user;
+
+quit;#退出mysql 
+```
+
+#### step3：注释掉skip-grant-tables
+
+```shell
+sudo vim /etc/mysql/mysql.conf.d/mysqld.cnf  
+# 然后注释掉skip-grant-tables
+#保存退出
+
+service mysql restart #重新启动mysql
+mysql -u root -p
+#输入刚设置的密码，进入mysql
+```
+
+![img](pic/1425775-20180904131927504-1825749614.png)
+
+### navicat Can't connect to local MySQL server through socket '/var/lib/mysqld/mysqld.sock的解决办法
+
+navicat上报错的路径var/lib/mysqld/mysqld.sock和mysql配置环境的路径不一样，在配置环境中改一下[mysqld]下的sock路径，并给大权限
+
+```
+sudo chmod 777 /var/lib/mysql/
+```
+
+
+
+### ERROR 2002 (HY000): Can’t connect to local MySQL server through socket ‘/var/run/mysqld/mysqld.sock’
+
+对于这类错误，要么找到/tmp/mysql.sock文件 进行修改(但是比较麻烦)。但是我没找到这个文件 于是就用下面的方法了比较暴力但是很实用，直接卸载重装
+
+```shell
+首先查看版本号:
+sudo mysql -V  
+下面是版本号:
+mysql  Ver 14.14 Distrib 5.7.18, for Linux (x86_64) using  EditLine wrapper
+执行:
+apt-get autoremove --purge mysql-server-5.7 // 这一步执行不了,继续下面的;
+
+需要删除很多文件:
+依次执行这三步:
+sudo apt-get autoremove mysql-server
+sudo apt-get remove mysql-common 
+sudo dpkg -l |grep ^rc|awk '{print $2}' |sudo xargs dpkg -P 
+
+重新安装:
+sudo apt-get install mysql-server mysql-client 
+执行mysql :
+mysql -u root -p
+
+#登录不上去，没有设置密码，前面有重置密码的方法
+```
+
+### ERROR 2002 (HY000): Can't connect to local MySQL server through socket '/var/run/mysqld/mysqld.sock' (2)
+
+客户端：终端和navicat的socket地址不一样，没有制定客户端所以两个不能同时登录。可以在配置文件中添加如下配置：
+
+`sudo vim /etc/mysql/mysql.conf.d/mysqld.cnf`
+
+```cfg
+[client]
+default-character-set = utf8
+socket          = /var/lib/mysql/mysql.sock
+```
+
+
+
+
+
+### 服务管理
+
+```mysql
+#服务管理
+#启动
+sudo service mysql start
+#停止
+sudo service mysql stop
+#服务状态
+sudo service mysql status
+```
+
+### 卸载
+
+```mysql
+#首先使用以下命令删除MySQL服务器：
+sudo apt-get remove mysql-server
+#然后，删除随MySQL服务器自动安装的任何其他软件：
+sudo apt-get autoremove
+#卸载其他组件：
+sudo apt-get remove <<package-name>>
+#查看从MySQL APT存储库安装的软件包列表：
+dpkg -l | grep mysql | grep ii
+```
+
+
+
+
+
+
+
 # 10. IDEA 部署 Tomcat
 
 使用Idea的时候，修改了代码，需要反复的重启Tomcat，查看效果，是不是贼烦？还记得刚上手idea的时候，瞎配置部署Tomcat，结果最后修改一个jsp都要重新启动服务器，我这金牛座程序员能忍？~这个时候就必须砸电脑了~这个时候就可以在项目中加入热部署，这样才会大大节省开发效率！
@@ -675,7 +954,7 @@ intellij idea默认文件是自动保存的，但是手头有个项目jsp文件�
 
 ![IDEA连接Tomcat6](software_pic/IDEA连接Tomcat6.png)
 
-注：Artifict在project structure里设置
+注：Artifict在project structure里设置，如果没有 系统会自动提示
 
 ## idea两种热部署设置方法
 
@@ -695,10 +974,11 @@ intellij idea默认文件是自动保存的，但是手头有个项目jsp文件�
 
 # 11. Navicat 安装与激活
 
-
 Navicat 可以说是众多程序猿小伙伴的忠爱了，因为界面简洁且操作简单，让我们爱不释手；最近Navicat Premium 15发布了， 让我们来看看如何安装永久激活版哦（简称白嫖版）
 
-### Navicat Premium 15 安装
+## Windows 环境
+
+### 1. Navicat Premium 15 安装
 
 安装软件包和注册机：
 
@@ -712,9 +992,7 @@ Navicat 可以说是众多程序猿小伙伴的忠爱了，因为界面简洁且
 
 [![img](https://img2018.cnblogs.com/i-beta/1680705/202001/1680705-20200122141329061-521874380.png)](https://img2018.cnblogs.com/i-beta/1680705/202001/1680705-20200122141329061-521874380.png)
 
- 
-
-### 3. Navicat Premium 15 激活
+### 2. Navicat Premium 15 激活
 
 使用注册机先退出所有杀毒软件，再打开注册机，否则会一直报错哦！
 
@@ -781,6 +1059,205 @@ License里选中Enterprise、在Produce里选择Premium、在Languages里选择S
 将激活码复制到Navicat Premium 15中的激活码框框里，点击激活即可完成激活
 
 [![img](pic/1896874-20200123204524902-1348525559.png)](https://img2018.cnblogs.com/i-beta/1896874/202001/1896874-20200123204524902-1348525559.png)
+
+
+
+## Linux 环境
+
+### 1. <a heref="https://www.navicat.com.cn/download/navicat-premium">Navicat下载</a>
+
+### 2. 官方安装
+
+```shell
+####### 官方安装步骤 #########
+# 1 
+$ chmod +x navicat15.AppImage
+# 2
+$ ./navicat15.AppImage
+```
+
+```
+NAVL-UIZA-JZZ6-QVSJ
+```
+
+### 3. 实际安装与破解（失败）
+
+#### 3.1 提取AppImage文件到文件夹里
+
+```shell
+$ su
+mount -o loop navicat15.AppImage navicat15-mysql-cs
+cp -r navicat15-mysql-cs navicat15-mysql-cs-patched
+umount navicat15-mysql-cs
+rm -rf navicat15-mysql-cs
+
+```
+
+如果 `$su` 密码错误，可参见<a href="https://www.cnblogs.com/xuliangxing/p/7427121.html">这里</a>，可以用`$sudo passwd`，先输入当前用户密码，再输入新密码。
+
+#### 3.2 编译安装（如果你觉得git下载太慢 [keystone-master.zip](https://rmc.ink/?go&url=aHR0cDovL29zcy5ybWMuaW5rL3R5cGVjaG8vMjAyMC8wMy8xNi85NDAxMzU4MDU0NTAzNy56aXA=)）
+
+```shell
+# 编译patcher-keygen需要以下几个库支持
+sudo apt-get install libcapstone-dev
+sudo apt-get install cmake
+sudo apt-get install rapidjson-dev
+
+git clone https://github.com/keystone-engine/keystone.git
+cd keystone
+mkdir build
+cd build
+../make-share.sh
+sudo make install
+sudo ldconfig
+```
+
+#### 3.3 生成私钥 (下载navicat-patcher和navicat-keygen  [激活工具.zip](https://rmc.ink/?go&url=aHR0cDovL29zcy5ybWMuaW5rL3R5cGVjaG8vMjAyMC8wMy8xNi85Mzg2OTM5MDc3MDA1MTAuemlw))
+
+```shell
+cd active_tool
+chmod +x navicat-patcher
+./navicat-patcher navicat
+```
+
+#### 3.4 激活
+
+```shell
+navicat-keygen --text ./RegPrivateKey.pem
+```
+
+1）选择类别
+2）选择语语言
+3）主版本号
+4）输入用户名)
+5）输入组织名
+6）在navicat中找到注册 输入序列号
+7）点击 激活
+8）选择 手动激活
+9）复制 请求码 到keygen，连按两次回车结束
+10）最终你会得到一个base64编码的 激活码
+11）将之复制到 手动激活 的窗口，然后点击 激活
+
+# Linux 安装 wine
+
+**sudo apt-get autoremove --purge**
+
+.文件在/home/cxy下
+
+```shell
+apt-get install wine
+
+apt install yum-utils
+
+yum-config-manager --enable wine
+
+winecfg 配置wine
+```
+
+Wine安装成功后Linux系统上会有一个wine命令，wine命令的使用方法是这样的，：
+运行一个exe文件：
+wine exe文件在linux上的路径
+
+### 报错
+
+0052:err:mscoree:CLRRuntimeInfo_GetRuntimeHost Wine Mono is not installed
+
+### Solution： Winetricks
+
+I decided to go old school and fall back to this neat little  		[wrapper script](https://www.dedoimedo.com/computers/winetricks.html), which you can use to install tons of common Windows 		applications, libraries and utilities, and hopefully, not have to deal with any fancy errors. I 		installed the script from the repos, and then installed dotNET 4.5 using it.
+
+```shell
+sudo apt-get install winetricks
+
+winetricks dotnet45
+```
+
+The UI launched, and I started clicking buttons. Progress was made. Errors came up, but the wizard did not crash. The errors are far from helpful, and unless they block the installation, they should not be  shown.
+
+
+
+**Ubuntu 18.04下给Wine设置微软雅黑字体（4步操作）**
+
+2、新新建一个空文本，取名为msyh_font.reg（后缀是reg即可，文件名随便取的），终端命令操作：
+
+sudo gedit msyh_font.reg
+
+再把下面内容复制进去（注意Tahoma Bold那一行我是对应的之前复制过来的msyh粗体，如果你只复制了常规字体，下面应该全部填msyh.ttc）：
+
+```reg
+REGEDIT4
+[HKEY_LOCAL_MACHINE\Software\Microsoft\Windows NT\CurrentVersion\FontLink\SystemLink]
+"Lucida Sans Unicode"="msyh.ttc"
+"Microsoft Sans Serif"="msyh.ttc"
+"MS Sans Serif"="msyh.ttc"
+"Tahoma"="msyh.ttc"
+"Tahoma Bold"="msyhbd.ttc"
+"msyh"="msyh.ttc"
+"Arial"="msyh.ttc"
+"Arial Black"="msyh.ttc"
+```
+
+
+
+保存好之后，终端执行命令才能生效：
+
+regedit msyh_font.reg
+
+3、进入wine目录，编辑system.reg配置文件：
+
+sudo gedit ~/.wine/system.reg
+
+查找关键词FontSubstitutes，把它下面挨着的“MS Shell Dlg”=”SimSun”改为“MS Shell Dlg”=”msyh”。
+
+改完记得保存。
+
+4、终端执行命令打开wine配置管理：
+
+winecfg
+
+选中默认设置，再把系统改成Windows 10或者Win 7，这个随意，只要不是Windows XP什么的就行，因为老系统上没有雅黑这个字体，所以会看不到效果。
+
+最好是重启下系统或者注销一下，搞定。既能解决乱码问题，又美观。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
