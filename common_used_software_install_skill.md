@@ -850,7 +850,7 @@ sudo chmod 777 /var/lib/mysql/
 
 ### ERROR 2002 (HY000): Can’t connect to local MySQL server through socket ‘/var/run/mysqld/mysqld.sock’
 
-对于这类错误，要么找到/tmp/mysql.sock文件 进行修改(但是比较麻烦)。但是我没找到这个文件 于是就用下面的方法了比较暴力但是很实用，直接卸载重装
+对于这类错误，要么找到/tmp/mysql.sock文件 进行修改(但是比较麻烦)。但是我没找到这个文件 于是就用下面的方法了比较暴力但是很实用，直接==卸载重装==
 
 ```shell
 首先查看版本号:
@@ -1077,10 +1077,20 @@ $ ./navicat15.AppImage
 ```
 
 ```
-NAVL-UIZA-JZZ6-QVSJ
+NAVB-LXGS-EES6-RZFI
 ```
 
-### 3. 实际安装与破解（失败）
+### 3. 实际安装与破解
+
+- 在官网下载软件，注意不是for Mysql版的，激活工具不能激活
+
+- 下载wine，运行激活工具激活
+
+  下面等等方式测试失败
+
+  ---
+
+  
 
 #### 3.1 提取AppImage文件到文件夹里
 
@@ -1090,6 +1100,14 @@ mount -o loop navicat15.AppImage navicat15-mysql-cs
 cp -r navicat15-mysql-cs navicat15-mysql-cs-patched
 umount navicat15-mysql-cs
 rm -rf navicat15-mysql-cs
+取AppImage文件到文件夹里
+
+$ su
+# mkdir navicat15-premium-cs
+# mount -o loop navicat.AppImage navicat15-premium-cs
+# cp -r navicat15-premium-cs navicat
+# umount navicat15-premium-cs
+# rm -rf navicat15-premium-cs
 
 ```
 
