@@ -129,7 +129,7 @@
      在文件末尾加上Java信息
 
      ```
-     export JAVA_HOME=/usr/local/jdk1.8.0_144
+     export JAVA_HOME=/usr/local/jdk-8u231-linux-x64/jdk1.8.0_231
      export JRE_HOME=${JAVA_HOME}/jre
      export CLASSPATH=.:${JAVA_HOME}/lib:${JRE_HOME}/lib
      export PATH=${JAVA_HOME}/bin:$PATH
@@ -948,13 +948,15 @@ intellij idea默认文件是自动保存的，但是手头有个项目jsp文件�
 
 ![IDEA连接Tomcat3](pic/IDEA连接Tomcat3.png)
 
+ server 的配置里，找到 ==on frame deactivation 条目，选择 update classes and resources==
+
 ![IDEA连接Tomcat4](pic/IDEA连接Tomcat4.png)
 
 ![IDEA连接Tomcat5](pic/IDEA连接Tomcat5.png)
 
 ![IDEA连接Tomcat6](software_pic/IDEA连接Tomcat6.png)
 
-注：Artifict在project structure里设置，如果没有 系统会自动提示
+注：==Artifact==在project structure里设置，如果没有 系统会自动提示。artifact放的是服务器从项目中copy的web目录的内容，建议保存目录写到服务器安装目录的 webapps 下
 
 ## idea两种热部署设置方法
 
@@ -1156,7 +1158,7 @@ navicat-keygen --text ./RegPrivateKey.pem
 10）最终你会得到一个base64编码的 激活码
 11）将之复制到 手动激活 的窗口，然后点击 激活
 
-# Linux 安装 wine
+# 12 Linux 安装 wine
 
 **sudo apt-get autoremove --purge**
 
@@ -1237,15 +1239,47 @@ winecfg
 
 最好是重启下系统或者注销一下，搞定。既能解决乱码问题，又美观。
 
+# 13 Maven 安装
 
+#### 1. 下载压缩包:
 
+<a href="http://maven.apache.org/download.cgi">官网地址</a> 
 
+#### 2. 解压
 
+提取到想要安装的目录
 
+#### 3. 配置环境变量
 
+```shell
+$ gedit ~/.bashrc
+```
 
+配置 MAVEN_HOME 和 PATH，如果没有配置JAVA_HOME，也加上
 
+```
+JAVA_HOME=/usr/local/jdk-8u231-linux-x64/jdk1.8.0_231
+export MAVEN_HOME=/home/cxy/Programfiles/apache-maven-3.6.3
+export PATH=$MAVEN_HOME/bin:$PATH
+```
 
+#### 4.source 一下profile
+
+```shell
+$source ~/.bashrc
+```
+
+#### 修改配置文件
+
+```
+<localRepository>/home/cxy/Programfiles/apache-maven/repository</localRepository>
+```
+
+#### 5. 验证安装是否成功
+
+```shell
+mvn -v
+```
 
 
 
