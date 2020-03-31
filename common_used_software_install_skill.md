@@ -1334,3 +1334,93 @@ mvn -v
 
 # 14. GitLab安装
 
+<a href="https://mirrors.tuna.tsinghua.edu.cn/gitlab-ce/ubuntu/pool/trusty/main/g/gitlab-ce/">镜像地址</a>
+
+#### 1.安装依赖包
+
+```shell
+sudo apt-get update
+sudo apt-get install -y curl openssh-server ca-certificates
+```
+
+#### 2. 邮件配置
+
+> 选择Internet那一项,不带Smarthost的
+
+```shell
+sudo apt-get install -y postfix
+```
+
+安装期间，可能会出现配置屏幕。选择“Internet Site”，按回车键。使用您的服务器的外部DNS 'mail name' :==gitlab.atguigu.com==和按回车。如果出现其他屏幕，继续按enter以接受默认设置。如果点确定没有反应就按Tab键
+
+![InternetSite](pic/InternetSite.png)
+
+![DNS](pic/DNS-1585648137364.png)
+
+#### 3.  安装方式一：镜像安装
+
+免费版
+ `curl https://packages.gitlab.com/install/repositories/gitlab/gitlab-ce/script.deb.sh | sudo bash`
+ 企业版
+ `curl https://packages.gitlab.com/install/repositories/gitlab/gitlab-ee/script.deb.sh | sudo bash`
+
+```shell
+sudo apt-get update
+sudo apt-get install gitlab-ce
+或者 
+sudo apt-get install gitlab-ee
+```
+
+#### 4. 安装方式二：下载安装
+
+```shell
+dpkg -i /home/cxy/下载/Java/gitlab-ce_11.9.0-ce.0_amd64.deb
+```
+
+#### 5. 配置访问路径
+
+```shell
+sudo vim /etc/gitlab/gitlab.rb
+
+#写入：
+external_url 'http://gitlab.atguigu.com'
+```
+
+#### 6. 更新配置
+
+```shell
+sudo gitlab-ctl reconfigure
+```
+
+#### 7. 重新启动gitlab
+
+```shell
+sudo gitlab-ctl restart
+```
+
+ **结果如下图**
+
+![img](pic/3878590-816e0b7382551780.png)
+
+#### 8. 打开 sshd 和 postfix 服务
+
+```shell
+service sshd start
+service postfix start
+```
+
+#### 9. 查看gitlab服务器状态
+
+```shell
+sudo gitlab-ctl status
+```
+
+#### 10. 结果
+
+**在浏览器中访问http://gitlab.atguigu.com**
+
+#### 参考：
+
+https://www.jianshu.com/p/2eef885b4aed
+
+https://www.jianshu.com/p/907bd880761c
