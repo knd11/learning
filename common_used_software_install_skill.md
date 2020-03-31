@@ -1,5 +1,3 @@
-
-
 [TOC]
 
 # 1. linux mplayer 
@@ -149,14 +147,14 @@
 
 - IntelliJ
 
-  1. 在官网下载<a href="https://www.jetbrains.com/idea/download/#section=linux">linux安装包</a>，community版的是免费的
+  1. 在官网下载<a href="https://www.jetbrains.com/idea/download/#section=linux">linux安装包</a>
 
   2. 解压到安装目录
 
   3. 安装包的bin目录下打开终端，执行：
   
      ```
-   sh ./idea.sh
+      sh ./idea.sh
      ```
   
   4. <a href="https://zhile.io/2018/08/17/jetbrains-license-server-crack.html">破解</a> 
@@ -219,7 +217,6 @@
    $ git push origin master
    ```
 
-
 # 5. Linux <a href="http://archive.cloudera.com/cdh5/cdh/5/hadoop-2.6.0-cdh5.9.3/hadoop-project-dist/hadoop-common/SingleCluster.html">Hadoop安装</a>
 
 **Required Software** 
@@ -230,39 +227,6 @@ Required software for Linux include:
 2. ssh must be installed and sshd must be running to use the Hadoop scripts that manage remote Hadoop daemons.
 
 **安装**
-
-### 5.1 Java安装
-
-- 解压安装包到 ~/app
-
-- 设置 JAVA_HOME
-
-  到根目录下执行：
-
-  ```shell
-  $ vi .bash_profile
-  ```
-
-  设置 JAVA_HOME
-
-  ```
-  export JAVA_HOME=/home/cxy/Hdp/app/jdk1.8.0_231
-  export PATH=$JAVA_HOME/bin:$PATH
-  ```
-
-  保存退出，使设置生效：
-
-  ```shell
-  $ source .bash_profile
-  ```
-
-  测试：
-
-  ```shell
-  $ cd $JAVA_HOME
-  or
-  $ java -version
-  ```
 
 ### 5.2  ssh免密登陆 
 
@@ -308,7 +272,7 @@ $ ssh Cxy  //不用输密码了
 
 - 下载：http://archive.cloudera.com/cdh5/cdh/5/
 
-  ​           hadoop-2.6.0-cdh5.9.3.tar.gz   hive-1.1.0-cdh5.9.3.tar.gz
+             hadoop-2.6.0-cdh5.9.3.tar.gz   hive-1.1.0-cdh5.9.3.tar.gz
 
 - 解压到 ： ~/app
 
@@ -438,103 +402,158 @@ Maven for Java;
 
 Ctrl + shift + p 或者左侧浏览器MAVEN PROJECT 处点 +  --> 选择 maven-archetype-quicksstart  --> 选择目录地址 --> 选择版本1.0 --> 选择包名
 
-# 7. 如何使用VS Code编写Spring Boot
+# 7. 如何使用VS Code编写Spring
 
-Java框架
+#### 1. 安装扩展(Ctrl+Shift+X)
 
-浏览数:214
+- [Java Extension Pack (Java 扩展包)](https://marketplace.visualstudio.com/items?itemName=vscjava.vscode-java-pack)
+- Spring Boot Extension Pack
 
-2019-7-24
+![javaextention](pic/javaextention.png)
 
-​      本篇文章将教你如何使用VS Code编写Spring Boot程序。你不需要用Eclipse，也不需要用IDEA。已经习惯了VS，其他的IDE…… 但不得不说VS Code很厉害，一用就喜欢。微软给VS Code提供了编写Java的插件，你可以在VS Code上愉快地写Java。
+#### 2. 配置Maven：
 
-### 一、环境搭建
+点左下角的设置图标->设置，打开设置内容筛选框，输入maven，然后点击右侧的打开json格式setting：
 
-（1） 安装Java、配置环境变量。（教程很多，这里不多说）
+![949088-20181018142037876-936312706](pic/949088-20181018142037876-936312706.png)
 
-（2） 安装Maven和配置。参考<https://www.cnblogs.com/eagle6688/p/7838224.html>
+然后把:
 
-（3） 安装VS Code
+- maven的可执行文件路径配置
+- maven的setting路径配置
+- java.home的路径配置
 
-（4） 安装Java开发插件，配置VS Code的Java开发环境。（这一步微软替我们简化了，下载Vs Code Java安装程序，直接安装就可以编写Java代码了，下载连接 <http://aka.ms/vscode-java-installer-win> 此安装程序可以重复运行）
+拷贝到右侧的用户设置区域并且设置为自己电脑的实际路径
 
-### 二、构建Maven项目
+![949088-20181018142807301-1282887727](pic/949088-20181018142807301-1282887727.png)
 
-（1）访问 <http://start.spring.io/>
+也可以直接在设置界面中设置，记住两边都要配置好
 
-（2）选择Maven Project、Java、Spring Boot 版本 2.1.6，如图
+#### 3. 创建Maven项目
 
-![img](http://www.jqhtml.com/wp-content/uploads/2019/7/MNBju2.png)
+使用快捷键(Ctrl+Shift+P)命令窗口，输入 Spring 选择创建 Maven 项目。 效果如下：
 
-点击 Generate the Project 下载项目压缩包
+![949088-20181019110527579-986789609](pic/949088-20181019110527579-986789609.png)
 
- 
+选择需要使用的语言、Group Id、项目名称等，这里选择Java：
 
-（3）解压后用VS Code打开此文件夹
+![949088-20181019110754155-40455743](pic/949088-20181019110754155-40455743.png)
 
-![img](http://www.jqhtml.com/wp-content/uploads/2019/7/bAbmm2.png)
+![949088-20181019110856222-1209305730](pic/949088-20181019110856222-1209305730.png)
 
-2.16版本官方推荐的项目结构如下：
+![949088-20181019111002777-1987557021](pic/949088-20181019111002777-1987557021.png)
 
-![img](http://www.jqhtml.com/wp-content/uploads/2019/7/VrE3qm.png)
+选择Spring Boot版本：
 
-目前用得更多的是类似这种结构：
+![949088-20181019111039119-440533955](pic/949088-20181019111039119-440533955.png)
 
-![img](http://www.jqhtml.com/wp-content/uploads/2019/7/fymaeu.png)
+选择需要引入的包，引入如下几个包即可满足web开发：
 
-### 三、编写接口，输入Hello World
+DevTools（代码修改热更新，无需重启）、Web（集成tomcat、SpringMVC）、Lombok（智能生成setter、getter、toString等接口，无需手动生成，代码更简介）、Thymeleaf （模板引擎）。
 
-（1）pom.xml中添加支持web的模块，然后保存
+![949088-20181019111826340-254130709](pic/949088-20181019111826340-254130709.png)
+
+选择好要引入的包后直接回车，在新弹出的窗口中选择项目路径，至此Spring Boot项目创建完成
+
+#### 4. 打开项目
+
+创建好后vscode右下角会有如下提示，点击Open it 即可打开刚才创建的Spring Boot项目
+
+![949088-20181019112116653-410014195](pic/949088-20181019112116653-410014195.png)
+
+####  5. 项目运行跟调试
+
+项目创建后会自动创建DemoApplication.java文件，在DemoApplication 文件目录下新建文件夹 Controller，新建文件HomeController.java。效果如下：
+
+![949088-20181019133810848-1910514658](pic/949088-20181019133810848-1910514658.png)
+
+Ps:SpringBoot项目的Bean装配默认规则是根据DemoApplication类所在的包位置从上往下扫描。所以必须放在同一目录下否则会无法访问报如下所示错误：
+
+![949088-20181018171327250-1855055392](pic/949088-20181018171327250-1855055392.png)启动工程之前还需要配置下运行环境，如下图，点左边的小虫子图标，然后点上面的下拉箭头，选择添加配置，第一次设置时VS Code会提示选择需要运行的语言环境，选择对应环境后自动创建 launch.json 文件。
+
+![image-20200331152054138](pic/image-20200331152054138.png)
+
+launch.json 调试配置文件如下，默认不修改配置也可使用：
+
+![img](pic/949088-20181018170816359-2101824580.png)
+
+选择对应的配置环境调式项目如下，默认端口为8080。
+
+![image-20200331152224047](pic/image-20200331152224047.png)
+
+启动后可在控制台输出面板查看启动信息，显示如下后，访问：http://localhost:8080即可
+
+![image-20200331152247349](pic/image-20200331152247349.png)
+
+最终效果如下：
+
+![img](pic/949088-20181019135017904-1365099465.png)
+
+#### 6. 访问HTML页面
+
+在spring boot 中访问html需要引入Thymeleaf （模板引擎）包，在创建项目时已引用该包这里不需在重复引用。在resources-->templates目录下创建Index.html文件，效果如下：
+
+![img](pic/949088-20181019135536794-1609170362-1585639453139.png)
+
+html内容：
 
 ```
-`<dependency>``    ``<groupId>org.springframework.boot<``/groupId``>``    ``<artifactId>spring-boot-starter-web<``/artifactId``>``<``/dependency``>`
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8"/>
+    <title>第一个HTML页面</title>
+</head>
+<body>
+<h1>Hello Spring Boot!!!</h1>
+<p th:text="${hello}"></p>
+</body>
+</html>
 ```
 
-​       
-
-保存后VS Code自动下载该模块，也可以右键pom.xml，点击Update project configuration手动更新配置      
-
-![img](http://www.jqhtml.com/wp-content/uploads/2019/7/M3A7by.png)
-
-pom.xml 文件中默认有两个模块：
-
-spring-boot-starter ：核心模块，包括自动配置支持、日志和 YAML，如果引入了 spring-boot-starter-web web 模块可以去掉此配置，因为 spring-boot-starter-web 自动依赖了 spring-boot-starter。
-
-spring-boot-starter-test ：测试模块，包括 JUnit、Hamcrest、Mockito。
-
- 
-
-（2）编写Controller 内容
+ 在controller目录下新建TestController.java文件，代码如下：
 
 ```
-`@RestController``public class HelloWorldController {``    ``@RequestMapping(``"/hello"``)``    ``public String index() {``        ``return` `"Hello World"``;``    ``}``}`
+@Controller
+public class TestController {
+
+    /**
+     * 本地访问内容地址 ：http://localhost:8080/hello
+     * @param map
+     * @return
+     */
+    @RequestMapping("/hello")
+    public String helloHtml(HashMap<String, Object> map) {
+        map.put("hello", "欢迎进入HTML页面");
+        return "/index";
+    }
+}
 ```
 
-@开头的是Spring的注解
+Ps:如果要访问html页面注解必须为Controller不能为RestController。否则无法访问。
 
-@RestController 的意思就是 Controller 里面的方法都以 json 格式输出，不用再写什么 jackjson 配置的了。
+**RestController和Controller的区别：**
 
-@RequestMapping 用于映射Web请求，包括访问路径和参数，用于类或方法上。
+@RestController is a stereotype annotation that combines @ResponseBody and @Controller.
+意思是：
+@RestController注解相当于@ResponseBody ＋ @Controller合在一起的作用。
+1)如果只是使用@RestController注解Controller，则Controller中的方法无法返回jsp页面，配置的视图解析器InternalResourceViewResolver不起作用，返回的内容就是Return 里的内容。
 
- 
+例如：本来应该到success.html页面的，则其显示success.
 
-（3）点调试，然后添加配置，自动生成启动Java配置文件
+2)如果需要返回到指定页面，则需要用 @Controller配合视图解析器InternalResourceViewResolver才行。
 
-![img](http://www.jqhtml.com/wp-content/uploads/2019/7/EJRV7b.png)
+3)如果需要返回json或者xml或者自定义mediaType内容到页面，则需要在对应的方法上加上@ResponseBody注解
 
-运行调试
+效果展示如下：
 
-![img](http://www.jqhtml.com/wp-content/uploads/2019/7/2iYNvq.png)
+![img](pic/949088-20181019140657585-1350811104.png)
 
-浏览器访问：<http://localhost:8080/hello>    成功输出Hello World
+到处基础配置结束，可以愉快的玩耍Spring Boot!
 
-一切看上去都很简单，现在可以愉快地使用VS Code编写Spring Boot代码了
 
-Demo GitHub地址：<https://github.com/ityouknow/spring-boot-examples/tree/master/spring-boot-helloWorld>
 
-参考文章：<http://www.ityouknow.com/springboot/2016/01/06/spring-boot-quick-start.html>
 
-推荐Spring Boot入门学习项目：<https://github.com/ityouknow/spring-boot-examples>
 
 # 8. Tomcat安装
 
@@ -621,7 +640,7 @@ localhost:8080
    > 运行`mysqld --initialize-insecure`自动生成无密码的root用户。
    > 运行`mysqld --initialize`自动生成带随机密码的root用户
    >
-   >
+   > 
    >
    > 以==管理员的方式打开cmd==， 切换到安装目录下的bin目录下，执行：
    >
@@ -666,7 +685,7 @@ localhost:8080
    >
    > **还记得刚刚让你复制的root @ localhost：后面的初始密码了吗？现在要用到它了复制粘贴上去！**
    >
-   >
+   > 
 
 6. 修改密码
 
@@ -954,7 +973,7 @@ intellij idea默认文件是自动保存的，但是手头有个项目jsp文件�
 
 ![IDEA连接Tomcat5](pic/IDEA连接Tomcat5.png)
 
-![IDEA连接Tomcat6](software_pic/IDEA连接Tomcat6.png)
+![IDEA连接Tomcat6](pic/IDEA%E8%BF%9E%E6%8E%A5Tomcat6-1585637517135.png)
 
 注：==Artifact==在project structure里设置，如果没有 系统会自动提示。artifact放的是服务器从项目中copy的web目录的内容，建议保存目录写到服务器安装目录的 webapps 下
 
@@ -992,17 +1011,17 @@ Navicat 可以说是众多程序猿小伙伴的忠爱了，因为界面简洁且
 
 进入安装页面直接疯狂点下一步直到安装成功即可，当然你可以自己选择安装目录
 
-[![img](https://img2018.cnblogs.com/i-beta/1680705/202001/1680705-20200122141329061-521874380.png)](https://img2018.cnblogs.com/i-beta/1680705/202001/1680705-20200122141329061-521874380.png)
+[![img](pic/1680705-20200122141329061-521874380-1585637518798.png)](https://img2018.cnblogs.com/i-beta/1680705/202001/1680705-20200122141329061-521874380.png)
 
 ### 2. Navicat Premium 15 激活
 
 使用注册机先退出所有杀毒软件，再打开注册机，否则会一直报错哦！
 
-[![img](https://img2018.cnblogs.com/i-beta/1896874/202001/1896874-20200123203653934-1905719632.png)](https://img2018.cnblogs.com/i-beta/1896874/202001/1896874-20200123203653934-1905719632.png)
+[![img](pic/1896874-20200123203653934-1905719632-1585637521727.png)](https://img2018.cnblogs.com/i-beta/1896874/202001/1896874-20200123203653934-1905719632.png)
 
 ##### **1.Patch**
 
-**![img](https://img2018.cnblogs.com/i-beta/1896874/202001/1896874-20200123203718599-1855354632.png)**
+**![img](pic/1896874-20200123203718599-1855354632-1585637517686.png)**
 
  
 
@@ -1054,7 +1073,7 @@ License里选中Enterprise、在Produce里选择Premium、在Languages里选择S
 
 复制请求码到注册机中的Request Code里面，之后点击Activation Code下面的Generate按钮就会生成一个激活码
 
-[![img](https://img2018.cnblogs.com/i-beta/1896874/202001/1896874-20200123204510101-401514966.png)](https://img2018.cnblogs.com/i-beta/1896874/202001/1896874-20200123204510101-401514966.png)
+[![img](pic/1896874-20200123204510101-401514966-1585637517452.png)](https://img2018.cnblogs.com/i-beta/1896874/202001/1896874-20200123204510101-401514966.png)
 
  
 
@@ -1271,8 +1290,38 @@ $source ~/.bashrc
 
 #### 修改配置文件
 
-```
+```xml
 <localRepository>/home/cxy/Programfiles/apache-maven/repository</localRepository>
+
+
+ <!-- 阿里云仓库 -->
+        <mirror>
+            <id>alimaven</id>
+            <mirrorOf>central</mirrorOf>
+            <name>aliyun maven</name>
+            <url>http://maven.aliyun.com/nexus/content/repositories/central/</url>
+        </mirror>
+        <mirror>
+            <id>nexus-aliyun</id>
+            <mirrorOf>*</mirrorOf>
+            <name>Nexus aliyun</name>
+            <url>http://maven.aliyun.com/nexus/content/groups/public</url>
+        </mirror>
+        <!-- 中央仓库1 -->
+        <mirror>
+            <id>repo1</id>
+            <mirrorOf>central</mirrorOf>
+            <name>Human Readable Name for this Mirror.</name>
+            <url>http://repo1.maven.org/maven2/</url>
+        </mirror>
+    
+        <!-- 中央仓库2 -->
+        <mirror>
+            <id>repo2</id>
+            <mirrorOf>central</mirrorOf>
+            <name>Human Readable Name for this Mirror.</name>
+            <url>http://repo2.maven.org/maven2/</url>
+        </mirror>
 ```
 
 #### 5. 验证安装是否成功
@@ -1283,35 +1332,5 @@ mvn -v
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+# 14. GitLab安装
 
