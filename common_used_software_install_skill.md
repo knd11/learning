@@ -157,7 +157,9 @@
       sh ./idea.sh
      ```
   
-  4. <a href="https://zhile.io/2018/08/17/jetbrains-license-server-crack.html">破解</a> 
+  4. <a href="https://zhile.io/2018/08/17/jetbrains-license-server-crack.html">激活</a>
+  
+     <a href="https://www.jetbrains.com/shop/eform/students">学生免费激活使用 </a>
   
   5. 设置部分自己视情况而定
 
@@ -681,7 +683,7 @@ localhost:8080
    >
    > MySQL的服务已经开启了就直接打开的Navicat去连接
    >
-   > ![新建的MySQL的连接](pic/%E6%96%B0%E5%BB%BA%E7%9A%84MySQL%E7%9A%84%E8%BF%9E%E6%8E%A5.png)
+   > ![image-20200402150347474](pic/image-20200402150347474.png)
    >
    > **还记得刚刚让你复制的root @ localhost：后面的初始密码了吗？现在要用到它了复制粘贴上去！**
    >
@@ -1424,3 +1426,87 @@ sudo gitlab-ctl status
 https://www.jianshu.com/p/2eef885b4aed
 
 https://www.jianshu.com/p/907bd880761c
+
+
+
+# 15. Redis安装
+
+#### 安装
+
+```shell
+$sudo apt-get update
+$sudo apt-get install redis-server
+```
+
+#### 启动 Redis
+
+```shell
+$ redis-server
+```
+
+#### 查看 redis 是否启动？
+
+```shell
+$ redis-cli
+```
+
+以上命令将打开以下终端：
+
+```shell
+redis 127.0.0.1:6379>
+```
+
+127.0.0.1 是本机 IP ，6379 是 redis 服务端口。现在我们输入 PING 命令。
+
+```shell
+redis 127.0.0.1:6379> ping
+PONG
+```
+
+# 16. Xmind安装
+
+#### 1.下载安装包
+
+#### 2. 安装相关依赖
+
+```shell
+#将安装包解压到安装路径,找到setup.sh,执行:
+apt-get update
+sudo /opt/Xmind/setup.sh
+```
+
+#### 3. 修改配置文件
+
+```shell
+vim /opt/Xmind/XMind_amd64/XMind.ini
+```
+
+>  将相对路径改为绝对路径 :
+
+```ini
+-configuration
+/opt/Xmind/XMind_amd64/configuration
+-data
+/opt/Xmind/workspace
+-startup
+/opt/Xmind/plugins/org.eclipse.equinox.launcher_1.3.200.v20160318-1642.jar
+--launcher.library
+/opt/Xmind/plugins/org.eclipse.equinox.launcher.gtk.linux.x86_64_1.1.400.v20160518-1444
+--launcher.defaultAction
+openFile
+--launcher.GTK_version
+2
+-eclipse.keyring
+@user.home/.xmind/secure_storage_linux
+-vmargs
+-Dfile.encoding=UTF-8
+```
+
+#### 4. 配置环境变量
+
+```
+export PATH=$PATH:/opt/Xmind/XMind_amd64/
+```
+
+
+
