@@ -162,6 +162,62 @@
      <a href="https://www.jetbrains.com/shop/eform/students">学生免费激活使用 </a>
   
   5. 设置部分自己视情况而定
+  
+     
+  
+
+**IntelliJ 配置**
+
+- 鼠标滚轮放大字体
+
+  Editor --> Genneral --> Mouse -->change fontsize(Zoom)....
+
+- 鼠标悬浮提示
+
+  Editor --> Genneral -->Show quick documentation on mouse move
+
+- 自动导包
+
+  Insert imports on paste:All
+
+  Editor --> Genneral -->auto Import -->选择：
+
+  Add unambiguous imports on the fly
+  Optimize imports on the fly(for current project)
+
+- 显示分隔符
+
+  Editor --> Genneral -->Apperence-->Show method separators
+
+- 设置取消单行显示tabs的操作
+
+  Editor --> Genneral -->Editor Tabs -->取消勾选Show tabs in one row
+
+- 注解
+
+  Editor  -->File and Code Templates --> Include -->File Header -->输入：
+
+  ```java
+  /**
+      @author cxy
+      @create ${YEAR}-${MONTH}-${DAY}-${TIME}
+  */
+  ```
+
+- 更改编码方式
+
+  Editor --> Genneral -->Code Style -->File Encoding-->全部改为UTF-8
+
+  勾选Transparent native-to-ascii conversion
+
+- 自动编译
+
+  Build,Execution,Deployment --> Compiler -->勾选
+
+  Compile independent modules in parallel 
+  Rebuild module on dependency change
+
+
 
 # 4. 用git上传文件到Github
 
@@ -219,7 +275,11 @@
    $ git push origin master
    ```
 
-# 5. Linux <a href="http://archive.cloudera.com/cdh5/cdh/5/hadoop-2.6.0-cdh5.9.3/hadoop-project-dist/hadoop-common/SingleCluster.html">Hadoop安装</a>
+# 5. Linux Hadoop安装
+
+## [5.1 Java安装](#3. linux Java + IntelliJ)
+
+Hadoop官方网站：http://hadoop.apache.org/
 
 **Required Software** 
 
@@ -230,13 +290,17 @@ Required software for Linux include:
 
 **安装**
 
-### 5.2  ssh免密登陆 
+## 5.2 ssh免密登陆
+
+<a href="http://www.ruanyifeng.com/blog/2011/12/ssh_remote_login.html">什么是SSH</a>
+
+<a href="https://baijiahao.baidu.com/s?id=1662669440853469635&wfr=spider&for=pc">什么是SSH</a>
 
 If your cluster doesn't have the requisite software you will need to install it.
 
 For example on Ubuntu Linux:
 
-```
+```shell
   $ sudo apt-get install ssh
   $ sudo apt-get install rsync
 ```
@@ -245,7 +309,7 @@ For example on Ubuntu Linux:
 
 免密配置：
 
-zhu: 如果已经生成过ssh-key则不用生成了否则将把原来的覆盖，使有些操作失效。如git不能推送到远程仓库
+ ==如果已经生成过ssh-key则不用生成了否则将把原来的覆盖==，使有些操作失效。如git不能推送到远程仓库
 
 ```shell
 $ ssh-keygen -t rsa
@@ -259,136 +323,328 @@ $ cd .ssh
 $ ls
 id_rsa  id_rsa.pub  known_hosts
 $ ll
--rw-------  1 cxy cxy 1679 11月 29 19:16 id_rsa  私钥
--rw-r--r--  1 cxy cxy  389 11月 29 19:16 id_rsa.pub 公钥
+-rw-------  1 cxy cxy 1679 11月 29 19:16 id_rsa  #私钥
+-rw-r--r--  1 cxy cxy  389 11月 29 19:16 id_rsa.pub #公钥
 -rw-r--r--  1 cxy cxy 2354 11月 29 19:15 known_hosts
 
-$ cat id_rsa.pub >> authorized_keys //复制id_rsa.pub 到 authorized_keys
-$ chmod 600 authorized_keys //设置权限
+$ cat id_rsa.pub >> authorized_keys #复制id_rsa.pub 到 authorized_keys
+$ chmod 600 authorized_keys #设置权限
 
 /**测试**/
-$ ssh Cxy  //不用输密码了
+$ ssh Cxy  #不用输密码了
 ```
 
-### 5.3 Hadoop安装
+## 5.3 Hadoop安装
 
-- 下载：http://archive.cloudera.com/cdh5/cdh/5/
+<a href="https://hadoop.apache.org/docs/stable/hadoop-project-dist/hadoop-common/SingleCluster.html">参考官网</a>
 
-             hadoop-2.6.0-cdh5.9.3.tar.gz   hive-1.1.0-cdh5.9.3.tar.gz
+###<a href="http://archive.cloudera.com/cdh5/cdh/5/">1. 下载</a>(速度很慢)
 
-- 解压到 ： ~/app
+```
+hadoop-2.6.0-cdh5.9.3.tar.gz
+hive-1.1.0-cdh5.9.3.tar.gz
+```
 
-- **配置：**
+### 2. 解压到 ： ~/opt
 
-  1)  **etc/hadoop-env.sh**
+###  3. 配置环境变量
 
-  ```
-    # set to the root of your Java installation
-    export JAVA_HOME=/usr/java/latest
-  
-    # Assuming your installation directory is /usr/local/hadoop
-    export HADOOP_PREFIX=/usr/local/hadoop
-  ```
-
-  修改Hadoop配置文件, 添加HADOOP_HOME/bin到系统环境变量
+到根目录下将Hadoop配置到环境变量
 
   ```shell
-  $ vi ~/app/hadoop-2.6.0-cdh5.9.3/etc/hadoop/hadoop-env.sh
-  $ echo $JAVA_HOME //查看$JAVA_HOME（Linux系统自带Java）
-  ```
-
-  为了防止自动获取JAVA_HOME失败，手动添加。将原来的`export JAVA_HOME=${JAVA_HOME}`语句注释掉，改为(后面的地址写自己的JAVA_HOME地址)：
-
-  ```shell
-  export JAVA_HOME=/home/cxy/Hdp/app/jdk1.8.0_231
-  ```
-
-  2)  **etc/hadoop/core-site.xml**
-
-  将下面<configuration></configuration>里的内容存到配置文件的<configuration></configuration>里
-
-  ```
-  <configuration>
-      <property>
-          <name>fs.defaultFS</name>
-          <value>hdfs://localhost:8020</value>
-      </property>
-  </configuration>
-  ```
-
-  3) **etc/hadoop/hdfs-site.xml**
-
-  ```
-  <configuration>
-      <property>
-          <name>dfs.replication</name>
-          <value>1</value>
-      </property>
-      
-      <property>
-          <name>hadoop.tmp.dir</name>
-          <value>/home/cxy/Hdp/app/tmp</value>
-      </property>
-      
-  </configuration>
-  ```
-
-  注：第二个属性中/home/cxy/Hdp/app/tmp路径用来存放临时文件，因为hadoop.tmp.dir的默认路径...tmp重启会被清空
-
-  4)  **etc/hadoop/slaves**
-
-  ```shell
-  $ vi slaves
-  ```
-
-  将localhost改为你的主机名
-
-  5) 到根目录下将Hadoop配置到环境变量
-
-  ```shell
-  $ vi ~/.bash_profile
+#$ vi ~/.bash_profile #配置这个重启后就失效了
+#$ gedit ~/.bashrc #出问题
+$ sudo vi /etc/profile
   ```
 
   输入：
 
-  ```
-  export HADOOP_HOME=/home/cxy/Hdp/app/hadoop-2.6.0-cdh5.9.3
-  export PATH=$HADOOP_HOME/bin:$PATH
+  ```shell
+export JAVA_HOME=/usr/local/jdk-8u231-linux-x64/jdk1.8.0_231
+export PATH=$PATH:$JAVA_HOME/bin
+
+export HADOOP_HOME=/opt/hadoop-2.6.0-cdh5.9.3
+export PATH=$PATH:$HADOOP_HOME/bin:$HADOOP_HOME/sbin
   ```
 
   `:x`或`:wq`保存退出
 
   ```shell
-   $ source ~/.bash_profile
+# $ source ~/.bash_profile #配置这个重启后就失效了
+# $ source ~/.bashrc #出问题
+$ source /etc/profile
   ```
 
-  以上配置完成后，第一次启动Hadoop必须要格式化，格式化不要重复执行
+  以上配置完成后，查看是否安装成功:
+
+```shell
+$ hadoop version
+```
+
+### 4. 单机模式/本地模式(Standalone Operation)
+
+1. 官方Grep案例
+
+```shell
+$ mkdir input
+$ cp etc/hadoop/*.xml input
+$ bin/hadoop jar share/hadoop/mapreduce/hadoop-mapreduce-examples-2.6.0-cdh5.9.3.jar grep input output 'dfs[a-z.]+'
+$ cat output/*
+```
+
+2. 官方WordCount案例
+
+```shell
+$ mkdir wcinput
+$ vim wcinput/wc.input
+#输入:
+hadoop yarn
+hadoop mapreduce
+atguigu
+atguigu
+
+$ hadoop jar share/hadoop/mapreduce/hadoop-mapreduce-examples-2.6.0-cdh5.9.3.jar wordcount wcinput wcoutput
+#查看结果
+$ cat wcoutput/part-r-00000
+atguigu	2
+hadoop	2
+mapreduce	1
+yarn	1
+```
+
+### 5.伪分布模式(Pseudo-Distributed Operation)
+
+#### 1. 启动HDFS并运行MapReduce程序
+
+##### 分析
+
+​	（1）配置集群
+
+​	（2）启动、测试集群增、删、查
+
+​	（3）执行WordCount案例
+
+##### 执行步骤
+
+- **配置集群**
+
+  1. /opt/hadoop-2.6.0-cdh5.9.3/etc/hadoop/==hadoop-env.sh==
+
+     修改Hadoop配置文件, 添加HADOOP_HOME/bin到系统环境变量 
+
+     ```shell
+     $ vi /opt/hadoop-2.6.0-cdh5.9.3/etc/hadoop/hadoop-env.sh
+     #输入:
+     
+     #$ echo $JAVA_HOME #自动获取JAVA_HOME可能失败
+     export JAVA_HOME=/usr/local/jdk-8u231-linux-x64/jdk1.8.0_231
+       	
+     # Assuming your installation directory is /opt/hadoop-2.6.0-cdh5.9.3
+     export HADOOP_PREFIX=/opt/hadoop-2.6.0-cdh5.9.3
+     ```
+
+  2. /opt/hadoop-2.6.0-cdh5.9.3/etc/hadoop/==core-site.xml==
+
+     将下面<configuration></configuration>里的内容存到配置文件的<configuration></configuration>里
+
+       ```xml
+     <configuration>
+       
+           <property>
+             <!-- 指定HDFS副本的数量 -->
+             <name>fs.defaultFS</name>
+               <value>hdfs://localhost:9000</value>
+           </property>
+       
+       </configuration>
+       ```
+
+  3. /opt/hadoop-2.6.0-cdh5.9.3/etc/hadoop/==hdfs-site.xml==
+
+       ```xml
+     <configuration>
+         
+           <property>
+             					<!-- 指定HDFS中NameNode的地址 -->
+                       <name>dfs.replication</name>
+                       <value>1</value>
+               </property>
+       
+               <property>
+                 			<!-- 指定Hadoop运行时产生文件的存储目录 -->
+                       <name>hadoop.tmp.dir</name>
+                       <value>/opt/hadoop-2.6.0-cdh5.9.3/temp</value>
+               </property>  
+         
+       </configuration>
+     ```
+
+      注：第二个属性中/home/cxy/Hdp/app/tmp路径用来存放临时文件，因为hadoop.tmp.dir的默认路径...tmp重启会被清空
+
+  4. /opt/hadoop-2.6.0-cdh5.9.3/etc/hadoop/==slaves==
+
+       ```shell
+     $ vi etc/hadoop/slaves
+     ```
+
+       将localhost改为主机名. 此步骤可省
+
+     
+
+- **启动集群**
+
+  1. 第一次启动Hadoop必须要格式化，格式化不要重复执行, 如果格式化没报错则配置完成
+
+     ```shell
+     $ bin/hdfs namenode -format #格式化
+     #看到最后某行显示如下,即格式化成功
+     INFO common.Storage: Storage directory /opt/hadoop-2.6.0-cdh5.9.3/temp/dfs/name has been successfully formatted
+     ```
+
+  2. 启动NameNode
+
+     ```shell
+     $ sbin/hadoop-daemon.sh start namenode
+     ```
+
+  3. 启动DataNode
+
+       ```shell
+     $ sbin/hadoop-daemon.sh start datanode
+     ```
+
+
+- **查看集群**
+
+  1. 查看是否启动成功 :
 
   ```shell
-  $ cd $HADOOP_HOME/bin
-  $ hdfs namenode -format //格式化
+  $ jps
+  14913 Jps
+  14650 NameNode
+  15260 DataNode
   ```
 
-  如果格式化没报错则配置完成
+  ​	注意：jps是JDK中的命令，不是Linux命令。不安装JDK不能使用jps
 
-### 5.4 启动集群
+  
 
-执行$HADOOP_HOME/sbin/start-dfs.sh
+  2. web端查看HDFS文件系统
+
+     http://localhost:50070/dfshealth.html#tab-overview
+
+     看到如下图则配置成功:
+
+     ![image-20200409212540503](pic/image-20200409212540503.png)
+
+     ![image-20200409212501730](pic/image-20200409212501730.png)
+
+     注意：如果不能查看，参考4,思考. 或看如下帖子处理
+
+     http://www.cnblogs.com/zlslch/p/6604189.html
+
+  3. 查看产生的Log日志
+
+     说明：在企业中遇到Bug时，经常根据日志提示信息去分析问题、解决Bug。
+
+     当前目录：/opt/hadoop-2.6.0-cdh5.9.3/logs
+
+  4. **思考：为什么不能一直格式化NameNode，格式化NameNode，要注意什么？**
+
+     注意：格式化NameNode，会产生新的集群id,导致NameNode和DataNode的集群id不一致，集群找不到已往数据。所以，格式NameNode时，一定要先删除之前设置的临时文件缓存目录: temp/dfs/data数据和log日志，然后再格式化NameNode
+
+     ```shell
+      $ cd /opt/hadoop-2.6.0-cdh5.9.3/temp/dfs/name/current
+     $ cat VERSION
+     	clusterID=CID-f0330a58-36fa-4a2a-a65f-2688269b5837
+     
+     $ cd /opt/hadoop-2.6.0-cdh5.9.3/temp/dfs/data/current
+     ```
+
+- **操作集群**
+
+  1. 在HDFS文件系统上**创建**一个input文件夹
+
+     ```shell
+     $ bin/hdfs dfs -mkdir -p /user/atguigu/input
+     ```
+
+  2. 将测试文件内容**上传**到文件系统上
+
+     ```shell
+     $bin/hdfs dfs -put wcinput/wc.input  /user/atguigu/input/
+     ```
+
+  3. **查看**上传的文件是否正确
+
+     ```shell
+     $ bin/hdfs dfs -ls  /user/atguigu/input/
+     $ bin/hdfs dfs -cat  /user/atguigu/ input/wc.input
+     ```
+
+  4. **运行**MapReduce程序
+
+  ```shell
+  $ bin/hadoop jar share/hadoop/mapreduce/hadoop-mapreduce-examples-2.7.2.jar wordcount /user/atguigu/input/ /user/atguigu/output
+  ```
+
+  5. 查看**输出**结果
+
+  ```shell
+  $ bin/hdfs dfs -cat /user/atguigu/output/*
+  ```
+
+  ![image-20200409204820871](pic/image-20200409204820871.png)
+
+  6. 将测试文件内容**下载**到本地
+
+  ```shell
+  $ hdfs dfs -get /user/atguigu/output/part-r-00000 ./wcoutput/
+  ```
+
+  7. **删除**输出结果
+
+  ```shell
+  $ hdfs dfs -rm -r /user/atguigu/output
+  ```
+
+### [Unable to load native-hadoop library for your platform... using builtin-java classes where applicable](https://www.cnblogs.com/zhi-leaf/p/11424620.html)
+
+最近在做hbase脚本执行时发现以下警告，但不影响操作，问题截图：
+
+![img](pic/1031555-20190828155227026-2010074800.png)
+
+出于好奇，对该警告进行了一番探究。
+
+Hadoop是使用Java语言开发的，但是有一些需求和操作并不适合使用java，所以就引入了本地库（Native Libraries）的概念，通过本地库，Hadoop可以更加高效地执行某一些操作。（摘自网络）
+
+既然有影响，那我们就把问题解决掉。
+
+ 
+
+**下载native-hadoop**
+
+![img](pic/1031555-20190828155956255-1612522769.png)
+
+从[官网](http://hadoop.apache.org/docs/current/hadoop-project-dist/hadoop-common/NativeLibraries.html)得知，native-hadoop包含在每个发行版本的$HADOOP_HOME/lib/native目录下，因此我直接从官网上下载hadoop-2.9.2.tar.gz。
+
+ 
+
+**配置native-hadoop**
+
+解压hadoop-2.9.2.tar.gz，将里面的/lib/native所有内容拷贝到/usr/local/lib/hadoop-native目录中。
+
+![img](pic/1031555-20190828162709739-1077142050.png)
+
+修改/etc/profile文件，在结尾添加以下配置：
 
 ```shell
-$ ./start-dfs.sh
+export JAVA_LIBRARY_PATH=/opt/hadoop-2.6.0-cdh5.9.3/lib/native
 ```
 
-提示输入yes
+source /etc/profile，发现上面的警告没有了
 
-```shell
-$ jps
-21364 DataNode
-28201 Jps
-21023 NameNode
-```
-
-DataNode，NameNode创建成功，启动成功
+![img](pic/1031555-20190828163159895-2076248147.png)
 
 # 6. VS Code + Java开发
 
@@ -404,7 +660,7 @@ Maven for Java;
 
 Ctrl + shift + p 或者左侧浏览器MAVEN PROJECT 处点 +  --> 选择 maven-archetype-quicksstart  --> 选择目录地址 --> 选择版本1.0 --> 选择包名
 
-# 7. 如何使用VS Code编写Spring
+# 7. 如何使用VS Code创建SpringBoot项目
 
 #### 1. 安装扩展(Ctrl+Shift+X)
 
@@ -583,12 +839,11 @@ Ps:如果要访问html页面注解必须为Controller不能为RestController。�
    127.0.0.1:8080
    ```
 
-### Linux 环境
+## Linux 环境
 
 ```shell
 #将压缩包移动到新建文件夹，解压，删除压缩包
-sudo mkdir /usr/local/Tomcat
-sudo cp apache-tomcat-9.0.33.tar.gz /usr/local
+sudo cp apache-tomcat-9.0.33.tar.gz /home/cxy/Programfiles
 sudo tar -zxvf apache-tomcat-9.0.33.tar.gz
 sudo rm apache-tomcat-9.0.33.tar.gz
 
@@ -1463,6 +1718,8 @@ redis 127.0.0.1:6379> ping
 PONG
 ```
 
+whereis redis 查看redis的安装位置
+
 # 16. Xmind安装
 
 #### 1.下载安装包
@@ -1470,28 +1727,34 @@ PONG
 #### 2. 安装相关依赖
 
 ```shell
-#将安装包解压到安装路径,找到setup.sh,执行:
+#将安装包解压复制到安装路径
+sudo cp -r xmind-8-update9-linux /opt/
+
+#找到setup.sh,执行:
+
 apt-get update
-sudo /opt/Xmind/setup.sh
+sudo /opt/xmind-8-update9-linux/setup.sh
 ```
+
+注: 后面步骤可以视情况而定,如果直接能打开了就不用后面的步骤
 
 #### 3. 修改配置文件
 
 ```shell
-vim /opt/Xmind/XMind_amd64/XMind.ini
+sudo vim /opt/xmind-8-update9-linux/XMind_amd64/XMind.ini
 ```
 
 >  将相对路径改为绝对路径 :
 
 ```ini
 -configuration
-/opt/Xmind/XMind_amd64/configuration
+/opt/xmind-8-update9-linux/XMind_amd64/configuration
 -data
-/opt/Xmind/workspace
+/opt/xmind-8-update9-linux/workspace
 -startup
-/opt/Xmind/plugins/org.eclipse.equinox.launcher_1.3.200.v20160318-1642.jar
+/opt/xmind-8-update9-linux/plugins/org.eclipse.equinox.launcher_1.3.200.v20160318-1642.jar
 --launcher.library
-/opt/Xmind/plugins/org.eclipse.equinox.launcher.gtk.linux.x86_64_1.1.400.v20160518-1444
+/opt/xmind-8-update9-linux/plugins/org.eclipse.equinox.launcher.gtk.linux.x86_64_1.1.400.v20160518-1444
 --launcher.defaultAction
 openFile
 --launcher.GTK_version
@@ -1505,8 +1768,234 @@ openFile
 #### 4. 配置环境变量
 
 ```
-export PATH=$PATH:/opt/Xmind/XMind_amd64/
+export PATH=$PATH:/opt/xmind-8-update9-linux/XMind_amd64/
 ```
+
+#### 5. 创建桌面图标
+
+打开目录 /usr/share/applications
+创建appname.desktop文件（需要管理员权限，名称任意，不影响在开始菜单中的名称）
+添加下面代码
+
+```desktop
+[Desktop Entry]
+Exec=/opt/xmind-8-update9-linux/XMind_amd64/XMind
+Icon=/opt/xmind-8-update9-linux/XMind_amd64/xmind.png
+Type=Application
+Terminal=false
+Name=Xmind
+GenericName=Development
+Categories=Development;IDE;
+InitialPreference=9
+```
+------------------------------------------------
+
+# 17. 安装gif制作工具
+
+### 安装
+
+```shell
+apt install ffmpeg imagemagick
+```
+
+### 应用
+
+####把图片放缩为640x480
+
+```shell
+$ mogrify -resize 640x480 \*.jpg
+```
+
+
+
+####图片生成动态 GIF
+
+如果你有静态的 jpg 图片序列，在 Linux 中也可轻松生成动态 GIF，而不必动用到 Windows 中像 Photoshop 这样的神器。先将所有 JPG 放到同一文件夹，再在终端中执行如下命令即可：
+
+```shell
+convert -delay 120 -loop 0 *.jpg linux.gif
+```
+
+> - -delay 120 表示 GIF 动画速度
+> - -loop 0 表示无限循环
+
+
+
+#### 视频生成GIF
+
+要将视频转换为 GIF 只使用到 ffmpeg 命令，格式如下：
+
+```
+ffmpeg -ss 00:00:20 -i input.mp4 -to 10 -r 10 -vf scale=200:-1 output.gif
+```
+
+> - -ss 表示起始点
+> - -i 后面跟要操作的那个视频文件
+> - -to 表示文件的终止点
+> - -r 帧速率，可以增大这个值输出更画质更优的 GIF 文件
+> - -vf 图形筛选器，GIF 的缩放大小
+
+
+
+
+
+# 18. 虚拟环境配置
+
+#### 1. 安装虚拟机
+
+```shell
+sudo apt-get install virtualbox
+```
+
+
+
+virtualbox就可以打开
+
+https://www.cnblogs.com/luengmingbiao/p/10859905.html
+
+# 18. 集群环境搭建
+
+### 1. 删除所有dump.rdb文件
+
+```shell
+sudo rm -rf /var/lib/redis/dump*
+```
+
+### 2. 安装ruby
+
+```shell
+sudo apt-get install ruby-full # Debian 或 Ubuntu 系统
+```
+
+### 3. 安装Hadoop
+
+​	[Hadoop安装](#5. Linux Hadoop安装)
+
+### 4. 启动YARN并运行MapReduce程序
+
+#### 分析
+
+​	（1）配置集群在YARN上运行MR
+
+​	（2）启动、测试集群增、删、查
+
+​	（3）在YARN上执行WordCount案例
+
+#### 执行步骤
+
+##### 1. 配置集群
+
+1. 配置 ==yarn-env.sh==
+
+   ```shell
+   export JAVA_HOME=/usr/local/jdk-8u231-linux-x64/jdk1.8.0_231
+   ```
+
+2. 配置==yarn-site.xml==
+
+   将下面<configuration></configuration>里的内容存到配置文件的<configuration></configuration>里
+
+     ```xml
+   <configuration>
+   
+           <!-- Reducer获取数据的方式 -->
+           <property>
+                   <name>yarn.nodemanager.aux-services</name>
+                   <value>mapreduce_shuffle</value>
+           </property>
+   
+           <!-- 指定YARN的ResourceManager的地址 -->
+           <property>
+                   <name>yarn.resourcemanager.hostname</name>
+                   <value>localhost</value>
+           </property>
+     
+     </configuration>
+     ```
+
+3. 配置：==mapred-env.sh==
+
+   ```sh
+   export JAVA_HOME=/usr/local/jdk-8u231-linux-x64/jdk1.8.0_231
+   ```
+   
+4. 配置： (对mapred-site.xml.template重新命名为) ==mapred-site.xml==
+
+   ```shell
+   $ cp mapred-site.xml.template mapred-site.xml
+   $ vi mapred-site.xml
+   #输入:
+   <!-- 指定MR运行在YARN上 -->
+   <property>
+      		<name>mapreduce.framework.name</name>
+      		<value>yarn</value>
+   </property>
+   ```
+##### 2.启动集群
+
+1. 启动前必须保证NameNode和DataNode已经启动
+
+2. 启动ResourceManager
+
+   ```shell
+   $ sbin/yarn-daemon.sh start resourcemanager
+   ```
+
+3. 启动NodeManager
+
+   ```shell
+   $ sbin/yarn-daemon.sh start nodemanager
+   ```
+
+   
+
+
+##### 3. 查看集群
+
+1. 查看是否启动成功 :
+
+```shell
+$ jps
+16194 ResourceManager
+5557 DataNode
+17189 Jps
+17015 NodeManager
+5454 NameNode
+```
+
+##### 4. 操作集群
+
+1. YARN的浏览器页面http://localhost:8088/cluster查看，如图2-35所示
+
+![image-20200409222454432](pic/image-20200409222454432.png)
+
+
+
+```shell
+hadoop fs -put wcinput /
+
+hadoop jar share/hadoop/mapreduce/hadoop-mapreduce-examples-2.6.0-cdh5.9.3.jar wordcount /wcinput /wcoutput
+
+hadoop fs -cat /wcoutput/*
+```
+
+2. 删除文件系统上的output文件
+
+   ```shell
+   $ bin/hdfs dfs -rm -R /user/atguigu/output
+   ```
+
+3. 执行MapReduce程序
+
+   ```shell
+   $ bin/hadoop jar share/hadoop/mapreduce/hadoop-mapreduce-examples-2.7.2.jar wordcount /user/atguigu/input  /user/atguigu/output
+   ```
+
+4. 查看运行结果
+
+   ```shell
+   $  bin/hdfs dfs -cat /user/atguigu/output/*
+   ```
 
 
 
