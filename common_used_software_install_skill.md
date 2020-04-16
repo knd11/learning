@@ -112,7 +112,7 @@
 
   2. 解压并移动至/usr/local
 
-     ```
+     ```shell
      $ sudo mv jdk-8u231-linux-x64 /usr/local
      ```
 
@@ -120,13 +120,13 @@
 
      使用如下命令打开~/.bashrc文件
 
-     ```
+     ```shell
      $ gedit ~/.bashrc
      ```
 
      在文件末尾加上Java信息
 
-     ```
+     ```shell
      export JAVA_HOME=/usr/local/jdk-8u231-linux-x64/jdk1.8.0_231
      export JRE_HOME=${JAVA_HOME}/jre
      export CLASSPATH=.:${JAVA_HOME}/lib:${JRE_HOME}/lib
@@ -135,13 +135,13 @@
 
   4. 使用source命令使配置立即生效
 
-     ```
+     ```shell
      $ source ~/.bashrc
      ```
 
   5. 测试
 
-     ```
+     ```shell
      $ java -version
      ```
 
@@ -380,271 +380,6 @@ $ source /etc/profile
 ```shell
 $ hadoop version
 ```
-
-### 4. 单机模式/本地模式(Standalone Operation)
-
-1. 官方Grep案例
-
-```shell
-$ mkdir input
-$ cp etc/hadoop/*.xml input
-$ bin/hadoop jar share/hadoop/mapreduce/hadoop-mapreduce-examples-2.6.0-cdh5.9.3.jar grep input output 'dfs[a-z.]+'
-$ cat output/*
-```
-
-2. 官方WordCount案例
-
-```shell
-$ mkdir wcinput
-$ vim wcinput/wc.input
-#输入:
-hadoop yarn
-hadoop mapreduce
-atguigu
-atguigu
-
-$ hadoop jar share/hadoop/mapreduce/hadoop-mapreduce-examples-2.6.0-cdh5.9.3.jar wordcount wcinput wcoutput
-#查看结果
-$ cat wcoutput/part-r-00000
-atguigu	2
-hadoop	2
-mapreduce	1
-yarn	1
-```
-
-### 5.伪分布模式(Pseudo-Distributed Operation)
-
-#### 1. 启动HDFS并运行MapReduce程序
-
-##### 分析
-
-​	（1）配置集群
-
-​	（2）启动、测试集群增、删、查
-
-​	（3）执行WordCount案例
-
-##### 执行步骤
-
-- **配置集群**
-
-  1. /opt/hadoop-2.6.0-cdh5.9.3/etc/hadoop/==hadoop-env.sh==
-
-     修改Hadoop配置文件, 添加HADOOP_HOME/bin到系统环境变量 
-
-     ```shell
-     $ vi /opt/hadoop-2.6.0-cdh5.9.3/etc/hadoop/hadoop-env.sh
-     #输入:
-     
-     #$ echo $JAVA_HOME #自动获取JAVA_HOME可能失败
-     export JAVA_HOME=/usr/local/jdk-8u231-linux-x64/jdk1.8.0_231
-       	
-     # Assuming your installation directory is /opt/hadoop-2.6.0-cdh5.9.3
-     export HADOOP_PREFIX=/opt/hadoop-2.6.0-cdh5.9.3
-     ```
-
-  2. /opt/hadoop-2.6.0-cdh5.9.3/etc/hadoop/==core-site.xml==
-
-     将下面<configuration></configuration>里的内容存到配置文件的<configuration></configuration>里
-
-       ```xml
-     <configuration>
-       
-           <property>
-             <!-- 指定HDFS副本的数量 -->
-             <name>fs.defaultFS</name>
-               <value>hdfs://localhost:9000</value>
-           </property>
-       
-       </configuration>
-       ```
-
-  3. /opt/hadoop-2.6.0-cdh5.9.3/etc/hadoop/==hdfs-site.xml==
-
-       ```xml
-     <configuration>
-         
-           <property>
-             					<!-- 指定HDFS中NameNode的地址 -->
-                       <name>dfs.replication</name>
-                       <value>1</value>
-               </property>
-       
-               <property>
-                 			<!-- 指定Hadoop运行时产生文件的存储目录 -->
-                       <name>hadoop.tmp.dir</name>
-                       <value>/opt/hadoop-2.6.0-cdh5.9.3/temp</value>
-               </property>  
-         
-       </configuration>
-     ```
-
-      注：第二个属性中/home/cxy/Hdp/app/tmp路径用来存放临时文件，因为hadoop.tmp.dir的默认路径...tmp重启会被清空
-
-  4. /opt/hadoop-2.6.0-cdh5.9.3/etc/hadoop/==slaves==
-
-       ```shell
-     $ vi etc/hadoop/slaves
-     ```
-
-       将localhost改为主机名. 此步骤可省
-
-     
-
-- **启动集群**
-
-  1. 第一次启动Hadoop必须要格式化，格式化不要重复执行, 如果格式化没报错则配置完成
-
-     ```shell
-     $ bin/hdfs namenode -format #格式化
-     #看到最后某行显示如下,即格式化成功
-     INFO common.Storage: Storage directory /opt/hadoop-2.6.0-cdh5.9.3/temp/dfs/name has been successfully formatted
-     ```
-
-  2. 启动NameNode
-
-     ```shell
-     $ sbin/hadoop-daemon.sh start namenode
-     ```
-
-  3. 启动DataNode
-
-       ```shell
-     $ sbin/hadoop-daemon.sh start datanode
-     ```
-
-
-- **查看集群**
-
-  1. 查看是否启动成功 :
-
-  ```shell
-  $ jps
-  14913 Jps
-  14650 NameNode
-  15260 DataNode
-  ```
-
-  ​	注意：jps是JDK中的命令，不是Linux命令。不安装JDK不能使用jps
-
-  
-
-  2. web端查看HDFS文件系统
-
-     http://localhost:50070/dfshealth.html#tab-overview
-
-     看到如下图则配置成功:
-
-     ![image-20200409212540503](pic/image-20200409212540503.png)
-
-     ![image-20200409212501730](pic/image-20200409212501730.png)
-
-     注意：如果不能查看，参考4,思考. 或看如下帖子处理
-
-     http://www.cnblogs.com/zlslch/p/6604189.html
-
-  3. 查看产生的Log日志
-
-     说明：在企业中遇到Bug时，经常根据日志提示信息去分析问题、解决Bug。
-
-     当前目录：/opt/hadoop-2.6.0-cdh5.9.3/logs
-
-  4. **思考：为什么不能一直格式化NameNode，格式化NameNode，要注意什么？**
-
-     注意：格式化NameNode，会产生新的集群id,导致NameNode和DataNode的集群id不一致，集群找不到已往数据。所以，格式NameNode时，一定要先删除之前设置的临时文件缓存目录: temp/dfs/data数据和log日志，然后再格式化NameNode
-
-     ```shell
-      $ cd /opt/hadoop-2.6.0-cdh5.9.3/temp/dfs/name/current
-     $ cat VERSION
-     	clusterID=CID-f0330a58-36fa-4a2a-a65f-2688269b5837
-     
-     $ cd /opt/hadoop-2.6.0-cdh5.9.3/temp/dfs/data/current
-     ```
-
-- **操作集群**
-
-  1. 在HDFS文件系统上**创建**一个input文件夹
-
-     ```shell
-     $ bin/hdfs dfs -mkdir -p /user/atguigu/input
-     ```
-
-  2. 将测试文件内容**上传**到文件系统上
-
-     ```shell
-     $bin/hdfs dfs -put wcinput/wc.input  /user/atguigu/input/
-     ```
-
-  3. **查看**上传的文件是否正确
-
-     ```shell
-     $ bin/hdfs dfs -ls  /user/atguigu/input/
-     $ bin/hdfs dfs -cat  /user/atguigu/ input/wc.input
-     ```
-
-  4. **运行**MapReduce程序
-
-  ```shell
-  $ bin/hadoop jar share/hadoop/mapreduce/hadoop-mapreduce-examples-2.7.2.jar wordcount /user/atguigu/input/ /user/atguigu/output
-  ```
-
-  5. 查看**输出**结果
-
-  ```shell
-  $ bin/hdfs dfs -cat /user/atguigu/output/*
-  ```
-
-  ![image-20200409204820871](pic/image-20200409204820871.png)
-
-  6. 将测试文件内容**下载**到本地
-
-  ```shell
-  $ hdfs dfs -get /user/atguigu/output/part-r-00000 ./wcoutput/
-  ```
-
-  7. **删除**输出结果
-
-  ```shell
-  $ hdfs dfs -rm -r /user/atguigu/output
-  ```
-
-### [Unable to load native-hadoop library for your platform... using builtin-java classes where applicable](https://www.cnblogs.com/zhi-leaf/p/11424620.html)
-
-最近在做hbase脚本执行时发现以下警告，但不影响操作，问题截图：
-
-![img](pic/1031555-20190828155227026-2010074800.png)
-
-出于好奇，对该警告进行了一番探究。
-
-Hadoop是使用Java语言开发的，但是有一些需求和操作并不适合使用java，所以就引入了本地库（Native Libraries）的概念，通过本地库，Hadoop可以更加高效地执行某一些操作。（摘自网络）
-
-既然有影响，那我们就把问题解决掉。
-
- 
-
-**下载native-hadoop**
-
-![img](pic/1031555-20190828155956255-1612522769.png)
-
-从[官网](http://hadoop.apache.org/docs/current/hadoop-project-dist/hadoop-common/NativeLibraries.html)得知，native-hadoop包含在每个发行版本的$HADOOP_HOME/lib/native目录下，因此我直接从官网上下载hadoop-2.9.2.tar.gz。
-
- 
-
-**配置native-hadoop**
-
-解压hadoop-2.9.2.tar.gz，将里面的/lib/native所有内容拷贝到/usr/local/lib/hadoop-native目录中。
-
-![img](pic/1031555-20190828162709739-1077142050.png)
-
-修改/etc/profile文件，在结尾添加以下配置：
-
-```shell
-export JAVA_LIBRARY_PATH=/opt/hadoop-2.6.0-cdh5.9.3/lib/native
-```
-
-source /etc/profile，发现上面的警告没有了
-
-![img](pic/1031555-20190828163159895-2076248147.png)
 
 # 6. VS Code + Java开发
 
@@ -2133,3 +1868,619 @@ tip:若没有提前压缩,选择你想腾出空间的磁盘,只需将Free Space 
 
 ------------------------------------------------
 ![img](pic/20190516192605486.jpg)
+
+# 21. Docker安装
+
+<a href="https://docs.docker.com/engine/install/ubuntu/">官方文档</a>
+
+
+
+sudo apt-get install docker-ce=5:19.03.8~3-0~ubuntu-bionic docker-ce-cli=5:19.03.8~3-0~ubuntu-bionic containerd.io
+
+**Docker Engine-Community 支持以下的 Ubuntu 版本：**
+
+- Xenial 16.04 (LTS)
+- Bionic 18.04 (LTS)
+- Cosmic 18.10
+- Disco 19.04
+- 其他更新的版本……
+
+Docker Engine - Community 支持上 x86_64（或 amd64）armhf，arm64，s390x （IBM Z），和 ppc64le（IBM的Power）架构。
+
+------
+
+### 卸载旧版本
+
+Docker 的旧版本被称为 docker，docker.io 或 docker-engine 。如果已安装，请卸载它们：
+
+```shell
+$ sudo apt-get remove docker docker-engine docker.io containerd runc
+```
+
+当前称为 Docker Engine-Community 软件包 docker-ce 。
+
+安装 Docker Engine-Community，以下介绍两种方式。
+
+------
+
+### 使用 Docker 仓库进行安装
+
+在新主机上首次安装 Docker Engine-Community 之前，需要设置 Docker 仓库。之后，您可以从仓库安装和更新 Docker 。
+
+#### 设置仓库
+
+更新 apt 包索引。
+
+```shell
+$ sudo apt-get update
+```
+
+安装 apt 依赖包，用于通过HTTPS来获取仓库:
+
+```shell
+$ sudo apt-get install \
+    apt-transport-https \
+    ca-certificates \
+    curl \
+    gnupg-agent \
+    software-properties-common
+```
+
+添加 Docker 的官方 GPG 密钥：
+
+```shell
+$ curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+```
+
+9DC8 5822 9FC7 DD38 854A E2D8 8D81 803C 0EBF CD88 通过搜索指纹的后8个字符，验证您现在是否拥有带有指纹的密钥。
+
+```shell
+$ sudo apt-key fingerprint 0EBFCD88
+   
+pub   rsa4096 2017-02-22 [SCEA]
+      9DC8 5822 9FC7 DD38 854A  E2D8 8D81 803C 0EBF CD88
+uid           [ unknown] Docker Release (CE deb) <docker@docker.com>
+sub   rsa4096 2017-02-22 [S]
+```
+
+使用以下指令设置稳定版仓库
+
+```shell
+$ sudo add-apt-repository \
+   "deb [arch=amd64] https://download.docker.com/linux/ubuntu \
+  $(lsb_release -cs) \
+  stable"
+```
+
+#### 安装 Docker Engine-Community
+
+更新 apt 包索引。
+
+```shell
+$ sudo apt-get update
+```
+
+安装最新版本的 Docker Engine-Community 和 containerd ，或者转到下一步安装特定版本：
+
+```shell
+$ sudo apt-get install docker-ce docker-ce-cli containerd.io
+```
+
+要安装特定版本的 Docker Engine-Community，请在仓库中列出可用版本，然后选择一种安装。列出您的仓库中可用的版本：
+
+```shell
+$ apt-cache madison docker-ce
+
+  docker-ce | 5:18.09.1~3-0~ubuntu-xenial | https://download.docker.com/linux/ubuntu  xenial/stable amd64 Packages
+  docker-ce | 5:18.09.0~3-0~ubuntu-xenial | https://download.docker.com/linux/ubuntu  xenial/stable amd64 Packages
+  docker-ce | 18.06.1~ce~3-0~ubuntu       | https://download.docker.com/linux/ubuntu  xenial/stable amd64 Packages
+  docker-ce | 18.06.0~ce~3-0~ubuntu       | https://download.docker.com/linux/ubuntu  xenial/stable amd64 Packages
+  ...
+```
+
+
+
+使用第二列中的版本字符串安装特定版本，例如 `5:19.03.8~3-0~ubuntu-bionic`
+
+```shell
+$ sudo apt-get install docker-ce=<VERSION_STRING> docker-ce-cli=<VERSION_STRING> containerd.io
+$sudo apt-get install docker-ce=5:19.03.8~3-0~ubuntu-bionic docker-ce-cli=5:19.03.8~3-0~ubuntu-bionic containerd.io
+```
+
+测试 Docker 是否安装成功，输入以下指令，打印出以下信息则安装成功
+
+```shell
+$ sudo docker run hello-world
+
+Unable to find image 'hello-world:latest' locally
+latest: Pulling from library/hello-world
+1b930d010525: Pull complete                                                                                                                                  Digest: sha256:c3b4ada4687bbaa170745b3e4dd8ac3f194ca95b2d0518b417fb47e5879d9b5f
+Status: Downloaded newer image for hello-world:latest
+
+Hello from Docker!
+This message shows that your installation appears to be working correctly.
+
+To generate this message, Docker took the following steps:
+ 1. The Docker client contacted the Docker daemon.
+ 2. The Docker daemon pulled the "hello-world" image from the Docker Hub.
+    (amd64)
+ 3. The Docker daemon created a new container from that image which runs the
+    executable that produces the output you are currently reading.
+ 4. The Docker daemon streamed that output to the Docker client, which sent it
+    to your terminal.
+
+To try something more ambitious, you can run an Ubuntu container with:
+ $ docker run -it ubuntu bash
+
+Share images, automate workflows, and more with a free Docker ID:
+ https://hub.docker.com/
+
+For more examples and ideas, visit:
+ https://docs.docker.com/get-started/
+```
+
+#### 设置镜像加速器
+
+国内从 DockerHub 拉取镜像有时会遇到困难，此时可以配置镜像加速器。Docker 官方和国内很多云服务商都提供了国内加速器服务，例如：
+
+- 网易：**https://hub-mirror.c.163.com/**
+- 阿里云：**https://<你的ID>.mirror.aliyuncs.com**
+- 七牛云加速器：**https://reg-mirror.qiniu.com**
+
+当配置某一个加速器地址之后，若发现拉取不到镜像，请切换到另一个加速器地址。国内各大云服务商均提供了 Docker 镜像加速服务，建议根据运行  Docker 的云平台选择对应的镜像加速服务。
+
+阿里云镜像获取地址：https://cr.console.aliyun.com/cn-hangzhou/instances/mirrors，登陆后，左侧菜单选中镜像加速器就可以看到你的专属地址了：
+
+![img](pic/02F3AF04-8203-4E3B-A5AF-96973DBE515F.jpg)
+
+之前还有 Docker 官方加速器 **https://registry.docker-cn.com** ，现在好像已经不能使用了，我们可以多添加几个国内的镜像，如果有不能使用的，会切换到可以使用个的镜像来拉取
+
+对于使用 systemd 的系统，请在 /etc/docker/daemon.json 中写入如下内容（如果文件不存在请新建该文件）：
+
+```shell
+$ sudo mkdir -p /etc/docker
+$ sudo tee /etc/docker/daemon.json <<-'EOF'
+#写入:
+{
+  "registry-mirrors": ["https://stw9770k.mirror.aliyuncs.com"]
+}
+EOF
+```
+
+之后重新启动服务：
+
+```shell
+$sudo systemctl daemon-reload
+$sudo systemctl restart docker
+```
+
+测试是否安装成功:
+
+```shell
+$ docker run hello-world
+```
+
+
+
+### Docker卸载
+
+1. 删除某软件,及其安装时自动安装的所有包
+
+```shell
+sudo apt-get autoremove docker docker-ce docker-engine  docker.io  containerd runc
+```
+
+2. 删除docker其他没有没有卸载
+
+```shell
+dpkg -l | grep docker
+```
+
+3.卸载没有删除的docker相关插件(结合自己电脑的实际情况)
+
+![img](pic/1194092-20191223175813280-601817636.png)
+
+```shell
+sudo apt-get autoremove docker-ce-*
+```
+
+4. 删除docker的相关配置&目录
+
+```shell
+ sudo rm -rf /etc/systemd/system/docker.service.d
+ sudo rm -rf /var/lib/docker
+```
+
+5. 确定docker卸载完毕
+
+```shell
+docker --version
+```
+
+# 22.Docker 内安装实例
+
+## 1. Docker安装Tomcat
+
+### 1. 通过docker pull tomcat
+
+查找 [Docker Hub](https://hub.docker.com/_/tomcat?tab=tags) 上的 Tomcat 镜像:
+
+[![img](pic/F5FE5252-6FD3-4DE3-880B-808477E45676.jpg)](https://www.runoob.com/wp-content/uploads/2016/06/F5FE5252-6FD3-4DE3-880B-808477E45676.jpg)
+
+可以通过 Sort by 查看其他版本的 tomcat，默认是最新版本 **tomcat:latest**。
+
+此外，我们还可以用 docker search tomcat 命令来查看可用版本：
+
+```shell
+cxy@Cxy:~$ docker search tomcat
+NAME                          DESCRIPTION                                     STARS               OFFICIAL            AUTOMATED
+tomcat                        Apache Tomcat is an open source implementati…   2694                [OK]                
+tomee                         Apache TomEE is an all-Apache Java EE certif…   77                  [OK]                
+dordoka/tomcat                Ubuntu 14.04, Oracle JDK 8 and Tomcat 8 base…   53                                      [OK]
+bitnami/tomcat                Bitnami Tomcat Docker Image                     31                                      [OK]
+kubeguide/tomcat-app          Tomcat image for Chapter 1                      28                                      
+consol/tomcat-7.0             Tomcat 7.0.57, 8080, "admin/admin"              17                                      [OK]
+cloudesire/tomcat             Tomcat server, 6/7/8                            15                                      [OK]
+aallam/tomcat-mysql           Debian, Oracle JDK, Tomcat & MySQL              12 
+```
+
+这里我们拉取官方的镜像：
+
+```shell
+cxy@Cxy:~$ docker pull tomcat
+```
+
+等待下载完成后，我们就可以在本地镜像列表里查到 REPOSITORY 为 tomcat 的镜像。
+
+```shell
+cxy@Cxy:~$ docker images tomcat
+REPOSITORY          TAG                 IMAGE ID            CREATED             SIZE
+tomcat              latest              6ab907c973d2        4 days ago          528MB
+```
+
+### 2. 通过 Dockerfile 构建
+
+#### 1. 创建 tomcat 目录
+
+首先，创建目录tomcat(==仓库的路径必须不含有大写字母==),用于存放后面的相关东西。
+
+```shell
+cxy@Cxy:~/文档/docker$ mkdir -p ./tomcat/webapps ./tomcat/logs ./tomcat/conf
+```
+
+> - webapps 目录将映射为 tomcat 容器配置的应用程序目录
+> - logs 目录将映射为 tomcat 容器的日志目录
+> - conf 目录里的配置文件将映射为 tomcat 容器的配置文件。
+
+将安装包复制到tomcat目录
+
+```shell
+$ cp /home/cxy/下载/Java/apache-tomcat-9.0.33.tar.gz  ./
+```
+
+
+
+#### 2. 进入创建的 tomcat 目录，创建 Dockerfile
+
+```dockerfile
+FROM ubuntu
+FROM openjdk
+MAINTAINER cxy<946704740@qq.com>
+
+#下载镜像加速
+#RUN sed -i 's/archive.ubuntu.com/mirrors.ustc.edu.cn/g' /etc/apt/sources.list
+#RUN sed -i 's#http://archive.ubuntu.com/#http://mirrors.tuna.tsinghua.edu.cn/#' /etc/apt/sources.list
+#RUN sed -i 's/mirrors.ustc.edu.cn/archive.ubuntu.com/g' /etc/apt/sources.list
+
+#安装vim编辑器,-y表示不询问直接安装
+#RUN apt-get update
+#RUN apt-get install -y vim
+
+#把安装包添加到容器中
+ADD apache-tomcat-9.0.33.tar.gz /usr/local
+
+
+
+#配置 java 和 tomcat 环境变量
+#ENV JAVA_HOME /usr/local/jdk
+ENV CATALINA_HOME /usr/local/apache-tomcat-9.0.33
+#ENV CATALINA_BASE  /usr/local/apache-tomcat-9.0.33
+ENV PATH $PATH:$JAVA_HOME/bin:$CATALINA_HOME/lib:$CATALINA_HOME/bin
+
+#设置工作时访问的WORKDIR, 即登录落脚点
+#ENV MYPATH /usr/local
+#WORKDIR $MYPATH
+RUN mkdir -p "$CATALINA_HOME"
+WORKDIR $CATALINA_HOME
+
+#容器运行时监听的端口
+EXPOSE 8080
+
+#启动时运行tomcat
+# ENTRYPOINT ["/usr/local/apache-tomcat-9.0.33/bin/startup.sh"]
+# CMD ["/usr/local/apache-tomcat-9.0.33/bin/startup.sh"]
+# ENTRYPOINT ["/usr/local/apache-tomcat-9.0.33/bin/catalina.sh","run"]
+CMD /usr/local/apache-tomcat-9.0.33/bin/startup.sh && tail -F /usr/local/apache-tomcat-9.0.33/bin/logs/catalina.out
+```
+
+#### 3. 构建
+
+```shell
+#在tomcat路径
+cxy@Cxy:~/文档/docker/tomcat$ docker build -t cxytomcat9 .
+#在其它任意路径, 镜像命名为cxy/tomcat
+$docker build -f ~/文档/docker/tomcat/Dockerfile -t cxytomcat9 .
+#给镜像改名
+$ docker tag 70ff7873d7cd 新名字:旧名字
+```
+
+#### 4. run
+
+```shell
+cxy@Cxy:~/文档/docker/tomcat9$ docker run -d -p 8080:8080 --name mytomcat9 -v $PWD/test:/usr/local/apache-tomcat-9.0.33/webapps/test -v $PWD/logs:/usr/local/apache-tomcat-9.0.33/logs --privileged=true cxytomcat9
+7b0a81bb51b3581a9ba54a605c270e5e96daaab11d4a263b493ec744064c6744
+```
+
+> 命令说明：
+>
+> >  **-p 8080:8080：**将容器的 8080 端口映射到主机的 8080 端口。
+> >
+> > **-v $PWD/test:/usr/local/tomcat/webapps/test：**将主机中当前目录下的 test 挂载到容器的 /test。
+
+查看容器启动情况:
+
+![image-20200415161955175](pic/image-20200415161955175.png)
+
+#### 5. 通过浏览器访问
+
+![image-20200415162225276](pic/image-20200415162225276.png)
+
+在容器外面操作:
+
+```shell
+cxy@Cxy:~/文档/docker/tomcat9$ docker exec b74599cedfc2 ls -l /usr/local
+total 44
+drwxr-xr-x 1 root root 4096 Apr 15 08:48 apache-tomcat-9.0.33
+drwxr-xr-x 2 root root 4096 Mar 11 21:03 bin
+drwxr-xr-x 2 root root 4096 Mar 11 21:03 etc
+drwxr-xr-x 2 root root 4096 Mar 11 21:03 games
+drwxr-xr-x 2 root root 4096 Mar 11 21:03 include
+drwxr-xr-x 7 uucp  143 4096 Oct  5  2019 jdk1.8.0_231
+drwxr-xr-x 2 root root 4096 Mar 11 21:03 lib
+lrwxrwxrwx 1 root root    9 Mar 11 21:03 man -> share/man
+drwxr-xr-x 2 root root 4096 Mar 11 21:04 sbin
+drwxr-xr-x 3 root root 4096 Mar 11 21:03 share
+drwxr-xr-x 2 root root 4096 Mar 11 21:03 src
+```
+
+#### 注意事项
+
+1. 仓库的路径必须不含有大写字母
+2. 如果想要修改镜像,可删掉本地的logs文件夹,再修改Dockerfile文件 重新build 和 run 即可
+
+### 在Tomcat上的发布演示
+
+1. 假设当前在tomcat9目录下, 在宿主机上test目录下新建 $PWD/test/WEB-INFO/web.xml
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns="http://xmlns.jcp.org/xml/ns/javaee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_4_0.xsd"
+         version="4.0">
+</web-app>
+```
+
+2. 在宿主机上当前目录下新建 $PWD/test/a.jsp
+
+```javascript
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<html>
+  <head>
+    <title>$Title$</title>
+  </head>
+  <body>
+				----------------------welcome-----------------------
+  <%="I am my docker tomcat,我显示在前端"%>
+  <br>
+  <br>
+  <%System.out.println("=========my docker tomcat,我打印在后台============");%>
+  </body>
+</html>
+```
+
+3. 查看服务器端是否有宿主机上刚刚上传的文件
+
+   ```shell
+   cxy@Cxy:~/文档/docker/tomcat9/$ docker exec b74599cedfc2 ls -l /usr/local/apache-tomcat-9.0.33/webapps/test
+   ```
+
+4. 重启容器(tomcat服务器)
+
+```shell
+cxy@Cxy:~/文档/docker/tomcat9/test$docker restart b74599cedfc2
+```
+
+5. 在网页上查看a.jsp
+
+   ![image-20200415173523327](pic/image-20200415173523327.png)
+
+6. 修改a.jsp, 刷新网页, 也跟着变了
+
+7. 查看logs
+
+   ```shell
+   cxy@Cxy:~/文档/docker/tomcat9/logs$ sudo cat catalina.out
+   .......
+   15-Apr-2020 09:28:12.326 INFO [main] org.apache.coyote.AbstractProtocol.start Starting ProtocolHandler ["http-nio-8080"]
+   15-Apr-2020 09:28:12.339 INFO [main] org.apache.catalina.startup.Catalina.start Server startup in [840] milliseconds
+   =========my docker tomcat,??????============
+   =========my docker tomcat,??????============
+   ```
+
+   可以看到a.jsp里写的代码中后台打印的内容
+
+   
+
+## 2. Docker 安装MySQL
+
+```shell
+#搜索镜像
+$ docker search mysql
+#拉取镜像
+$ docker pull mysql
+```
+
+#### 运行镜像
+
+因为我宿主端安装过MySQL,所以3306端口被占用,将服务器端的端口改为3307了
+
+```shell
+$ docker run -itd --name mysql-d -p 3307:3306 -e MYSQL_ROOT_PASSWORD=12345c mysql
+```
+
+> - -p 3307:3306 : 将主机的
+
+####查看是否安装成功
+
+```shell
+cxy@Cxy:~$ docker ps
+cxy@Cxy:~$ docker exec -it c8e08e794ae2 /bin/bash
+
+root@c8e08e794ae2:/# mysql -h localhost -u root -p
+Enter password: 
+Welcome to the MySQL monitor.  Commands end with ; or \g.
+Your MySQL connection id is 8
+Server version: 8.0.19 MySQL Community Server - GPL
+
+Copyright (c) 2000, 2020, Oracle and/or its affiliates. All rights reserved.
+
+Oracle is a registered trademark of Oracle Corporation and/or its
+affiliates. Other names may be trademarks of their respective
+owners.
+
+Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+
+mysql> 
+```
+
+#### 用宿主机的Navicat连接Docker内的MySQL
+
+```mysql
+mysql> create database testdocker;
+Query OK, 1 row affected (0.02 sec)
+
+mysql> use testdocker
+Database changed
+
+mysql> create table try(id int,name varchar(20));
+Query OK, 0 rows affected (0.08 sec)
+
+mysql> insert into try values(1001,"cxy");
+Query OK, 1 row affected (0.02 sec)
+
+mysql> select * from try
+    -> ;
++------+------+
+| id   | name |
++------+------+
+| 1001 | cxy  |
++------+------+
+1 row in set (0.00 sec)
+```
+
+退出mysql,退出容器后,查看容器结构,复制容器的IP地址
+
+```shell
+cxy@Cxy:~$ docker inspect c8e08e794ae2
+```
+
+![image-20200415220817140](pic/image-20200415220817140.png)
+
+![image-20200415221127457](pic/image-20200415221127457.png)
+
+## 3. Docker安装Redis
+
+```shell
+#搜索镜像
+$ docker search redis
+#拉取镜像
+$ docker pull redis
+#查看本地镜像
+$ docker images
+```
+
+#### 运行容器
+
+安装完成后，我们可以使用以下命令来运行 redis 容器：
+
+```shell
+#运行 redis 容器, 因为我宿主端安装过Redis,所以6079端口被占用,将服务器端的端口改为6380了
+$ docker run -itd --name redis-d -p 6380:6379 redis
+#查看容器运行状态
+$ docker ps
+```
+
+> **-p 6379:6379**：映射容器服务(服务器端)的 6379 端口到宿主机(客户端)的 6379 端口。外部可以直接通过宿主机ip:6379 访问到 Redis 的服务
+
+####测试redis服务
+
+接着我们通过 redis-cli 连接测试使用 redis 服务。
+
+```shell
+cxy@Cxy:~/文档/docker$ docker exec -it redis-d /bin/bash
+root@1694ce85d640:/data# redis-cli
+127.0.0.1:6379> ping
+PONG
+127.0.0.1:6379> set test 1
+OK
+127.0.0.1:6379> get test
+"1"
+```
+
+## 4. 安装Hadoop
+
+具体参照[本机安装](#5. Linux Hadoop安装)
+
+#### 1. 启动 Ubuntu 镜像
+
+```shell
+cxy@Cxy:~$ docker run -it --name standalone_hadoop ubuntu:18.04 /bin/bash
+root@50ae2b8df9be:/# 
+```
+
+####  2. Ubuntu镜像内准备安装包
+
+```shell
+cxy@Cxy:~$ docker cp ~/下载/hadoop-2.6.0-cdh5.9.3.tar.gz 50ae2b8df9be:/usr/local
+cxy@Cxy:~$ docker cp ~/下载/jdk-8u231-linux-x64.tar.gz 50ae2b8df9be:/usr/local
+
+root@50ae2b8df9be:/usr/local# tar zxvf hadoop-2.6.0-cdh5.9.3.tar.gz
+root@50ae2b8df9be:/usr/local# tar zxvf jdk-8u231-linux-x64.tar.gz 
+```
+
+####  3. 配置环境变量
+
+```shell
+#打开
+root@50ae2b8df9be:/usr/local# vim ~/.bashrc
+#在末尾添加
+export JAVA_HOME=/usr/local/jdk1.8.0_231
+export PATH=$PATH:$JAVA_HOME/bin
+
+export HADOOP_HOME=/usr/local/hadoop-2.6.0-cdh5.9.3
+export PATH=$PATH:$HADOOP_HOME/bin:$HADOOP_HOME/sbin
+
+#使配置立即生效
+root@50ae2b8df9be:/usr/local# source ~/.bashrc
+```
+
+#### 4. 查看是否安装成功
+
+```shell
+root@50ae2b8df9be:/usr/local# hadoop version
+```
+
+#### 5.安装ssh
+
+见本地安装
