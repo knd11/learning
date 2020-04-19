@@ -1,6 +1,6 @@
 [TOC]
 
-# 1. linux mplayer 
+# 1. mplayer
 
 - 安装
 
@@ -104,7 +104,7 @@
         $ xhost +$HOSTNAME
         ```
 
-# 3. linux Java + IntelliJ
+# 3. Java + IntelliJ
 
 - Java
 
@@ -275,7 +275,7 @@
    $ git push origin master
    ```
 
-# 5. Linux Hadoop安装
+# 5. Hadoop安装
 
 ## [5.1 Java安装](#3. linux Java + IntelliJ)
 
@@ -320,8 +320,7 @@ $ ssh-keygen -t rsa
 ```shell
 $ ls -a //-a查看隐藏文件夹，.开头的是隐藏文件夹
 $ cd .ssh
-$ ls
-id_rsa  id_rsa.pub  known_hosts
+
 $ ll
 -rw-------  1 cxy cxy 1679 11月 29 19:16 id_rsa  #私钥
 -rw-r--r--  1 cxy cxy  389 11月 29 19:16 id_rsa.pub #公钥
@@ -333,6 +332,8 @@ $ chmod 600 authorized_keys #设置权限
 /**测试**/
 $ ssh Cxy  #不用输密码了
 ```
+
+[若有报错](#报错:ssh: connect to host hadoop1 port 22: Connection refused)
 
 ## 5.3 Hadoop安装
 
@@ -1169,7 +1170,7 @@ navicat-keygen --text ./RegPrivateKey.pem
 10）最终你会得到一个base64编码的 激活码
 11）将之复制到 手动激活 的窗口，然后点击 激活
 
-# 12 Linux 安装 wine
+# 12 wine
 
 **sudo apt-get autoremove --purge**
 
@@ -1592,7 +1593,7 @@ https://www.jianshu.com/p/9cc4622d11f6
 
 ![image-20200410230708139](pic/image-20200410230708139.png)
 
-# 19. 集群环境搭建
+# 19. [集群环境搭建](#7. 集群环境搭建)
 
 ### 1. 删除所有dump.rdb文件
 
@@ -1608,133 +1609,11 @@ sudo apt-get install ruby-full # Debian 或 Ubuntu 系统
 
 ### 3. 安装Hadoop
 
-​	[Hadoop安装](#5. Linux Hadoop安装)
+​	[Hadoop安装](#5. Hadoop安装)
 
 ### 4. 启动YARN并运行MapReduce程序
 
-#### 分析
-
-​	（1）配置集群在YARN上运行MR
-
-​	（2）启动、测试集群增、删、查
-
-​	（3）在YARN上执行WordCount案例
-
-#### 执行步骤
-
-##### 1. 配置集群
-
-1. 配置 ==yarn-env.sh==
-
-   ```shell
-   export JAVA_HOME=/usr/local/jdk-8u231-linux-x64/jdk1.8.0_231
-   ```
-
-2. 配置==yarn-site.xml==
-
-   将下面<configuration></configuration>里的内容存到配置文件的<configuration></configuration>里
-
-     ```xml
-   <configuration>
-   
-           <!-- Reducer获取数据的方式 -->
-           <property>
-                   <name>yarn.nodemanager.aux-services</name>
-                   <value>mapreduce_shuffle</value>
-           </property>
-   
-           <!-- 指定YARN的ResourceManager的地址 -->
-           <property>
-                   <name>yarn.resourcemanager.hostname</name>
-                   <value>localhost</value>
-           </property>
-     
-     </configuration>
-     ```
-
-3. 配置：==mapred-env.sh==
-
-   ```sh
-   export JAVA_HOME=/usr/local/jdk-8u231-linux-x64/jdk1.8.0_231
-   ```
-   
-4. 配置： (对mapred-site.xml.template重新命名为) ==mapred-site.xml==
-
-   ```shell
-   $ cp mapred-site.xml.template mapred-site.xml
-   $ vi mapred-site.xml
-   #输入:
-   <!-- 指定MR运行在YARN上 -->
-   <property>
-      		<name>mapreduce.framework.name</name>
-      		<value>yarn</value>
-   </property>
-   ```
-##### 2.启动集群
-
-1. 启动前必须保证NameNode和DataNode已经启动
-
-2. 启动ResourceManager
-
-   ```shell
-   $ sbin/yarn-daemon.sh start resourcemanager
-   ```
-
-3. 启动NodeManager
-
-   ```shell
-   $ sbin/yarn-daemon.sh start nodemanager
-   ```
-
-   
-
-
-##### 3. 查看集群
-
-1. 查看是否启动成功 :
-
-```shell
-$ jps
-16194 ResourceManager
-5557 DataNode
-17189 Jps
-17015 NodeManager
-5454 NameNode
-```
-
-##### 4. 操作集群
-
-1. YARN的浏览器页面http://localhost:8088/cluster查看，如图2-35所示
-
-![image-20200409222454432](pic/image-20200409222454432.png)
-
-
-
-```shell
-hadoop fs -put wcinput /
-
-hadoop jar share/hadoop/mapreduce/hadoop-mapreduce-examples-2.6.0-cdh5.9.3.jar wordcount /wcinput /wcoutput
-
-hadoop fs -cat /wcoutput/*
-```
-
-2. 删除文件系统上的output文件
-
-   ```shell
-   $ bin/hdfs dfs -rm -R /user/atguigu/output
-   ```
-
-3. 执行MapReduce程序
-
-   ```shell
-   $ bin/hadoop jar share/hadoop/mapreduce/hadoop-mapreduce-examples-2.7.2.jar wordcount /user/atguigu/input  /user/atguigu/output
-   ```
-
-4. 查看运行结果
-
-   ```shell
-   $  bin/hdfs dfs -cat /user/atguigu/output/*
-   ```
+配置见BigData.md
 
 # 20. 双系统下对Ubuntu系统扩容
 
@@ -2442,28 +2321,74 @@ OK
 
 具体参照[本机安装](#5. Linux Hadoop安装)
 
-#### 1. 启动 Ubuntu 镜像
+### 1. 配置Dockerfile
 
-```shell
-cxy@Cxy:~$ docker run -it --name standalone_hadoop ubuntu:18.04 /bin/bash
-root@50ae2b8df9be:/# 
+```dockerfile
+FROM ubuntu:18.04
+VOLUME ["/dataVolumeContainer1","/dataVolumeContainer2"]
+
+MAINTAINER cxy<946704740@qq.com>
+
+#把安装包添加到容器中
+ADD hadoop-2.6.0-cdh5.9.3.tar.gz /usr/local
+ADD jdk-8u231-linux-x64.tar.gz /usr/local
+
+#安装vim编辑器,-y表示不询问直接安装
+RUN apt-get update
+RUN apt-get install -y vim
+#RUN apt-get install ruby
+#RUN apt-get install ssh
+#RUN apt-get insatll rsync
+
+#设置工作时访问的WORKDIR, 即登录落脚点
+ENV MYPATH /usr/local
+WORKDIR $MYPATH
+
+#配置环境变量
+ENV JAVA_HOME /usr/local/jdk1.8.0_231
+ENV CLASSPATH $JAVA_HOME/lib/dt.jar:$JAVA_HOME/lib/tools.jar
+
+ENV HADOOP_HOME /usr/local/hadoop-2.6.0-cdh5.9.3
+ENV PATH $PATH:$JAVA_HOME/bin:$HADOOP_HOME/bin:$HADOOP_HOME/sbin
+
+#容器运行时监听的端口
+#EXPOSE 50070
+#EXPOSE 8088
+
+#启动时运行
+# ENTRYPOINT ["/usr/local/apache-tomcat-9.0.33/bin/startup.sh"]
+# CMD ["/usr/local/apache-tomcat-9.0.33/bin/startup.sh"]
+# ENTRYPOINT ["/usr/local/apache-tomcat-9.0.33/bin/catalina.sh","run"]
+CMD /bin/bash
 ```
 
-####  2. Ubuntu镜像内准备安装包
+### 2. 构建镜像
 
 ```shell
-cxy@Cxy:~$ docker cp ~/下载/hadoop-2.6.0-cdh5.9.3.tar.gz 50ae2b8df9be:/usr/local
-cxy@Cxy:~$ docker cp ~/下载/jdk-8u231-linux-x64.tar.gz 50ae2b8df9be:/usr/local
-
-root@50ae2b8df9be:/usr/local# tar zxvf hadoop-2.6.0-cdh5.9.3.tar.gz
-root@50ae2b8df9be:/usr/local# tar zxvf jdk-8u231-linux-x64.tar.gz 
+cxy@Cxy:~/文档/docker/hadoop$ docker build -f Dockerfile -t hadoop1:2.6.0-cdh5.9.3 .
 ```
 
-####  3. 配置环境变量
+### 3. 运行镜像
 
 ```shell
-#打开
-root@50ae2b8df9be:/usr/local# vim ~/.bashrc
+#每次启动容器会重置/etc/hosts下的主机名和IP地址,
+#以下方式可在创建容器时就加入多个主机名和地址
+#docker run -itd --name hadoop1 --hostname hadoop1  --ip 172.17.3 --add-host hadoop2:172.17.4 --add-host hadoop3:172.17.5 -P -p 50070:50070 -p 8088:8088 ubuntu:18.04
+
+#cxy@Cxy:~$ docker run -it --name standalone_hadoop ubuntu:18.04 /bin/bash
+#登录时加上主机名,在后面配置的时候少出错
+cxy@Cxy:~/文档/docker/hadoop$ docker run -it --name hadoop1 --hostname hadoop1 --ip 172.17.3 -P -p 50070:50070 -p 8088:8088 hadoop1:2.6.0-cdh5.9.3
+```
+
+### 4. 配置环境变量
+
+```shell
+#检查Hadoop和java有没有安装成功
+root@hadoop1:/usr/local# hadoop version
+root@hadoop1:/usr/local# java -version
+
+#若没有安装,执行以下步骤
+root@hadoop1:/usr/local# vim ~/.bashrc
 #在末尾添加
 export JAVA_HOME=/usr/local/jdk1.8.0_231
 export PATH=$PATH:$JAVA_HOME/bin
@@ -2471,16 +2396,1034 @@ export PATH=$PATH:$JAVA_HOME/bin
 export HADOOP_HOME=/usr/local/hadoop-2.6.0-cdh5.9.3
 export PATH=$PATH:$HADOOP_HOME/bin:$HADOOP_HOME/sbin
 
-#使配置立即生效
-root@50ae2b8df9be:/usr/local# source ~/.bashrc
+root@hadoop1:/usr/local# hadoop version
+root@hadoop1:/usr/local# java -version
 ```
 
-#### 4. 查看是否安装成功
+### 5. 安装ruby
 
 ```shell
-root@50ae2b8df9be:/usr/local# hadoop version
+root@hadoop1:/usr/local# apt-get install ruby
 ```
 
-#### 5.安装ssh
+### 6. 安装ssh
 
-见本地安装
+```shell
+#如果已经生成过ssh-key则不用生成了否则将把原来的覆盖，使有些操作失效。如git不能推送到远程仓库
+root@hadoop1:/usr/local# apt-get install ssh --fix-missing
+root@hadoop1:/usr/local# apt-get install rsync
+root@hadoop1:/usr/local#  ssh-keygen -t rsa
+#一路回车或yes
+......
++---[RSA 2048]----+
+| ooo.++oO*       |
+|  = o+o=+ .      |
+| . +.oo  o       |
+|    +.....       |
+|   . o oS .      |
+|  ... .. O .     |
+|   .+ o E +      |
+|   o.+ * o       |
+|    oo=o=        |
++----[SHA256]-----+
+
+root@hadoop1:/usr/local# ll -a  ~/.ssh/      
+total 20
+drwx------ 2 root root 4096 Apr 17 08:31 ./
+drwx------ 1 root root 4096 Apr 17 08:31 ../
+-rw------- 1 root root 1675 Apr 17 08:28 id_rsa
+-rw-r--r-- 1 root root  394 Apr 17 08:28 id_rsa.pub
+
+root@hadoop1:~/.ssh# cat id_rsa.pub >> authorized_keys
+root@hadoop1:~/.ssh# cat authorized_keys 
+
+/**测试**/
+root@hadoop1:/usr/local#  ssh hadoop1  #不用输密码了
+```
+
+##### 报错:ssh: connect to host hadoop1 port 22: Connection refused
+
+Install `openssh` server.    
+
+For Ubuntu command is :     
+
+```shell
+$ apt-get install openssh-server
+```
+
+In hadoop-env.sh file ( present in /etc/hadoop) add the following line :
+
+```shell
+export HADOOP_SSH_OPTS="-p 22"      
+```
+
+Start SSH server:
+
+```shell
+$ service ssh start
+```
+
+Try again:
+
+```shell
+$ ssh hadoop1
+he authenticity of host 'hadoop1 (172.17.0.3)' can't be established.
+ECDSA key fingerprint is SHA256:zH7AF9MxoN86NWcpY6Hq8WprOQlwQmnaSFYvWYMwE9U.
+Are you sure you want to continue connecting (yes/no)? yes
+Warning: Permanently added 'hadoop1,172.17.0.3' (ECDSA) to the list of known hosts.
+Welcome to Ubuntu 18.04.4 LTS (GNU/Linux 4.15.0-96-generic x86_64)
+
+ * Documentation:  https://help.ubuntu.com
+ * Management:     https://landscape.canonical.com
+ * Support:        https://ubuntu.com/advantage
+This system has been minimized by removing packages and content that are
+not required on a system that users do not log into.
+
+To restore this content, you can run the 'unminimize' command.
+
+The programs included with the Ubuntu system are free software;
+the exact distribution terms for each program are described in the
+individual files in /usr/share/doc/*/copyright.
+
+Ubuntu comes with ABSOLUTELY NO WARRANTY, to the extent permitted by
+applicable law.
+```
+
+### 7. 集群环境搭建
+
+详见标题19,以及BigData.md,以下只贴代码
+
+#### 1. 单机模式/本地模式(Standalone Operation)
+
+这种模式在一台单机上运行，没有分布式文件系统，而是直接读写本地操作系统的文件系统，一般仅用于本地MR程序的调试
+
+1. 官方Grep案例
+
+```shell
+$ mkdir input
+$ cp etc/hadoop/*.xml input
+$ bin/hadoop jar share/hadoop/mapreduce/hadoop-mapreduce-examples-2.6.0-cdh5.9.3.jar grep input output 'dfs[a-z.]+'
+$ cat output/*
+```
+
+2. 官方WordCount案例
+
+```shell
+$ mkdir wcinput
+$ vim wcinput/wc.input
+#输入:
+hadoop yarn
+hadoop mapreduce
+atguigu
+atguigu
+
+$ hadoop jar share/hadoop/mapreduce/hadoop-mapreduce-examples-2.6.0-cdh5.9.3.jar wordcount wcinput wcoutput
+#查看结果
+$ cat wcoutput/part-r-00000
+atguigu	2
+hadoop	2
+mapreduce	1
+yarn	1
+```
+
+#### 2. 伪分布模式(不要求掌握)
+
+这种模式也是在一台单机上运行(一个节点)，但用不同的Java进程模仿分布式运行中的各类结点: (NameNode,DataNode,JobTracker,TaskTracker,SecondaryNameNode)
+ 　请注意分布式运行中的这几个结点的区别：
+
+##### 1. 启动HDFS并运行MapReduce程序
+
+- **配置集群**
+
+  ==注意java和Hadoop的HOME目录和缓存不要错了,localhost根据需要想要登录的主机名(要改就全部地方都改)==
+
+  切换到$HADOOP_HOME/etc/hadoop路径下:
+
+  1. ==hadoop-env.sh==
+
+     ```shell
+     root@hadoop1:/usr/local/hadoop-2.6.0-cdh5.9.3/etc/hadoop# vim hadoop-env.sh
+     #输入:
+     
+     export JAVA_HOME=/usr/local/jdk1.8.0_231
+     export HADOOP_PREFIX=/usr/local/hadoop-2.6.0-cdh5.9.3
+     
+     #export HADOOP_SSH_OPTS="-p 22"
+     ```
+
+  2. ==core-site.xml==
+
+     将下面<configuration></configuration>里的内容存到配置文件的<configuration></configuration>里
+
+       ```xml
+     <configuration>
+       
+           <property>
+             <name>fs.defaultFS</name>
+               <value>hdfs://hadoop1:9000</value>
+           </property>
+             
+       		<property>
+                       <name>hadoop.tmp.dir</name>
+                       <value>/usr/local/hadoop-2.6.0-cdh5.9.3/temp</value>
+           </property>  
+       </configuration>
+       ```
+
+  3. ==hdfs-site.xml==
+
+     ```xml
+     <configuration>
+         
+           <property>
+                       <name>dfs.replication</name>
+                       <value>1</value>
+            </property>
+          
+       </configuration>
+     ```
+
+      注：第二个属性中/home/cxy/Hdp/app/tmp路径用来存放临时文件，因为hadoop.tmp.dir的默认路径...tmp重启会被清空
+
+  4. /opt/hadoop-2.6.0-cdh5.9.3/etc/hadoop/==slaves==
+
+     ```shell
+     root@hadoop1:/usr/local/hadoop-2.6.0-cdh5.9.3/etc/hadoop# vim slaves 
+     #localhost
+     hadoop1
+     ```
+
+       将localhost改为主机名. 如果就用宿主机此步骤可省
+
+     
+
+- **启动集群**(后面的操作都在HADOOP_HOME目录下)
+
+  1. 第一次启动Hadoop必须要格式化，格式化不要重复执行, 如果格式化没报错则配置完成
+
+     ```shell
+     $ bin/hdfs namenode -format
+      #格式化
+     #看到最后某行显示如下,即格式化成功
+     INFO common.Storage: Storage directory /opt/hadoop-2.6.0-cdh5.9.3/temp/dfs/name has been successfully formatted
+     ```
+
+  2. 启动NameNode
+
+     ```shell
+     $ sbin/hadoop-daemon.sh start namenode
+     ```
+
+  3. 启动DataNode
+
+     ```shell
+     $ sbin/hadoop-daemon.sh start datanode
+     ```
+
+
+- **查看集群**
+
+  1. 查看是否启动成功 :
+
+  ```shell
+  $ jps
+  14913 Jps
+  14650 NameNode
+  15260 DataNode
+  ```
+
+  ​	注意：jps是JDK中的命令，不是Linux命令。不安装JDK不能使用jps
+
+  
+
+  2. web端查看HDFS文件系统
+
+     http://localhost:50070/dfshealth.html#tab-overview
+
+     如果是docker上的Hadoop,请将localhost改为仓库的ip地址(可用docker inspect [容器ID] 查看ip),如:
+
+     http://172.17.0.2:50070/dfshealth.html#tab-overview
+
+     看到如下图则配置成功:
+
+     ![image-20200409212540503](pic/image-20200409212540503-1587028404503.png)
+
+     ![image-20200409212501730](pic/image-20200409212501730-1587028404504.png)
+
+- **操作集群**
+
+  1. 在HDFS文件系统上**创建**一个input文件夹
+
+     ```shell
+     $ bin/hdfs dfs -mkdir -p /user/input
+     ```
+
+  2. 将测试文件内容**上传**到文件系统上
+
+     ```shell
+     $bin/hdfs dfs -put wcinput/wc.input  /user/input/
+     ```
+
+  3. **查看**上传的文件是否正确
+
+     ```shell
+     $ bin/hdfs dfs -ls  /user/input/
+     $ bin/hdfs dfs -cat  /user/input/wc.input
+     ```
+
+  4. **运行**MapReduce程序
+
+  ```shell
+  $ bin/hadoop jar share/hadoop/mapreduce/hadoop-mapreduce-examples-2.6.0-cdh5.9.3.jar wordcount /user/input /user/output
+  ```
+
+  5. 查看**输出**结果
+
+  ```shell
+  $ bin/hdfs dfs -cat /user/output/*
+  
+  20/04/17 09:03:35 WARN util.NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+  atguigu	2
+  hadoop	2
+  mapreduce	1
+  yarn	1
+  
+  #再开一个终端从宿主机拷lib文件夹
+  $cxy@Cxy:~/下载/lib$ docker cp native/ 4c403e963503:/usr/local/hadoop-2.6.0-cdh5.9.3/lib
+  #再查看结果就没有提示了
+  $bin/hdfs dfs -cat /user/output/* 
+  atguigu	2
+  hadoop	2
+  mapreduce	1
+  yarn	1
+  ```
+
+  ![image-20200409204820871](pic/image-20200409204820871-1587113287055.png)
+
+  6. 将测试文件内容**下载**到本地
+
+  ```shell
+  $ hdfs dfs -get /user/output/part-r-00000 ./wcoutput/
+  ```
+
+  7. **删除**输出结果
+
+  ```shell
+  $ hdfs dfs -rm -r /user/output
+  ```
+
+##### 2. 启动YARN并运行MapReduce程序
+
+1. **配置YARN**
+
+==注意java和Hadoop的HOME目录和缓存不要错了,localhost根据需要想要登录的主机名(要改就全部地方都改)==/usr/local/hadoop-2.6.0-cdh5.9.3
+
+1. ==yarn-env.sh==
+
+   ```shell
+   root@hadoop1:/usr/local/hadoop-2.6.0-cdh5.9.3# vim etc/hadoop/yarn-env.sh
+   
+   #输入:
+   export JAVA_HOME=/usr/local/jdk1.8.0_231
+   ```
+
+2. ==yarn-site.xml==
+
+   将下面<configuration></configuration>里的内容存到配置文件的<configuration></configuration>里
+
+     ```xml
+   <configuration>
+     
+   <property>
+    		<name>yarn.nodemanager.aux-services</name>
+    		<value>mapreduce_shuffle</value>
+   </property>
+   
+   <property>
+   			<name>yarn.resourcemanager.hostname</name>
+   			<value>hadoop1</value>
+   </property>
+     
+     </configuration>
+     ```
+
+3. ==mapred-env.sh==
+
+   ```shell
+   root@hadoop1:/usr/local/hadoop-2.6.0-cdh5.9.3# vim etc/hadoop/mapred-env.sh
+   #输入:
+   export JAVA_HOME=/usr/local/jdk1.8.0_231
+   ```
+
+4. ==mapred-site.xml==
+
+   ```shell
+   root@hadoop1:/usr/local/hadoop-2.6.0-cdh5.9.3/etc/hadoop# cp mapred-site.xml.template mapred-site.xml          
+   root@hadoop1:/usr/local/hadoop-2.6.0-cdh5.9.3/etc/hadoop# vim mapred-site.xml
+   
+   <property>
+   		<name>mapreduce.framework.name</name>
+   		<value>yarn</value>
+   </property>
+   ```
+
+   
+
+2.**启动集群**(以下命令在$HADOOP_HOME下运行)
+
+1. 启动前必须保证NameNode和DataNode已经启动
+
+2. 启动ResourceManager
+
+   ```shell
+   $ sbin/yarn-daemon.sh start resourcemanager
+   ```
+
+3. 启动NodeManager
+
+   ```shell
+   $ sbin/yarn-daemon.sh start nodemanager
+   ```
+
+   
+
+3. **查看集群**
+
+1. 查看是否启动成功 :
+
+```shell
+$ jps
+16194 ResourceManager
+5557 DataNode
+17189 Jps
+17015 NodeManager
+5454 NameNode
+```
+
+4. **操作集群**
+
+1. YARN的浏览器页面
+
+   http://localhost:8088/cluster
+
+   or (docker inspect [containerID])查看自己的ip
+
+   http://172.17.0.2:8088/cluster
+
+   查看，如图2-35所示
+
+![image-20200409222454432](pic/image-20200409222454432-1587114833800.png)
+
+```shell
+hadoop fs -put wcinput /
+
+hadoop jar share/hadoop/mapreduce/hadoop-mapreduce-examples-2.6.0-cdh5.9.3.jar wordcount /wcinput /wcoutput
+
+hadoop fs -cat /wcoutput/*
+```
+
+2. 删除文件系统上的output文件
+
+   ```shell
+   $ bin/hdfs dfs -rm -R /user/output
+   ```
+
+3. 执行MapReduce程序
+
+   ```shell
+   $ bin/hadoop jar share/hadoop/mapreduce/hadoop-mapreduce-examples-2.6.0-cdh5.9.3.jar wordcount /user/input  /user/output
+   ```
+
+4. 查看运行结果
+
+   ```shell
+   $  bin/hdfs dfs -cat /user/output/*
+   ```
+
+
+
+#### 3. 完全分布模式
+
+##### 3.1 开启3个容器实例
+
+https://cr.console.aliyun.com/repository/cn-chengdu/cxy_explore
+
+1. 生成镜像并推送到Registry
+
+```shell
+#生成镜像,提交到本地库
+$ docker commit -a cxy -m "Hadoop environment with Standalone Mode and Pseudo-Distributed Mode" f33d8841c3fd cxy/hadoop:2.6.0-cdh5.9.3-2
+
+#推送到远端
+$ sudo docker login --username=xyxc202 registry.cn-chengdu.aliyuncs.com
+$ sudo docker tag a8bde387779b registry.cn-chengdu.aliyuncs.com/cxy_explore/cxy-hadoop:2.6.0-cdh5.9.3-2
+$ sudo docker push registry.cn-chengdu.aliyuncs.com/cxy_explore/cxy-hadoop:2.6.0-cdh5.9.3-2
+```
+
+2. 开启3个hadoop的实例
+
+   –hostname 和–ip中的配置会加载到 /etc/hosts中,但是当容器关闭,/etc/hosts中的自己配置的内容就会清掉,建议不要随便关掉容器. 
+
+   ```shell
+   #$docker run -it --name hadoop1 --hostname hadoop1 --ip 172.17.2 -P -p 50070:50070 -p 8088:8088 --privileged=true cxy/hadoop:2.6.0-cdh5.9.3-2
+   
+   $docker run -it --name hadoop2 --hostname hadoop2 --ip 172.17.2 -P -p 50071:50070 -p 8089:8088 --privileged=true cxy/hadoop:2.6.0-cdh5.9.3-2
+   
+   $docker run -it --name hadoop3 --hostname hadoop3 --ip 172.17.3 -P -p 50072:50070 -p 8090:8088 --privileged=true cxy/hadoop:2.6.0-cdh5.9.3-2
+   
+   $docker run -it --name hadoop4 --hostname hadoop4 --ip 172.17.4 -P -p 50073:50070 -p 8091:8088 --privileged=true cxy/hadoop:2.6.0-cdh5.9.3-2
+   ```
+
+3. 改配置中的主机名和设置hosts(vim /etc/hosts)
+
+   - core-site.xml
+   - yarn-site.xml
+   - slaves
+   - ==/etc/hosts== : 因为后面要实现服务器之间传文件,所以在各自的主机中都要把所有的主机名和ip地址加上
+
+   
+
+##### 3.2 编写集群分发脚本
+
+- > **如果是==虚拟机==,可以用scp在虚拟机间传数据**
+  >
+  > ```shell
+  > $ scp -r source destination #scp可以实现服务器与服务器之间的数据拷贝
+  > #e.g.
+  > root@hadoop1:~# scp -r hadoop1:/usr/local/hadoop-2.6.0-cdh5.9.3/new.txt hadoop2:/usr/local/hadoop-2.6.0-cdh5.9.3/
+  > scp -r hadoop1:/usr/local/hadoop-2.6.0-cdh5.9.3/new.txt hadoop2:/usr/local/hadoop-2.6.0-cdh5.9.3/
+  > 
+  > ```
+  >
+  > **如果是==docker==, 需要要宿主机作中介**
+  >
+  > - 从容器内拷贝文件到宿主机上
+  >
+  > ```shell
+  > $ docker cp 容器ID : 容器路径 目标主机路径
+  > $docker cp 99b4b4762023:/usr/local/hadoop-2.6.0-cdh5.9.3/input ~/文档/
+  > ```
+  >
+  > - 从宿主机拷文件到容器里
+  >
+  > ```shell
+  > $ docker cp 宿主机文件路径 容器:要拷贝到容器里面对应的路径  
+  > docker cp ~/文档/input c5a4ac7f43cb:/usr/local/hadoop-2.6.0-cdh5.9.3
+  > ```
+  >
+
+- rsync 远程同步工具
+
+  > rsync主要用于备份和镜像。具有**速度快**、**避免复制相同内容**和支持符号链接的优点。
+  >
+  > rsync和scp区别：用rsync做文件的复制要比scp的速度快，rsync只对**差异**文件做更新。scp是把所有文件都复制过去。输入文件夹和输出文件夹必须是同一路径
+  >
+  > 开启ssh(此步骤可在rsync之前)
+  >
+  > ```shell
+  > #将传输文件的所有主机的ssh服务开启再尝试链接
+  > root@hadoop2:~# service ssh start
+  > #注:想测试xsync要先注意看每个主机的hosts有没有配置好
+  > ```
+  >
+  > ```shell
+  > root@hadoop3# rsync -av hadoop2:/usr/local/hadoop-2.6.0-cdh5.9.3/input /usr/local/hadoop-2.6.0-cdh5.9.3/
+  > ```
+  >
+  > | 选项 | 功能                                               |
+  > | ---- | -------------------------------------------------- |
+  > | -a   | 归档拷贝(修改时间,权限,所有者等信息和原来完全一致) |
+  > | -v   | 显示复制过程                                       |
+  >
+  > ![image-20200417233616822](pic/image-20200417233616822.png)
+
+- xsync集群分发脚本
+
+  （1）需求：循环复制文件到所有节点的相同目录下
+
+  （2）需求分析：
+
+  > - 期望脚本：xsync要同步的文件名称
+  >
+  > - 说明：在/home/xxx/bin这个目录下存放的脚本，atguigu用户可以在系统任何地方直接执行。
+  >
+  >   > 脚本实现:
+  >   >
+  >   > 在/usr/local/bin 目录下创建 *xsync* 文件
+  >   >
+  >   > ==注意看每个主机的hosts有没有配置好==
+  >   >
+  >   > ```shell
+  >   > root@hadoop2:/usr/local/bin# vim xsync
+  >   > 
+  >   > #!/bin/bash
+  >   > #1 获取输入参数个数，如果没有参数，直接退出
+  >   > pcount=$#
+  >   > if ((pcount==0)); then
+  >   > echo no args;
+  >   > exit;
+  >   > fi
+  >   > 
+  >   > #2 获取文件名称
+  >   > p1=$1
+  >   > fname=`basename $p1`
+  >   > echo fname=$fname
+  >   > 
+  >   > #3 获取上级目录到绝对路径,-P可追踪软连接到绝对路径
+  >   > pdir=`cd -P $(dirname $p1); pwd`
+  >   > echo pdir=$pdir
+  >   > 
+  >   > #4 获取当前用户名称,注意看每个主机的hosts有没有配置好
+  >   > user=`whoami`
+  >   > 
+  >   > #5 循环, 注意起始位置不要把自己算进去了
+  >   > for((host=3; host<5; host++)); do
+  >   >         echo ------------------- hadoop$host --------------
+  >   >         rsync -av $pdir/$fname $user@hadoop$host:$pdir
+  >   > done
+  >   > ```
+  >   >
+  >   > ```shell
+  >   > #设置权限
+  >   > root@hadoop1:/usr/local/bin# chmod 777 xsync
+  >   > #xsync集群分发
+  >   > root@hadoop1:~# xsync /usr/local/bin/xsync
+  >   > 
+  >   > #在其它主机上查看有没有收到文件
+  >   > root@hadoop2:~# ll /usr/local/bin/
+  >   > .......
+  >   > -rwxrwxrwx 1 root root  337 Apr 18 04:36 xsync*
+  >   > 
+  >   > root@hadoop3:~/.ssh# ll /usr/local/bin/
+  >   > ......
+  >   > -rwxrwxrwx 1 root root  337 Apr 18 04:36 xsync*
+  >   > ```
+  >
+  > 注意：如果将xsync放到/home/xxx/bin目录下仍然不能实现全局使用，可以将xsync移动到/usr/local/bin目录下
+
+​	
+
+- 快速分发Hadoop和java
+
+  ```shell
+  #/usr/local/bin是添加到环境变量的,所以,此时分发不一定要把文件放在/usr/local/sbin目录下
+  root@hadoop1:~/.ssh# echo $PATH
+  /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/usr/local/jdk1.8.0_231/bin:/usr/local/hadoop-2.6.0-cdh5.9.3/bin:/usr/local/hadoop-2.6.0-cdh5.9.3/sbin
+  
+  root@hadoop1:/usr/local/hadoop-2.6.0-cdh5.9.3# ll
+  total 200
+  .......
+  -rwxr-xr-x  1 root root   337 Apr 18 06:37 xsync*
+  #查看修改xsync文件中分发的主机
+  $ vim /usr/local/bin/xsync
+  #此时就可以把hadoop1的Hadoop和java安装包分发到其他主机,
+  #注意如果主机不同,先删除~/.ssh下的known_hosts
+  root@hadoop1:/usr/local/hadoop-2.6.0-cdh5.9.3# xsync xsync 
+  ```
+
+  
+
+##### 3.3 集群配置
+
+1. 集群部署规划
+
+   |      | hadoop2                   | hadoop3                             | hadoop4                            |
+   | ---- | ------------------------- | ----------------------------------- | ---------------------------------- |
+   | HDFS | DataNode<br/>==NameNode== | DataNode                            | DataNode<br/>==SecondaryNameNode== |
+   | YARN | NodeManager               | NodeManager<br/>==ResourceManager== | NodeManager                        |
+
+
+
+
+2. 配置集群(先在主机hadoop2在配置再分发出去)
+
+   - core-site.xml
+
+     指定HDFS中NameNode的地址(如上表): hadoop2
+
+     ```xml
+             <property>
+                     <name>fs.defaultFS</name>
+                     <value>hdfs://hadoop2:9000</value>
+             </property>
+     
+             <property>
+                     <name>hadoop.tmp.dir</name>
+                     <value>/usr/local/hadoop-2.6.0-cdh5.9.3/temp</value>
+             </property>
+     ```
+
+   - slaves
+
+     slaves文件只作用在NameNode上面,比如我在slaves里面配置了
+      host1
+      host2
+      host3
+      三台机器，这时候如果突然间新增了一台机器，比如是host4，会发现在NN上host4也自动加入到集群里面了，HDFS的磁盘容量上来了，这下子不是出问题了？假如host4不是集群的机器，是别人的机器，然后配置的时候指向了NN，这时候NN没有做判断岂不是把数据也有可能写到host4上面？这对数据安全性影响很大。所以可以在hdfs-site.xml里面加限制
+
+   - yarn-site.xml
+
+     ```xml
+     <!-- Reducer获取数据的方式 -->
+     <property>
+     		<name>yarn.nodemanager.aux-services</name>
+     		<value>mapreduce_shuffle</value>
+     </property>
+     
+     <!-- 指定YARN的ResourceManager的地址 -->
+     <property>
+     		<name>yarn.resourcemanager.hostname</name>
+     		<value>hadoop3</value>
+     </property>
+     ```
+
+   - hdfs-site.xml
+
+     ```xml
+     <!-- 指定HDFS副本的数量(节点数): 3 -->
+     <property>
+     		<name>dfs.replication</name>
+     		<value>3</value>
+     </property>
+     
+     <!-- 指定Hadoop辅助名称节点主机配置 -->
+     <property>
+           <name>dfs.namenode.secondary.http-address</name>
+           <value>hadoop4:50090</value>
+     </property>
+     ```
+
+   - mapred-env.sh, hadoop-env.sh, yarn-env.sh
+
+     只配置JAVA_HOME, 生成镜像时已配
+
+   
+
+3. 在集群上分发配置好的Hadoop配置文件
+
+   ```shell
+   root@hadoop2:/usr/local/hadoop-2.6.0-cdh5.9.3#xsync etc/
+   ```
+
+   **注:** 直接将HDFS的主机hadoop1的etc文件夹分发给从机即可
+
+4. 查看文件分发情况
+
+5. 配置完成,保存镜像
+
+```shell
+$ docker commit -a cxy -m "Hadoop environment,Fully-Distributed Mode,hadoop2" e9f409e5eaf9 cxy/hadoop:2.6.0-cdh5.9.3-3_hadoop2
+#推送到远端
+$ sudo docker login --username=xyxc202 registry.cn-chengdu.aliyuncs.com
+$ sudo docker tag 86402274886b registry.cn-chengdu.aliyuncs.com/cxy_explore/cxy-hadoop:2.6.0-cdh5.9.3-3_hadoop2
+$ sudo docker push registry.cn-chengdu.aliyuncs.com/cxy_explore/cxy-hadoop:2.6.0-cdh5.9.3-3_hadoop2
+
+
+$ docker commit -a cxy -m "Hadoop environment,Fully-Distributed Mode,hadoop3" 8cad0e953ab1 cxy/hadoop:2.6.0-cdh5.9.3-3_hadoop3
+#推送到远端
+$ sudo docker tag 662b7479902d registry.cn-chengdu.aliyuncs.com/cxy_explore/cxy-hadoop:2.6.0-cdh5.9.3-3_hadoop3
+$ sudo docker push registry.cn-chengdu.aliyuncs.com/cxy_explore/cxy-hadoop:2.6.0-cdh5.9.3-3_hadoop3
+
+$ docker commit -a cxy -m "Hadoop environment,Fully-Distributed Mode,hadoop4" d5a5681e1c3e cxy/hadoop:2.6.0-cdh5.9.3-3_hadoop4
+#推送到远端
+$ sudo docker tag b07c8dd4b05d registry.cn-chengdu.aliyuncs.com/cxy_explore/cxy-hadoop:2.6.0-cdh5.9.3-3_hadoop4
+$ sudo docker push registry.cn-chengdu.aliyuncs.com/cxy_explore/cxy-hadoop:2.6.0-cdh5.9.3-3_hadoop4
+```
+
+https://cr.console.aliyun.com/repository/cn-chengdu/cxy_explore
+
+##### 3.4 集群单点启动(手动一个个地启动)
+
+```shell
+#hadoop1格式化
+#注意现在用的镜像是运行过单机模式和伪分布模式的,已经格式化过了
+#如果未格式化过请格式化
+#root@hadoop1:/usr/local/hadoop-2.6.0-cdh5.9.3# hdfs namenode -format
+
+#hadoop2启动namenode
+root@hadoop2:/usr/local/hadoop-2.6.0-cdh5.9.3#hadoop-daemon.sh start namenode
+
+#hadoop2,hadoop3,hadoop4启动datanode
+root@hadoop2:/usr/local/hadoop-2.6.0-cdh5.9.3#hadoop-daemon.sh start datanode
+root@hadoop3:/usr/local/hadoop-2.6.0-cdh5.9.3#hadoop-daemon.sh start datanode
+root@hadoop4:/usr/local/hadoop-2.6.0-cdh5.9.3#hadoop-daemon.sh start datanode
+
+#hadoop4启动secondarynamenode
+root@hadoop4:/usr/local/hadoop-2.6.0-cdh5.9.3# hadoop-daemon.sh start secondarynamenode
+```
+
+关闭：
+
+```shell
+sbin/hadoop-daemon.sh start namenode
+sbin/hadoop-daemon.sh stop datanode
+```
+
+http://172.17.0.2:50070/dfshealth.html#tab-overview
+
+##### 3.5 SSH无密登录配置
+
+1. ssh
+
+- ssh-1：对称加密，加密和解密都用相同的密钥
+- ssh-2：非对称加密（如下图）
+
+![image-20200419122233637](pic/image-20200419122233637.png)
+
+2. 测试用hadoop2免密登录hadoop3
+
+   注意每次重新打开容器,端口都会重新分配的(因为/etc/hosts中的配置被清掉,建议不要随便关闭容器),查看每个主机中的hosts,把所有主机都加上
+
+   注: ~/.ssh/authorized_keys里装的是所有已知的能免密登录本机的密钥
+
+   > - authorized_keys: 存放授权过得无密登录服务器公钥
+   > - id_rsa : 生成的私钥文件
+   > - id_rsa.pub ： 生成的公钥文件 
+   > - know_hosts : 记录ssh访问过计算机的公钥(public key)
+
+   ```shell
+   root@hadoop2:/usr/local# service ssh start
+   root@hadoop3:/usr/local# service ssh start
+   
+   root@hadoop2:/usr/local# ssh-copy-id hadoop3
+   #如果提示更新
+   #root@hadoop2:/usr/local# ssh-keygen -f "/root/.ssh/known_hosts" -R "hadoop3"
+   #看能否免密登录hadoop3
+   
+   #可以看到是hadoop2的公钥,可以不用ssh-cop-id,直接手动复制
+   root@hadoop3:/usr/local# cat ~/.ssh/authorized_keys 
+   
+   #如果提示输密码可设置:
+   #vi /etc/ssh/sshd_config
+   #PasswordAuthentication no
+   #service ssh restart
+   
+   
+   root@hadoop2:/usr/local# ssh hadoop3
+   Welcome to Ubuntu 18.04.4 LTS (GNU/Linux 4.15.0-96-generic x86_64)
+   .......
+   Last login: Fri Apr 17 08:41:55 2020 from 172.17.0.2
+   root@hadoop3:~# 
+   ```
+
+##### 3.6 群起集群
+
+1. 配置slaves
+
+```shell
+#配置所有从机
+root@hadoop2:/usr/local/hadoop-2.6.0-cdh5.9.3# vim etc/hadoop/slaves 
+hadoop2
+hadoop3
+hadoop4
+
+#分发配置
+root@hadoop2:/usr/local/hadoop-2.6.0-cdh5.9.3# xsync etc/hadoop/slaves
+```
+
+2. 启动集群
+
+如果集群是第一次启动，需要格式化NameNode（注意格式化之前，一定要先停止上次启动的所有namenode和datanode进程，然后再删除data和log数据）
+
+- 启动HDFS
+
+```shell
+root@hadoop2:/usr/local/hadoop-2.6.0-cdh5.9.3# start-dfs.sh 
+......
+STARTUP_MSG:   java = 1.8.0_231
+root@hadoop2:/usr/local/hadoop-2.6.0-cdh5.9.3# vim etc/hadoop/core-site.xml 
+root@hadoop2:/usr/local/hadoop-2.6.0-cdh5.9.3# vim etc/hadoop/yarn-site.xml 
+root@hadoop2:/usr/local/hadoop-2.6.0-cdh5.9.3# vim etc/hadoop/hdfs-site.xml 
+root@hadoop2:/usr/local/hadoop-2.6.0-cdh5.9.3# start-dfs.sh                          
+Starting namenodes on [hadoop2]
+hadoop2: starting namenode, logging to /usr/local/hadoop-2.6.0-cdh5.9.3/logs/hadoop-root-namenode-hadoop2.out
+hadoop4: starting datanode, logging to /usr/local/hadoop-2.6.0-cdh5.9.3/logs/hadoop-root-datanode-hadoop4.out
+hadoop3: starting datanode, logging to /usr/local/hadoop-2.6.0-cdh5.9.3/logs/hadoop-root-datanode-hadoop3.out
+hadoop2: starting datanode, logging to /usr/local/hadoop-2.6.0-cdh5.9.3/logs/hadoop-root-datanode-hadoop2.out
+Starting secondary namenodes [hadoop4]
+hadoop4: starting secondarynamenode, logging to /usr/local/hadoop-2.6.0-cdh5.9.3/logs/hadoop-root-secondarynamenode-hadoop4.out
+```
+
+- 启动YARN
+
+  ```shell
+  root@hadoop3:/usr/local/hadoop-2.6.0-cdh5.9.3# start-yarn.sh
+  ```
+
+  注意：NameNode和ResourceManger如果不是同一台机器，不能在NameNode上启动 YARN，应该在ResouceManager所在的机器上启动YARN
+
+- Web端查看SecondaryNameNode
+
+  http://172.17.0.2:50070/dfshealth.html#tab-overview
+
+  http://172.17.0.3:8088/cluster  : 看Nodes
+
+3. 集群基本测试
+
+   - 上传文件
+
+     ```shell
+     $ hdfs dfs -put wcinput /
+     ```
+
+   - 计算
+
+     ```shell
+     $hadoop jar share/hadoop/mapreduce/hadoop-mapreduce-examples-2.6.0-cdh5.9.3.jar wordcount /wcinput /wcoutput
+     ```
+
+4. 一些问题
+
+   如果登录后执行,用到的环境变量文件是 : /etc/profile
+
+   未登录执行($ ssh hadoop2 “jps”),用到的环境变量文件: .bashrc
+
+   若JAVA的环境变量配置在etc_profile, 则采取未登录执行命令的方式就没有配置的环境变量了. 解决方案:
+
+   > 1. ```shell
+   >    ssh hadoop2 "source /etc/profile jps"
+   >    ```
+   >
+   > 2. 到~/.bashrc中配置环境变量
+
+##### 3.7 集群启动/停止方式总结
+
+1. 各个服务组件逐一启动/停止
+
+> - 分别启动/停止HDFS组件
+>
+>   ```shell
+>   $hadoop-daemon.sh start/stop  namenode/datanode/secondarynamenode
+>   ```
+>
+> - 启动/停止YARN
+>
+>   ```shell
+>   $yarn-daemon.sh start/stop  resourcemanager/nodemanager
+>   ```
+
+2.  各个模块分开启动/停止（配置ssh是前提）常用
+
+   > - 整体启动/停止HDFS
+   >
+   >   ```shell
+   >   $ start-dfs.sh  
+   >   $ stop-dfs.sh
+   >   ```
+   >
+   >   
+   >
+   > - 整体启动/停止YARN
+   >
+   >   ```shell
+   >   $ start-yarn.sh 
+   >   $ stop-yarn.sh
+   >   ```
+
+##### 	3.8 历史服务器和日志聚集配置(跳过,失败了)
+
+配置之前先停止集群
+
+```shell
+root@hadoop2:/usr/local/hadoop-2.6.0-cdh5.9.3# stop-dfs.sh
+root@hadoop3:/usr/local/hadoop-2.6.0-cdh5.9.3# stop-yarn.sh
+```
+
+配置:
+
+> - mapred-site.xml
+>
+>   配置在哪个主机都可以
+>
+>   ```xml
+>   <!-- 历史服务器端地址 -->
+>   <property>
+>   <name>mapreduce.jobhistory.address</name>
+>   <value>hadoop4:10020</value>
+>   </property>
+>   <!-- 历史服务器web端地址 -->
+>   <property>
+>       <name>mapreduce.jobhistory.webapp.address</name>
+>       <value>hadoop4:19888</value>
+>   </property>
+>   ```
+>
+> - yarn-site.xml
+>
+>   ```xml
+>   <!-- 日志聚集功能使能 -->
+>   <property>
+>   <name>yarn.log-aggregation-enable</name>
+>   <value>true</value>
+>   </property>
+>   
+>   <!-- 日志保留时间设置7天 -->
+>   <property>
+>   <name>yarn.log-aggregation.retain-seconds</name>
+>   <value>604800</value>
+>   </property>
+>   ```
+>
+> - 分发配置到所有主机
+>
+>   ```shell
+>   root@hadoop2:/usr/local/hadoop-2.6.0-cdh5.9.3# xsync etc/
+>   ```
+>
+> - 启动集群
+>
+>   ```shell
+>   root@hadoop2:/usr/local/hadoop-2.6.0-cdh5.9.3# start-dfs.sh
+>   root@hadoop3:/usr/local/hadoop-2.6.0-cdh5.9.3# start-yarn.sh
+>   root@hadoop4:/usr/local/hadoop-2.6.0-cdh5.9.3# mr-jobhistory-daemon.sh start historyserver
+>   ```
+>
+> - 
+
+##### 3.9 集群时间同步(失败)
+
+时间同步的方式：找一个机器，作为时间服务器，所有的机器与这台集群时间进行定时的同步，比如，每隔十分钟，同步一次时间
+
+```shell
+#每台主机都执行:
+#安装,已安装可跳过
+$ apt-get install ntp
+#查看状态
+$ service ntp status
+#如果是开启的,则关闭
+```
+
+- vim /etc/ntp.conf
+
+```shell
+#打开下列语句的注释
+#192.168.123.0 - 192.168.123.255 网段上的所有机器可以从这台机器上查询和同步时间
+restrict 192.168.123.0 mask 255.255.255.0 notrust
+
+#添加注释
+#集群在局域网中，不使用其他互联网上的时间
+#pool 0.ubuntu.pool.ntp.org iburst
+#pool 1.ubuntu.pool.ntp.org iburst
+#pool 2.ubuntu.pool.ntp.org iburst
+#pool 3.ubuntu.pool.ntp.org iburst
+
+#添加以下语句（当该节点丢失网络连接，依然可以采用本地时间作为时间服务器为集群中的其他节点提供时间同步）
+server 127.127.1.0
+fudge 127.127.1.0 stratum 10
+```
+
+- vim /usr/sbin/ntpd(不用设置,时间已经同步了)
+
+```shell
+#Drop root to id 'ntp:ntp' by default
+OPTIONS="-u ntp:ntp -p /var/run/ntpd.pid -g"
+SYNC_HWCLOCK=yes
+```
+
+- 启动ntp服务
+
+  ```shell
+  $ service ntp start
+  $ date
+  Sun Apr 19 22:53:47 CST 2020
+  ```
