@@ -382,6 +382,203 @@ $ source /etc/profile
 $ hadoop version
 ```
 
+## 5.4 Hadoop客户端环境搭建
+
+下面的依赖如果可以工作的话,就不用导入本地hadoop包了
+
+```xml
+    <dependencies>
+              <dependency>
+            <groupId>org.apache.hadoop</groupId>
+            <artifactId>hadoop-common</artifactId>
+            <version>2.8.5</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/org.apache.hadoop/hadoop-hdfs -->
+        <dependency>
+            <groupId>org.apache.hadoop</groupId>
+            <artifactId>hadoop-hdfs</artifactId>
+            <version>2.8.5</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/org.apache.hadoop/hadoop-mapreduce-client-core -->
+        <dependency>
+            <groupId>org.apache.hadoop</groupId>
+            <artifactId>hadoop-mapreduce-client-core</artifactId>
+            <version>2.8.5</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/org.apache.hadoop/hadoop-client -->
+        <dependency>
+            <groupId>org.apache.hadoop</groupId>
+            <artifactId>hadoop-client</artifactId>
+            <version>2.8.5</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/org.apache.hadoop/hadoop-yarn-api -->
+        <dependency>
+            <groupId>org.apache.hadoop</groupId>
+            <artifactId>hadoop-yarn-api</artifactId>
+            <version>2.8.5</version>
+        </dependency>
+
+    </dependencies>
+```
+
+
+
+#### 1. IDEA的配置
+
+1. 选择Configure – > Settings
+
+![image-20200420170254191](pic/image-20200420170254191.png)
+
+2. 配置Maven
+
+   ![image-20200420171030652](pic/image-20200420171030652.png)
+
+3. 设置Project structure
+
+   上一步设置完成后又来到开始界面, Configure – > Structure for new Project
+
+   **注:** 工程**创建后**所有位置(Java compiler, module中java language level…)的java版本都要改成一致
+
+   ![image-20200420171549411](pic/image-20200420171549411.png)
+
+#### 2. 创建maven工程
+
+![image-20200420172108311](pic/image-20200420172108311.png)
+
+创建成功,设置java版本
+
+![image-20200420172108311](pic/image-20200422204245346.png)
+
+![image-20200420172108311](pic/image-20200422204548858.png)
+
+![image-20200420172108311](pic/image-20200422204710502.png)
+
+#### 3. 导入日志的依赖
+
+- 创建成功之后在pom.xml中导入依赖
+
+  ![image-20200420205610433](pic/image-20200420205610433.png)
+
+  ```xml
+      <dependencies>
+          <dependency>
+              <groupId>org.apache.logging.log4j</groupId>
+              <artifactId>log4j-core</artifactId>
+              <version>2.8.2</version>
+          </dependency>
+      </dependencies>
+  ```
+
+- 项目的src/main/resources目录下，新建一个文件，命名为“log4j.properties”，在文件中填入:
+
+```properties
+log4j.rootLogger=INFO, stdout
+log4j.appender.stdout=org.apache.log4j.ConsoleAppender
+log4j.appender.stdout.layout=org.apache.log4j.PatternLayout
+log4j.appender.stdout.layout.ConversionPattern=%d %p [%c] - %m%n
+log4j.appender.logfile=org.apache.log4j.FileAppender
+log4j.appender.logfile.File=target/spring.log
+log4j.appender.logfile.layout=org.apache.log4j.PatternLayout
+log4j.appender.logfile.layout.ConversionPattern=%d %p [%c] - %m%n
+```
+
+#### 4. 配置Hadoop依赖环境
+
+- 选择**本地**hadoop安装目录中/share/hadoop目录
+
+  即: /opt/hadoop-2.6.0-cdh5.9.3/share/hadoop
+
+  下对应的的各种jar包
+
+```
+common
+hdfs
+mapreduce
+yarn
+comom/lib
+```
+
+- 安装目录下的lib/slave, 因为我安装的时候不是安装的编译好的,本地运行也需要自行下载此包.不导此包会报错: Unable to load native-hadoop library for your platform……
+
+![image-20200420210359475](pic/image-20200420210359475.png)
+
+#### 5. 配置Hadoop配置文件的访问权限
+
+在IDEA通过Docker集群执行MapReduce任务是会报一个异常，说本机的用户名没有权限访问Docker容器内的HDFS，此时需要**添加**容器内Hadoop的两个配置文件，通过master的终端执行
+
+- vim $HADOOP_HOME/etc/hadoop/==core-site.xml==
+
+```xml
+<property>
+    <name>hadoop.http.staticuser.user</name>
+    <value>root</value>
+</property>
+```
+- vim $HADOOP_HOME/etc/hadoop/==hdfs-site.xml==
+
+```xml
+    <property>
+        <name>dfs.permissions</name>
+        <value>false</value>
+    </property>
+```
+
+docker端Hadoop设置好了本地客户端能访问的权限, 同时本地端也需知道服务器端的IP地址和主机名. 需要在hosts中加上
+
+```shell
+$cxy@Cxy:$ vim /etc/hosts
+
+172.17.0.2       hadoop1
+```
+
+![image-20200420213554259](pic/image-20200420213554259.png)
+
+#### 6.测试上传文件
+
+![image-20200420213752971](pic/image-20200420213752971.png)
+
+1. 在hdfs下创建文件wc.input
+
+2. 新建class
+
+   ```java
+   package com.atguigu.hdfsclient;
+   
+   import org.apache.hadoop.conf.Configuration;
+   import org.apache.hadoop.fs.FileSystem;
+   import org.apache.hadoop.fs.Path;
+   import java.io.IOException;
+   import static org.apache.hadoop.fs.FileSystem.*;
+   
+   
+   /**
+    * @author cxy
+    * @create 2020-04-20-下午7:23
+    */
+   public class HDFSClient {
+       public static void main(String[] args) throws IOException {
+           Configuration configuration = new Configuration();
+           configuration.set("fs.defaultFS", "hdfs://hadoop1:9000");
+   
+           FileSystem fileSystem = get(configuration);
+           fileSystem.copyFromLocalFile(new Path("/home/cxy/文档/My code/Java/04_BigData/05_Senior/Hadoop/hdfs/wc.input"),new Path("/"));
+           fileSystem.close();
+       }
+   }
+   ```
+
+3. 运行
+
+   在docker容器中启动hadoop服务
+
+   ```shell
+   root@hadoop1:/usr/local/hadoop-2.6.0-cdh5.9.3# start-dfs.sh
+   ```
+
+4. 在web端查看是否上传成功
+
+   http://hadoop1:50070/explorer.html#/
+
 # 6. VS Code + Java开发
 
 ## 6.1 Maven
@@ -674,7 +871,7 @@ localhost:8080
    >
    > MySQL的服务已经开启了就直接打开的Navicat去连接
    >
-   > ![image-20200402150347474](pic/image-20200402150347474.png)
+   > ![image-20200402150347474](pic/image-20200415221127457.png)
    >
    > **还记得刚刚让你复制的root @ localhost：后面的初始密码了吗？现在要用到它了复制粘贴上去！**
    >
@@ -689,6 +886,8 @@ localhost:8080
 <a href = "https://dev.mysql.com/downloads/mysql/">MySQL下载</a>
 
 ### mysql 安装
+
+http://www.coozhi.com/youxishuma/g4/86480.html
 
 ```mysql
 # 安装MySQL的依赖库
@@ -705,7 +904,7 @@ sudo mv mysql /usr/local
 groupadd mysql
 
 #添加一个mysql用户到mysql用户组中
-useradd -r -g mysql -s /bin/false/mysql
+useradd -r -g mysql -s /bin/false mysql
 
 #切换到/usr/local/mysql目录
 cd /usr/local/mysql
@@ -716,7 +915,8 @@ sudo chown mysql:mysql mysql-files
 sudo chmod 750 mysql-files
 
 #对mysql数据库执行初始化命令
-bin/mysqld --initialize --user=mysql
+$ bin/mysqld --initialize --user=mysql
+2020-05-30T12:37:26.837048Z 6 [Note] [MY-010454] [Server] A temporary password is generated for root@localhost: IX=KXe2wZc:B
 
 #开启MySQL服务
 bin/mysqld_safe --user=mysql&
@@ -735,6 +935,67 @@ mysqladmin  Ver 8.42 Distrib 5.7.29, for Linux on x86_64
 ```
 
  如果以上命令执行后未输出任何信息，说明你的Mysql未安装成功。 
+
+登录:
+
+```mysql
+#输入初始化时得到的密码
+root@hadoop2:/usr/local/mysql/data# mysql -uroot -p
+Enter password: 
+Welcome to the MySQL monitor.  Commands end with ; or \g.
+Your MySQL connection id is 9
+Server version: 8.0.20
+
+Copyright (c) 2000, 2020, Oracle and/or its affiliates. All rights reserved.
+
+Oracle is a registered trademark of Oracle Corporation and/or its
+affiliates. Other names may be trademarks of their respective
+owners.
+
+Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+
+mysql>
+```
+
+重置密码:
+
+```mysql
+mysql> use mysql;
+ERROR 1820 (HY000): You must reset your password using ALTER USER statement before executing this statement.
+mysql> alter user 'root'@'localhost' identified by '12345c';
+Query OK, 0 rows affected (0.02 sec)
+```
+
+
+
+卸载与在线安装:
+
+```shell
+$ sudo apt-get --yes autoremove --purge mysql-server-5.7
+$ sudo apt-get --yes autoremove --purge mysql-client-5.7
+$ sudo apt-get --yes autoremove --purge mysql-common
+$ sudo rm -rf /var/lib/mysql /etc/mysql ~/.mysql
+
+
+$ sudo deluser mysql
+$ sudo apt-get autoclean
+$ sudo apt-get update && sudo apt-get upgrade
+$ sudo apt-get install mysql-server-5.7 mysql-client-5.7
+
+```
+
+##### 报错:
+
+1. bash: mysqladmin: command not found
+
+   解决:
+
+   原因:这是由于系统默认会查找/usr/bin下的命令，如果这个命令不在这个目录下，当然会找不到命令，我们需要做的就是映射一个链接到/usr/bin目录下，相当于建立一个链接文件。
+    首先得知道mysql命令或mysqladmin命令的完整路径，比如mysql的路径是：/usr/local/mysql/bin/mysql，我们则可以这样执行命令：
+
+   ```shell
+   root@hadoop2:~# ln -s /usr/local/mysql/bin/mysqladmin /usr/bin
+   ```
 
 
 
@@ -791,22 +1052,22 @@ sudo vim /etc/mysql/mysql.conf.d/mysqld.cnf
 [![复制代码](pic/copycode.gif)](javascript:void(0);)
 
 ```
- 1 [mysqld]
- 2 #
- 3 # * Basic Settings
- 4 #
- 5 user            　 = mysql
- 6 pid-file        　 = /var/run/mysqld/mysqld.pid
- 7 socket        　　 = /var/run/mysqld/mysqld.sock
- 8 port            　 = 3306
- 9 basedir        　　= /usr
-10 datadir       　　 = /var/lib/mysql
-11 tmpdir       　　　= /tmp
-12 lc-messages-dir   = /usr/share/mysql
-13 skip-external-locking
-14 character-set-server=utf8
-15 collation-server=utf8_general_ci
-16 skip-grant-tables　　　　<-- add here
+ [mysqld]
+#
+# * Basic Settings
+#
+user            　 = mysql
+pid-file        　 = /var/run/mysqld/mysqld.pid
+socket        　　 = /var/run/mysqld/mysqld.sock
+port            　 = 3306
+basedir        　　= /usr
+datadir       　　 = /var/lib/mysql
+tmpdir       　　　= /tmp
+lc-messages-dir   = /usr/share/mysql
+skip-external-locking
+character-set-server=utf8
+collation-server=utf8_general_ci
+skip-grant-tables　　　　<-- add here
 ```
 
 **保存:wq，退出**。
@@ -2546,7 +2807,7 @@ yarn	1
      #输入:
      
      export JAVA_HOME=/usr/local/jdk1.8.0_231
-     export HADOOP_PREFIX=/usr/local/hadoop-2.6.0-cdh5.9.3
+     #export HADOOP_PREFIX=/usr/local/hadoop-2.6.0-cdh5.9.3
      
      #export HADOOP_SSH_OPTS="-p 22"
      ```
@@ -2593,7 +2854,7 @@ yarn	1
      hadoop1
      ```
 
-       将localhost改为主机名. 如果就用宿主机此步骤可省
+       将localhost改为主机名.==只有在群起的时候slaves才发挥作用==,其余都不用配置slaves
 
      
 
@@ -2872,6 +3133,8 @@ $ sudo docker push registry.cn-chengdu.aliyuncs.com/cxy_explore/cxy-hadoop:2.6.0
    $docker run -it --name hadoop3 --hostname hadoop3 --ip 172.17.3 -P -p 50072:50070 -p 8090:8088 --privileged=true cxy/hadoop:2.6.0-cdh5.9.3-2
    
    $docker run -it --name hadoop4 --hostname hadoop4 --ip 172.17.4 -P -p 50073:50070 -p 8091:8088 --privileged=true cxy/hadoop:2.6.0-cdh5.9.3-2
+   
+   #$ docker run -it --name hadoop5 --hostname hadoop5 --ip 172.17.5 -P -p 50074:50070 -p 8092:8088 --privileged=true cxy/hadoop:2.6.0-cdh5.9.3-2
    ```
 
 3. 改配置中的主机名和设置hosts(vim /etc/hosts)
@@ -2945,7 +3208,7 @@ $ sudo docker push registry.cn-chengdu.aliyuncs.com/cxy_explore/cxy-hadoop:2.6.0
 
   > - 期望脚本：xsync要同步的文件名称
   >
-  > - 说明：在/home/xxx/bin这个目录下存放的脚本，atguigu用户可以在系统任何地方直接执行。
+  > - ==说明：在/home/xxx/bin或/usr/local/bin 这个目录下存放的脚本，用户可以在系统任何地方直接执行==。
   >
   >   > 脚本实现:
   >   >
@@ -2978,8 +3241,8 @@ $ sudo docker push registry.cn-chengdu.aliyuncs.com/cxy_explore/cxy-hadoop:2.6.0
   >   > 
   >   > #5 循环, 注意起始位置不要把自己算进去了
   >   > for((host=3; host<5; host++)); do
-  >   >         echo ------------------- hadoop$host --------------
-  >   >         rsync -av $pdir/$fname $user@hadoop$host:$pdir
+  >   >      echo ------------------- hadoop$host --------------
+  >   >      rsync -av $pdir/$fname $user@hadoop$host:$pdir
   >   > done
   >   > ```
   >   >
@@ -2997,6 +3260,17 @@ $ sudo docker push registry.cn-chengdu.aliyuncs.com/cxy_explore/cxy-hadoop:2.6.0
   >   > root@hadoop3:~/.ssh# ll /usr/local/bin/
   >   > ......
   >   > -rwxrwxrwx 1 root root  337 Apr 18 04:36 xsync*
+  >   > ```
+  >   >
+  >   > 同理,创建jpsall:
+  >   >
+  >   > ```shell
+  >   > #!/bin/bash
+  >   > for i in hadoop2 hadoop3 hadoop4
+  >   > do
+  >   > echo --------------------- $i -------------------------------
+  >   > ssh $i  "source /etc/profile && jps | grep -v Jps "
+  >   > done
   >   > ```
   >
   > 注意：如果将xsync放到/home/xxx/bin目录下仍然不能实现全局使用，可以将xsync移动到/usr/local/bin目录下
@@ -3223,14 +3497,14 @@ root@hadoop2:/usr/local/hadoop-2.6.0-cdh5.9.3# xsync etc/hadoop/slaves
 
 2. 启动集群
 
-如果集群是第一次启动，需要格式化NameNode（注意格式化之前，一定要先停止上次启动的所有namenode和datanode进程，然后再删除data和log数据）
+如果集群是第一次启动，需要格式化NameNode（注意格式化之前，一定要先停止上次启动的所有namenode和datanode进程，然后再==删除data和log数据==）
 
 - 启动HDFS
 
 ```shell
-root@hadoop2:/usr/local/hadoop-2.6.0-cdh5.9.3# start-dfs.sh 
-......
-STARTUP_MSG:   java = 1.8.0_231
+root@hadoop3:/usr/local/hadoop-2.6.0-cdh5.9.3# rm -rf temp/ logs/
+root@hadoop4:/usr/local/hadoop-2.6.0-cdh5.9.3# rm -rf temp/ logs/
+
 root@hadoop2:/usr/local/hadoop-2.6.0-cdh5.9.3# vim etc/hadoop/core-site.xml 
 root@hadoop2:/usr/local/hadoop-2.6.0-cdh5.9.3# vim etc/hadoop/yarn-site.xml 
 root@hadoop2:/usr/local/hadoop-2.6.0-cdh5.9.3# vim etc/hadoop/hdfs-site.xml 
@@ -3256,6 +3530,18 @@ hadoop4: starting secondarynamenode, logging to /usr/local/hadoop-2.6.0-cdh5.9.3
 
   http://172.17.0.2:50070/dfshealth.html#tab-overview
 
+  ![image-20200422145806222](pic/image-20200422145806222.png)
+  
+  注意: 如果发现只有hadoop2一个节点,可能是因为我之前的镜像是格式化且启动过hdfs发,导致datanode的VERSION里面有2个id是一样的，datanodeUuid和storageID，因此在master:50070上死活只看到一个datanode.
+  
+  解决方法: 删掉hadoop3,hadoop4的temp和logs文件夹
+  
+  ```shell
+  root@hadoop4:/usr/local/hadoop-2.6.0-cdh5.9.3# rm -rf temp/ logs/
+  ```
+  
+  
+  
   http://172.17.0.3:8088/cluster  : 看Nodes
 
 3. 集群基本测试
@@ -3378,7 +3664,6 @@ root@hadoop3:/usr/local/hadoop-2.6.0-cdh5.9.3# stop-yarn.sh
 >   root@hadoop4:/usr/local/hadoop-2.6.0-cdh5.9.3# mr-jobhistory-daemon.sh start historyserver
 >   ```
 >
-> - 
 
 ##### 3.9 集群时间同步(失败)
 
@@ -3427,3 +3712,681 @@ SYNC_HWCLOCK=yes
   $ date
   Sun Apr 19 22:53:47 CST 2020
   ```
+
+## 5. 配置Zookeeper集群
+
+1. 上传文件到hadoop2
+
+   ```shell
+   cxy@Cxy:~/下载$ docker cp apache-zookeeper-3.6.0.tar.gz hadoop2:/usr/local/
+   ```
+
+2. 解压
+
+   ```shell
+   root@hadoop2:/usr/local# tar -zxvf apache-zookeeper-3.6.0.tar.gz
+   ```
+
+3. 重命名apache-zookeeper-3.6.0/conf这个目录下的zoo_sample.cfg为zoo.cfg
+
+   ```shell
+   root@hadoop2:/usr/local/apache-zookeeper-3.6.0/conf# mv zoo_sample.cfg zoo.cfg
+   ```
+
+4. 配置zoo.cfg文件
+
+   ```cfg
+   dataDir=/usr/local/apache-zookeeper-3.6.0/zkData
+   #######################cluster##########################
+   server.2=hadoop2:2888:3888
+   server.3=hadoop3:2888:3888
+   server.4=hadoop4:2888:3888
+   ```
+
+   > Server.A=B:C:D。
+   >
+   > A是一个数字，表示这个是第几号服务器；
+   >
+   > B是这个服务器的IP地址；
+   >
+   > C是这个服务器与集群中的Leader服务器交换信息的端口；
+   >
+   > D是万一集群中的Leader服务器挂了，需要一个端口来重新进行选举，选出一个新的Leader，而这个端口就是用来执行选举时服务器相互通信的端口。
+   >
+   > 集群模式下配置一个文件myid，这个文件在dataDir目录下，这个文件里面有一个数据就是A的值，Zookeeper启动时读取此文件，拿到里面的数据与zoo.cfg里面的配置信息比较从而判断到底是哪个server。
+   >
+   > ==Zookeeper中的配置文件zoo.cfg中参数含义解读如下==：
+   >
+   > 1．tickTime =2000：通信心跳数，Zookeeper服务器与客户端心跳时间，单位毫秒
+   >
+   > Zookeeper使用的基本时间，服务器之间或客户端与服务器之间维持心跳的时间间隔，也就是每个tickTime时间就会发送一个心跳，时间单位为毫秒。
+   >
+   > 它用于心跳机制，并且设置最小的session超时时间为两倍心跳时间。(session的最小超时时间是2*tickTime)
+   >
+   > 2．initLimit =10：LF初始通信时限
+   >
+   > 集群中的Follower跟随者服务器与Leader领导者服务器之间初始连接时能容忍的最多心跳数（tickTime的数量），用它来限定集群中的Zookeeper服务器连接到Leader的时限。
+   >
+   > 3．syncLimit =5：LF同步通信时限
+   >
+   > 集群中Leader与Follower之间的最大响应时间单位，假如响应超过syncLimit * tickTime，Leader认为Follwer死掉，从服务器列表中删除Follwer。
+   >
+   > 4．dataDir：数据文件目录+数据持久化路径
+   >
+   > 主要用于保存Zookeeper中的数据。
+   >
+   > 5．clientPort =2181：客户端连接端口
+   >
+   > 监听客户端连接的端口。
+
+   
+
+5. 创建并修改myid(如果是本地模式,则不用配置此文件)
+
+   ```shell
+   $ vim myid
+   #表示这个是第几号服务器
+   2
+   ```
+
+6. 分发zookeeper配置, 并分别修改myid文件中内容为3、4
+
+   ```shell
+   #注意在此之前,先检查hosts和xsync,还有ssh是否启动
+   root@hadoop2:/usr/local/apache-zookeeper-3.6.0# xsync apache-zookeeper-3.6.0/
+   ```
+
+7. 修改hadoop3,hadoop4的myid文件中内容为3、4
+
+8. 启动zookeeper
+
+   ```shell
+   root@hadoop2:/usr/local/apache-zookeeper-3.6.0# bin/zkServer.sh start
+   root@hadoop3:/usr/local/apache-zookeeper-3.6.0# bin/zkServer.sh start
+   root@hadoop4:/usr/local/apache-zookeeper-3.6.0# bin/zkServer.sh start
+   ```
+
+9. 查看状态
+
+   ```shell
+   root@hadoop2:/usr/local/apache-zookeeper-3.6.0# bin/zkServer.sh status
+   #当所有节点都启动了,就不会提示以下警告了
+   ZooKeeper JMX enabled by default
+   Using config: /usr/local/apache-zookeeper-3.6.0/bin/../conf/zoo.cfg
+   Client port found: 2181. Client address: localhost.
+   Error contacting service. It is probably not running.
+   ```
+
+
+## 6. 配置HDFS-HA集群
+
+官方地址：http://hadoop.apache.org/
+
+1. 准备Hadoop
+
+```shell
+#创建HA文件夹
+root@hadoop2:/usr/local# mkdir ha
+
+#将之前配置好的Hadoop目录复制到ha目录下
+root@hadoop2:/usr/local# cp -r hadoop-2.6.0-cdh5.9.3/ ha
+
+# 删除之前的使用痕迹
+root@hadoop2:/usr/local/ha/hadoop-2.6.0-cdh5.9.3# rm -rf output/ input/ logs/ temp/
+root@hadoop2:/usr/local/ha/hadoop-2.6.0-cdh5.9.3# rm -rf wc*
+```
+
+2. 修改Hadoop的环境变量
+
+   hadoop-env.sh
+
+3. 配置==core-site.xml==
+
+   ```xml
+   <configuration>
+   		<!-- 把两个NameNode的地址组装成一个集群mycluster -->
+   		<property>
+   			<name>fs.defaultFS</name>
+           	<value>hdfs://mycluster</value>
+   		</property>
+   
+   		<!-- 指定hadoop运行时产生文件的存储目录 -->
+   		<property>
+   			<name>hadoop.tmp.dir</name>
+   			<value>/usr/local/ha/hadoop-2.6.0-cdh5.9.3/data/tmp</value>
+   		</property>
+   </configuration>
+   ```
+
+4. 配置==hdfs-site.xml==
+
+   ```xml
+   <configuration>
+   	<!-- 完全分布式集群名称 -->
+   	<property>
+   		<name>dfs.nameservices</name>
+   		<value>mycluster</value>
+   	</property>
+   
+   	<!-- 集群中NameNode节点都有哪些 -->
+   	<property>
+   		<name>dfs.ha.namenodes.mycluster</name>
+   		<value>nn1,nn2</value>
+   	</property>
+   
+   	<!-- nn1的RPC通信地址 -->
+   	<property>
+   		<name>dfs.namenode.rpc-address.mycluster.nn1</name>
+   		<value>hadoop2:9000</value>
+   	</property>
+   
+   	<!-- nn2的RPC通信地址 -->
+   	<property>
+   		<name>dfs.namenode.rpc-address.mycluster.nn2</name>
+   		<value>hadoop3:9000</value>
+   	</property>
+   
+   	<!-- nn1的http通信地址 -->
+   	<property>
+   		<name>dfs.namenode.http-address.mycluster.nn1</name>
+   		<value>hadoop2:50070</value>
+   	</property>
+   
+   	<!-- nn2的http通信地址 -->
+   	<property>
+   		<name>dfs.namenode.http-address.mycluster.nn2</name>
+   		<value>hadoop3:50070</value>
+   	</property>
+   
+   	<!-- 指定NameNode元数据在JournalNode上的存放位置 -->
+   	<property>
+   		<name>dfs.namenode.shared.edits.dir</name>
+   	<value>qjournal://hadoop2:8485;hadoop3:8485;hadoop4:8485/mycluster</value>
+   	</property>
+   
+   	<!-- 配置隔离机制，即同一时刻只能有一台服务器对外响应 -->
+   	<property>
+   		<name>dfs.ha.fencing.methods</name>
+   		<value>sshfence</value>
+   	</property>
+   
+   	<!-- 使用隔离机制时需要ssh无秘钥登录-->
+   	<property>
+   		<name>dfs.ha.fencing.ssh.private-key-files</name>
+   		<value>/root/.ssh/id_rsa</value>
+   	</property>
+   
+   	<!-- 声明journalnode服务器存储目录-->
+   	<property>
+   		<name>dfs.journalnode.edits.dir</name>
+   		<value>/usr/local/ha/hadoop-2.6.0-cdh5.9.3/data/jn</value>
+   	</property>
+   
+   	<!-- 关闭权限检查-->
+   	<property>
+   		<name>dfs.permissions.enable</name>
+   		<value>false</value>
+   	</property>
+   
+   	<!-- 访问代理类：client，mycluster，active配置失败自动切换实现方式-->
+   	<property>
+     		<name>dfs.client.failover.proxy.provider.mycluster</name
+          <value>org.apache.hadoop.hdfs.server.namenode.ha.ConfiguredFailoverProxyProvider</value>
+   	</property>
+   </configuration>
+   ```
+
+5. 分发配置好的hadoop环境到其他节点
+
+   ```shell
+   root@hadoop2:/usr/local# xsync ha/
+   ```
+
+#### 启动HDFS-HA集群
+
+1. 命令启动 journalnode 服务
+
+```shell
+root@hadoop2:/usr/local/ha/hadoop-2.6.0-cdh5.9.3# sbin/hadoop-daemons.sh start journalnode
+hadoop2: starting journalnode, logging to /usr/local/hadoop-2.6.0-cdh5.9.3/logs/hadoop-root-journalnode-hadoop2.out
+hadoop4: starting journalnode, logging to /usr/local/hadoop-2.6.0-cdh5.9.3/logs/hadoop-root-journalnode-hadoop4.out
+hadoop3: starting journalnode, logging to /usr/local/hadoop-2.6.0-cdh5.9.3/logs/hadoop-root-journalnode-hadoop3.out
+
+#查看,jpsall
+root@hadoop2:/usr/local/ha/hadoop-2.6.0-cdh5.9.3# jps
+578 JournalNode
+630 Jps
+474 QuorumPeerMain
+```
+
+2. 在[nn1]上，对其进行格式化，并启动
+
+   ```shell
+   root@hadoop2:/usr/local/ha/hadoop-2.6.0-cdh5.9.3#bin/hdfs namenode -format
+   root@hadoop2:/usr/local/ha/hadoop-2.6.0-cdh5.9.3#sbin/hadoop-daemon.sh start namenode
+   ```
+
+   http://172.17.0.2:50070/dfshealth.html#tab-overview
+
+   ![image-20200428161313995](pic/image-20200428161313995-1588067669243.png)
+
+3. 在[nn2]上，同步nn1的元数据信息
+
+   ```shell
+   #同步nn1的元数据信息
+   root@hadoop3:/usr/local/ha/hadoop-2.6.0-cdh5.9.3# bin/hdfs namenode -bootstrapStandby
+   ......
+   20/04/28 16:13:38 INFO util.ExitUtil: Exiting with status 0
+   20/04/28 16:13:38 INFO namenode.NameNode: SHUTDOWN_MSG: 
+   /************************************************************
+   SHUTDOWN_MSG: Shutting down NameNode at hadoop3/172.17.0.3
+   ```
+
+4. 启动[nn2]
+
+   ```shell
+   #启动nn2
+   root@hadoop3:/usr/local/ha/hadoop-2.6.0-cdh5.9.3# sbin/hadoop-daemon.sh start namenode
+   ```
+
+   http://172.17.0.3:50070/dfshealth.html#tab-overview
+
+   ![image-20200428161801781](pic/image-20200428161801781-1588067669244.png)
+
+5. 在[nn1]上，启动所有datanode
+
+   ```shell
+   root@hadoop2:/usr/local/ha/hadoop-2.6.0-cdh5.9.3# sbin/hadoop-daemons.sh start datanode
+   ```
+
+6. 将[nn1]切换为Active
+
+   ```shell
+   root@hadoop2:/usr/local/ha/hadoop-2.6.0-cdh5.9.3# bin/hdfs haadmin -transitionToActive nn1
+   ```
+
+7. 查看是否Active
+
+```shell
+root@hadoop2:/usr/local/ha/hadoop-2.6.0-cdh5.9.3# bin/hdfs haadmin -getServiceState nn1
+active
+```
+
+> ![image-20200428162208416](pic/image-20200428162208416-1588067669244.png)
+
+
+
+#### 配置HDFS-HA自动故障转移
+
+##### 1. 具体配置
+
+1. 先停掉集群,删除log,data
+
+   ```shell
+   root@hadoop2:/usr/local/ha/hadoop-2.6.0-cdh5.9.3# sbin/stop-dfs.sh
+   root@hadoop2:/usr/local/ha/hadoop-2.6.0-cdh5.9.3# rm -rf data/ logs/
+   ```
+
+2. 在hdfs-site.xml中增加
+
+   ```xml
+   <property>
+                   <name>dfs.ha.automatic-failover.enabled</name>
+                   <value>true</value>
+   </property>
+   ```
+
+3. 在core-site.xml文件中增加
+
+   ```xml
+   <property>
+                   <name>ha.zookeeper.quorum</name>
+                   <value>hadoop2:2181,hadoop3:2181,hadoop4:2181</value>
+   </property>
+   ```
+
+4. 分发配置
+
+   ```shell
+   root@hadoop2:/usr/local/ha/hadoop-2.6.0-cdh5.9.3# xsync etc/
+   ```
+
+##### 2. 启动
+
+1. 命令启动 journalnode 服务
+
+```shell
+root@hadoop2:/usr/local/ha/hadoop-2.6.0-cdh5.9.3# sbin/hadoop-daemons.sh start journalnode
+```
+
+2. 启动Zookeeper集群(之前没有关可跳过)
+
+```shell
+bin/zkServer.sh start
+```
+
+3. 在[nn1]上，对其进行格式化
+
+```shell
+root@hadoop2:/usr/local/ha/hadoop-2.6.0-cdh5.9.3#bin/hdfs namenode -format
+```
+
+4. 初始化HA在Zookeeper中状态
+
+```shell
+root@hadoop2:/usr/local/apache-zookeeper-3.6.0-bin/bin# ./zkCli.sh
+#查看历史节点,如果是如下结果即可有其他目录需用rmr加节点名称 删掉
+[zk: localhost:2181(CONNECTED) 1] ls /
+[zookeeper]
+
+#在zookeeper中创建节点
+root@hadoop2:/usr/local/ha/hadoop-2.6.0-cdh5.9.3# bin/hdfs zkfc -formatZK
+[zk: localhost:2181(CONNECTED) 1] ls /
+[hadoop-ha, zookeeper]
+```
+
+##### 3. 验证
+
+1. 在[nn1]上，对其进行格式化,并群起集群
+
+   ```shell
+   root@hadoop2:/usr/local/ha/hadoop-2.6.0-cdh5.9.3# bin/hdfs namenode -format
+   root@hadoop2:/usr/local/ha/hadoop-2.6.0-cdh5.9.3# sbin/start-dfs.sh
+   ```
+
+2. 在[nn2]上，同步nn1的元数据信息
+
+   ```shell
+   root@hadoop3:/usr/local/ha/hadoop-2.6.0-cdh5.9.3#bin/hdfs namenode -bootstrapStandby
+   ```
+
+   ![image-20200428174838651](pic/image-20200428174838651-1588067669245.png)
+
+3. 将[nn1]切换为Active
+
+   ```shell
+   root@hadoop2:/usr/local/ha/hadoop-2.6.0-cdh5.9.3# bin/hdfs haadmin -transitionToActive nn1
+   ```
+
+4. 查看是否Active
+
+```shell
+root@hadoop2:/usr/local/ha/hadoop-2.6.0-cdh5.9.3# bin/hdfs haadmin -getServiceState nn1
+active
+```
+
+## 7. 配置YARN-HA集群
+
+1. 规划集群
+
+   | hadoop2         | hadoop3         | hadoop4     |
+   | --------------- | --------------- | ----------- |
+   | NameNode        | NameNode        |             |
+   | JournalNode     | JournalNode     | JournalNode |
+   | DataNode        | DataNode        | DataNode    |
+   | ZK              | ZK              | ZK          |
+   | ResourceManager | ResourceManager |             |
+   | NodeManager     | NodeManager     | NodeManager |
+
+2. 具体配置
+
+   - ==yarn-site.xml==
+
+     ```xml
+     <configuration>
+     
+         <property>
+             <name>yarn.nodemanager.aux-services</name>
+             <value>mapreduce_shuffle</value>
+         </property>
+     
+         <!--启用resourcemanager ha-->
+         <property>
+             <name>yarn.resourcemanager.ha.enabled</name>
+             <value>true</value>
+         </property>
+      
+         <!--声明两台resourcemanager的地址-->
+         <property>
+             <name>yarn.resourcemanager.cluster-id</name>
+             <value>cluster-yarn1</value>
+         </property>
+     
+         <property>
+             <name>yarn.resourcemanager.ha.rm-ids</name>
+             <value>rm1,rm2</value>
+         </property>
+     
+         <property>
+             <name>yarn.resourcemanager.hostname.rm1</name>
+             <value>hadoop2</value>
+         </property>
+     
+         <property>
+             <name>yarn.resourcemanager.hostname.rm2</name>
+             <value>hadoop3</value>
+         </property>
+      
+         <!--指定zookeeper集群的地址--> 
+         <property>
+             <name>yarn.resourcemanager.zk-address</name>
+             <value>hadoop2:2181,hadoop3:2181,hadoop4:2181</value>
+         </property>
+     
+         <!--启用自动恢复--> 
+         <property>
+             <name>yarn.resourcemanager.recovery.enabled</name>
+             <value>true</value>
+         </property>
+      
+         <!--指定resourcemanager的状态信息存储在zookeeper集群--> 
+         <property>
+             <name>yarn.resourcemanager.store.class</name>     <value>org.apache.hadoop.yarn.server.resourcemanager.recovery.ZKRMStateStore</value>
+     </property>
+     
+     </configuration>
+     ```
+
+   - 同步更新其他节点的配置信息
+
+     ```shell
+     root@hadoop2:/usr/local/ha/hadoop-2.6.0-cdh5.9.3# xsync etc/
+     ```
+
+3. 启动zookeeper
+
+4. 启动集群
+
+   ```shell
+   #启动hdfs
+   root@hadoop2:/usr/local/ha/hadoop-2.6.0-cdh5.9.3# sbin/start-dfs.sh
+   #启动yarn
+   root@hadoop2:/usr/local/ha/hadoop-2.6.0-cdh5.9.3# sbin/start-yarn.sh
+   starting yarn daemons
+   starting resourcemanager, logging to /usr/local/ha/hadoop-2.6.0-cdh5.9.3/logs/yarn--resourcemanager-hadoop2.out
+   hadoop4: starting nodemanager, logging to /usr/local/ha/hadoop-2.6.0-cdh5.9.3/logs/yarn-root-nodemanager-hadoop4.out
+   hadoop3: starting nodemanager, logging to /usr/local/ha/hadoop-2.6.0-cdh5.9.3/logs/yarn-root-nodemanager-hadoop3.out
+   hadoop2: starting nodemanager, logging to /usr/local/ha/hadoop-2.6.0-cdh5.9.3/logs/yarn-root-nodemanager-hadoop2.out
+   
+   #yarn默认只启动一个节点,需在hadoop3中自行启动yarn
+   root@hadoop3:/usr/local/ha/hadoop-2.6.0-cdh5.9.3# sbin/yarn-daemon.sh start resourcemanager
+   starting resourcemanager, logging to /usr/local/ha/hadoop-2.6.0-cdh5.9.3/logs/yarn--resourcemanager-hadoop3.out
+   ```
+
+5. 查看是否成功
+
+   ```shell
+   root@hadoop2:/usr/local/ha/hadoop-2.6.0-cdh5.9.3# bin/yarn rmadmin -getServiceState rm1
+   active
+   ```
+
+   http://172.17.0.2:8088/cluster/nodes
+
+   ![image-20200428190333094](pic/image-20200428190333094.png)
+
+   查看hadoop3会自动跳到hadoop2,跳过去是用的域名,如果不能显示,查看hosts里有没有加入hadoop2,hadoop3,hadoop4的IP地址
+
+## 8. Hive 安装与配置
+
+1. Hive官网地址
+
+   http://hive.apache.org/
+
+2. 文档查看地址
+
+   https://cwiki.apache.org/confluence/display/Hive/GettingStarted
+
+3. 下载地址
+
+   http://archive.apache.org/dist/hive/
+
+4. github地址
+
+   https://github.com/apache/hive
+
+
+#### 1. 安装
+
+1. 将安装包复制到hadoop2
+
+   ```shell
+   cxy@Cxy:~/下载$ docker cp apache-hive-1.2.2-bin.tar.gz hadoop2:/usr/local
+   ```
+
+2. unpack the tarball.
+
+   ```shell
+   root@hadoop2:/usr/local# tar -xzvf apache-hive-1.2.2-bin.tar.gz
+   ```
+
+3. 修改conf目录下的hive-env.sh.template名称为hive-env.sh,并配置hive-env.sh文件
+
+   ```shell
+   root@hadoop2:/usr/local/apache-hive-2.3.7-bin/conf# mv hive-env.sh.template hive-env.sh 
+   
+   #写下:
+   HADOOP_HOME=/usr/local/hadoop-2.6.0-cdh5.9.3
+   export HIVE_CONF_DIR=/usr/local/apache-hive-1.2.2-bin/conf
+   ```
+
+#### 2. Hadoop集群配置
+
+1. 设置hosts,开启ssh服务
+
+2. 必须启动hdfs和yarn
+
+   ```shell
+   root@hadoop2:/usr/local/hadoop-2.6.0-cdh5.9.3# sbin/start-dfs.sh
+   root@hadoop2:/usr/local/hadoop-2.6.0-cdh5.9.3#  sbin/start-yarn.sh
+   ```
+
+   
+
+3. 在HDFS上创建/tmp和/user/hive/warehouse两个目录并修改他们的同组权限可写
+
+```shell
+root@hadoop2:/usr/local/hadoop-2.6.0-cdh5.9.3# hadoop fs -mkdir /tmp
+root@hadoop2:/usr/local/hadoop-2.6.0-cdh5.9.3# hadoop fs -mkdir -p /user/hive/warehouse
+
+root@hadoop2:/usr/local/hadoop-2.6.0-cdh5.9.3# bin/hadoop fs -chmod g+w /tmp
+root@hadoop2:/usr/local/hadoop-2.6.0-cdh5.9.3# hadoop fs -chmod g+w /user/hive/warehouse
+```
+
+#### 3. Hive配置MySql为元数据库
+
+##### 安装MySql服务器
+
+### mysql 安装
+
+http://www.coozhi.com/youxishuma/g4/86480.html
+
+```mysql
+# 安装MySQL的依赖库
+sudo apt install yum
+sudo apt install numactl
+sudo apt install libaio-dev
+
+#复制安装包到hadoop2容器内的 /usr/local/mysql 下
+#也可解压后重命名为mysql，再移动到/usr/local/
+sudo mv mysql /usr/local
+
+#给Ubuntu系统添加一个mysql的用户组
+root@hadoop2:/usr/local/# groupadd mysql
+
+#添加一个mysql用户到mysql用户组中
+root@hadoop2:/usr/local/# useradd -r -g mysql -s /bin/false mysql
+
+#切换到/usr/local/mysql目录
+root@hadoop2:/usr/local/mysql# cd /usr/local/mysql
+
+#然后给移动后的文件夹添加目录权限到mysql用户组
+root@hadoop2:/usr/local/mysql#mkdir mysql-files
+root@hadoop2:/usr/local/mysql#chown mysql:mysql mysql-files
+root@hadoop2:/usr/local/mysql#  chmod 750 mysql-files
+
+#对mysql数据库执行初始化命令
+root@hadoop2:/usr/local/mysql#  bin/mysqld --initialize --user=mysql
+2020-05-30T12:37:26.837048Z 6 [Note] [MY-010454] [Server] A temporary password is generated for root@localhost: IX=KXe2wZc:B
+
+#开启MySQL服务
+root@hadoop2:/usr/local/mysql# bin/mysqld_safe --user=mysql&
+```
+
+测试是否安装成功
+
+```shell
+root@hadoop2:/usr/local/mysql# mysqladmin --version
+```
+
+ linux上该命令将输出以下结果，该结果基于你的系统信息：
+
+```shell
+mysqladmin  Ver 8.42 Distrib 5.7.29, for Linux on x86_64
+```
+
+ 如果以上命令执行后未输出任何信息，说明你的Mysql未安装成功。 
+
+登录:
+
+```mysql
+#输入初始化时得到的密码
+root@hadoop2:/usr/local/# mysql -uroot -p
+Enter password: 
+Welcome to the MySQL monitor.  Commands end with ; or \g.
+Your MySQL connection id is 9
+Server version: 8.0.20
+
+Copyright (c) 2000, 2020, Oracle and/or its affiliates. All rights reserved.
+
+Oracle is a registered trademark of Oracle Corporation and/or its
+affiliates. Other names may be trademarks of their respective
+owners.
+
+Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+
+mysql>
+```
+
+重置密码:
+
+```mysql
+mysql> use mysql;
+ERROR 1820 (HY000): You must reset your password using ALTER USER statement before executing this statement.
+mysql> alter user 'root'@'localhost' identified by '12345c';
+Query OK, 0 rows affected (0.02 sec)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
