@@ -4228,6 +4228,8 @@ active
 
 ## 8. Hive 安装与配置
 
+注: Hive的使用依赖于Hadoop,所以启动Hive前先要[启动Hadoop集群](#8.2. Hadoop集群配置). 为了实现登录Hive可以打开多窗口,使用mysql作为元数据库.所以如果配置了mysql作为元数据库,就要[开启mysql服务](#8.3. 安装MySql).此时再登录Hive
+
 1. Hive官网地址
 
    http://hive.apache.org/
@@ -4244,8 +4246,7 @@ active
 
    https://github.com/apache/hive
 
-
-#### 1. 安装
+### 8.1. 安装
 
 1. 将安装包复制到hadoop2
 
@@ -4269,7 +4270,7 @@ active
    export HIVE_CONF_DIR=/usr/local/apache-hive-1.2.2-bin/conf
    ```
 
-#### 2. Hadoop集群配置
+### 8.2. Hadoop集群配置
 
 1. 设置hosts,开启ssh服务
 
@@ -4284,19 +4285,27 @@ active
 
 3. 在HDFS上创建/tmp和/user/hive/warehouse两个目录并修改他们的同组权限可写
 
-```shell
-root@hadoop2:/usr/local/hadoop-2.6.0-cdh5.9.3# hadoop fs -mkdir /tmp
-root@hadoop2:/usr/local/hadoop-2.6.0-cdh5.9.3# hadoop fs -mkdir -p /user/hive/warehouse
+   ``` shell
+   root@hadoop2:/usr/local/hadoop-2.6.0-cdh5.9.3# hadoop fs -mkdir /tmp
+   root@hadoop2:/usr/local/hadoop-2.6.0-cdh5.9.3# hadoop fs -mkdir -p /user/hive/warehouse
+   
+   root@hadoop2:/usr/local/hadoop-2.6.0-cdh5.9.3# bin/hadoop fs -chmod g+w /tmp
+   root@hadoop2:/usr/local/hadoop-2.6.0-cdh5.9.3# hadoop fs -chmod g+w /user/hive/warehouse
+   ```
 
-root@hadoop2:/usr/local/hadoop-2.6.0-cdh5.9.3# bin/hadoop fs -chmod g+w /tmp
-root@hadoop2:/usr/local/hadoop-2.6.0-cdh5.9.3# hadoop fs -chmod g+w /user/hive/warehouse
-```
+4. 启动Hive
 
-#### 3. Hive配置MySql为元数据库
+   ```shell
+   root@hadoop2:/usr/local/apache-hive-1.2.2-bin# bin/hive
+   ```
 
-##### 安装MySql服务器
+   
 
-### mysql 安装
+### 8.3. 安装MySql
+
+为了将元数据放到MySQL而安装MySQL,在hadoop==2==中安装mysql
+
+#### 安装MySql服务器
 
 http://www.coozhi.com/youxishuma/g4/86480.html
 
@@ -4376,13 +4385,600 @@ mysql> alter user 'root'@'localhost' identified by '12345c';
 Query OK, 0 rows affected (0.02 sec)
 ```
 
+#### MySql中user表中主机配置
+
+目标是配置: 只要是root用户+密码，在==任何主机==上都能登录MySQL数据库。
+
+1. 进入mysql
+
+```shell
+root@hadoop2:/usr/local# mysql -uroot -p  
+```
+
+2．显示数据库
+
+```mysql
+mysql>show databases;
+```
+
+3．使用mysql数据库
+
+```mysql
+mysql>use mysql;
+```
+
+4．展示mysql数据库中的所有表
+
+```mysql
+mysql>show tables;
+```
+
+5．展示user表的结构
+
+```mysql
+mysql>desc user;
+```
+
+6．查询user表
+
+```mysql
+mysql> select User, Host, Password_require_current from user;
++------------------+-----------+--------------------------+
+| User        								     | Host      | Password_require_current |
++------------------+-----------+--------------------------+
+| mysql.infoschema | localhost | NULL                     |
+| mysql.session          | localhost | NULL                     |
+| mysql.sys      						  | localhost | NULL                     |
+| root          									   | localhost | NULL                     |
++------------------+-----------+--------------------------+
+```
+
+7．修改user表，把Host表内容修改为%
+
+```mysql
+mysql> update user set host='%' where host='localhost';
+mysql> select User, Host, Password_require_current from user;
++------------------+------+--------------------------+
+| User                             | Host | Password_require_current |
++------------------+------+--------------------------+
+| mysql.infoschema | %    | NULL                     |
+| mysql.session          | %    | NULL                     |
+| mysql.sys                   | %    | NULL                     |
+| root                              | %    | NULL                     |
++------------------+------+--------------------------+
+```
+
+8．删除root用户的其他host,有则删
+
+```mysql
+mysql>delete from user where Host='hadoop102';
+mysql>delete from user where Host='127.0.0.1';
+mysql>delete from user where Host='::1';
+```
+
+9．刷新
+
+```mysql
+mysql>flush privileges;
+```
+
+10．退出
+
+```mysql
+mysql>quit;
+```
+
+###8.4. Hive基本操作
+
+1. 启动hive
+
+```shell
+root@hadoop2:/usr/local/apache-hive-1.2.2-bin# bin/hive
+```
+
+2. 查看数据库
+
+```mysql
+hive> show databases;
+OK
+default
+Time taken: 0.959 seconds, Fetched: 1 row(s)
+```
+
+3. 打开默认数据库
+
+```mysql
+hive> use default;
+OK
+```
+
+4. 显示default数据库中的表
+
+```mysql
+hive> show tables;
+OK
+```
+
+5. 创建一张表
+
+```mysql
+hive> create table student(id int, name string);
+hive> show tables;
+OK
+student
+```
+
+6. 查看表的结构
+
+```mysql
+hive> desc student;
+OK
+id                  	int                 	                    
+name                	string              	                    
+Time taken: 0.507 seconds, Fetched: 2 row(s)
+```
+
+7. 向表中插入数据
+
+```mysql
+hive> insert into student values(1000,"ss");
+```
+
+8. 查询表中数据
+
+```mysql
+hive> select * from student;
+```
+
+9. 退出hive
+
+```mysql
+hive> quit;
+```
+
+说明：（查看hive在hdfs中的结构）
+
+数据库：在hdfs中表现为${hive.metastore.warehouse.dir}目录下一个文件夹
+
+表：在hdfs中表现所属db目录下一个文件夹，文件夹中存放该表中的具体数据
+
+### 8.5. 将本地文件导入Hive案例
+
+**需求:**
+
+将本地(==容器本地,不是宿主机本地==) student.txt 的数据导入到hive的student(id int, name string)表中。
+
+1. 先将从宿主机将文件传到hadoop2,或者直接在hadoop2下新建文本文件
+
+   ![image-20200529154134660](pic/image-20200529154134660.png)
+
+2. 创建student表, 并声明文件分隔符’\t’
+
+```mysql
+hive> create table staudent(id int,name string) ROW FORMAT DELIMITED FIELDS TERMINATED BY '\t';
+```
+
+3. 加载/opt/datas/student.txt 文件到student数据库表中。
+
+```mysql
+hive> load data local inpath '/opt/datas/study.txt' into table student;
+Loading data to table default.student
+Table default.student stats: [numFiles=1, totalSize=39]
+OK
+Time taken: 1.39 seconds
+```
+
+4. Hive查询结果
+
+```mysql
+hive> select * from student;
+OK
+1001	zhangshan
+1002	lishi
+1003	zhaoliu
+
+```
+
+5. 再打开一个客户端窗口启动hive，会产生java.sql.SQLException异常。
+
+```mysql
+Exception in thread "main" java.lang.RuntimeException: java.lang.RuntimeException:
+ Unable to instantiate
+ org.apache.hadoop.hive.ql.metadata.SessionHiveMetaStoreClient
+        at org.apache.hadoop.hive.ql.session.SessionState.start(SessionState.java:522)
+        at org.apache.hadoop.hive.cli.CliDriver.run(CliDriver.java:677)
+        at org.apache.hadoop.hive.cli.CliDriver.main(CliDriver.java:621)
+        at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+        at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+        at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+        at java.lang.reflect.Method.invoke(Method.java:606)
+        ... 8 more
+```
+
+原因是，==Metastore默认存储在自带的derby数据库中，推荐使用MySQL存储Metastore;==
+
+![img](pic/b58f8c5494eef01fc3eab5f4ba393323bd317d57.jpeg)
+
+hive默认将元数据存储到本地内嵌的Derby数据库中，但是Derby不支持多会话链接，因此我们使用mysql数据库来存储hive的元数据。配置完成hiveSQL的元数据库之后再开始安装、配置hive
+
+###8.6. Hive元数据配置到MySql
+
+驱动下载: https://mvnrepository.com/artifact/mysql/mysql-connector-java
+
+##### 1. 驱动拷贝:
+
+```shell
+cxy@Cxy:~/下载/Java/Hive$ docker cp mysql-connector-java-8.0.20.jar hadoop2:/usr/local/apache-hive-1.2.2-bin/lib
+```
+
+##### 2. 配置Metastore到MySql
+
+1．根据官方文档配置参数，拷贝数据到hive-site.xml文件中
+
+```xml
+root@hadoop2:/usr/local/apache-hive-1.2.2-bin/conf# vim hive-site.xml
+#写入:
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+<configuration>
+	<property>
+	  <name>javax.jdo.option.ConnectionURL</name>
+	  <value>jdbc:mysql://hadoop2:3306/metastore?createDatabaseIfNotExist=true</value>
+	  <description>JDBC connect string for a JDBC metastore</description>
+	</property>
+
+	<property>
+	  <name>javax.jdo.option.ConnectionDriverName</name>
+	  <value>com.mysql.cj.jdbc.Driver</value>
+	  <description>Driver class name for a JDBC metastore</description>
+	</property>
+
+	<property>
+	  <name>javax.jdo.option.ConnectionUserName</name>
+	  <value>root</value>
+	  <description>username to use against metastore database</description>
+	</property>
+
+	<property>
+	  <name>javax.jdo.option.ConnectionPassword</name>
+	  <value>12345c</value>
+	  <description>password to use against metastore database</description>
+	</property>
+</configuration>
+```
+
+2. 把元数据放到Mysql
+
+   退出mysql,新建窗口打开hadoop2容器,登录Hive
+
+```mysql
+#新窗口
+root@hadoop2:/usr/local/apache-hive-1.2.2-bin# bin/hive
+#mysql窗口
+root@hadoop2:/usr/local/mysql# mysql -uroot -p
+mysql> show databases;
++--------------------+
+| Database        							      |
++--------------------+
+| information_schema 	  |
+| metastore      								      |
+| mysql          										      |
+| performance_schema  |
+| sys      													          |
++--------------------+
+5 rows in set (0.00 sec)
+```
+
+​                                登录Hive前                                                       登录Hive后
+
+<center class="center">
+  <img src="pic/image-20200601214045090.png" />   <img src="pic/image-20200601215813479.png" />
+</center>
+
+3. 配置完毕后，如果启动hive异常，可以重新启动虚拟机。（重启后，别忘了启动hadoop集群）
+
+###8.7. 多窗口启动Hive测试
+
+在两个窗口中分别启动Hive
+
+```mysql
+root@hadoop2:/usr/local/apache-hive-1.2.2-bin# bin/hive
+```
+
+###8.8. Hive常用交互命令
+
+```shell
+#查看帮助命令
+root@hadoop2:/usr/local/apache-hive-1.2.2-bin# bin/hive -help
+usage: hive
+ -d,--define <key=value>          Variable subsitution to apply to hive
+                                  commands. e.g. -d A=B or --define A=B
+    --database <databasename>     Specify the database to use
+ -e <quoted-query-string>         SQL from command line
+ -f <filename>                    SQL from files
+ -H,--help                        Print help information
+    --hiveconf <property=value>   Use value for given property
+    --hivevar <key=value>         Variable subsitution to apply to hive
+                                  commands. e.g. --hivevar A=B
+ -i <filename>                    Initialization SQL file
+ -S,--silent                      Silent mode in interactive shell
+ -v,--verbose                     Verbose mode (echo executed SQL to the
+                                  console)
+
+#登录Hive
+root@hadoop2:/usr/local/apache-hive-1.2.2-bin# bin/hive
+Logging initialized using configuration in jar:file:/usr/local/apache-hive-1.2.2-bin/lib/hive-common-1.2.2.jar!/hive-log4j.properties
+
+#查看databases,默认是default
+hive> show databases;
+OK
+default
+Time taken: 0.934 seconds, Fetched: 1 row(s)
+
+hive> show tables;
+OK
+Time taken: 0.049 seconds
+hive> create table student(id int,name string)ROW FORMAT DELIMITED FIELDS TERMINATED BY '\t';
+OK
+Time taken: 0.374 seconds
+```
+
+因为之前将本地数据读入Hive了,而Hive是将数据存在HDFS上的,所以在Hive上新建table(相当于建立索引),就会到hdfs上对应位置去寻找有没有该表. 注:==Hive存的是对应关系,HDFS存的是数据==
+
+```mysql
+hive> select * from student;
+OK
+1001	zhangshan
+1002	lishi
+1003	zhaoliu
+Time taken: 0.366 seconds, Fetched: 3 row(s)
+```
 
 
 
+1. “-e”==不进入hive的交互窗口==执行sql语句
+
+   ```shell
+   root@hadoop2:/usr/local/apache-hive-1.2.2-bin# bin/hive -e "select * from student"
+   Logging initialized using configuration in jar:file:/usr/local/apache-hive-1.2.2-bin/lib/hive-common-1.2.2.jar!/hive-log4j.properties
+   OK
+   1001	zhangshan
+   1002	lishi
+   1003	zhaoliu
+   Time taken: 1.711 seconds, Fetched: 3 row(s)
+   ```
+
+2. “-f”执行脚本中sql语句
+
+   - 在/opt/datas目录下创建hivef.hql文件
+
+     ```shell
+     root@hadoop2:/usr/local/apache-hive-1.2.2-bin# vim /opt/datas/hivef.hql
+     #写入:
+     select * from student;
+     ```
+
+   - 执行文件中的sql语句
+
+     ```mysql
+     root@hadoop2:/usr/local/apache-hive-1.2.2-bin# bin/hive -f hivef.hql
+     ......
+     OK
+     1001	zhangshan
+     1002	lishi
+     1003	zhaoliu
+     Time taken: 1.721 seconds, Fetched: 3 row(s)
+     ```
+
+   - 执行文件中的sql语句并将结果写入文件中
+
+     ```mysql
+     root@hadoop2:/usr/local/apache-hive-1.2.2-bin# bin/hive -f /opt/datas/hivef.hql > /opt/datas/hivef_result.txt
+     ```
+
+###8.9. Hive其他命令操作
+
+1. 退出hive窗口
+
+   在新版的hive中没区别了，在以前的版本是有的：
+
+   exit:先隐性提交数据，再退出；
+
+   quit:不提交数据，退出；
+
+```mysql
+hive(default)>exit;
+hive(default)>quit;
+```
+
+2. 在hive cli命令窗口中如何查看==hdfs==文件系统
+
+```mysql
+hive> dfs -ls /;
+Found 4 items
+-rw-r--r--   3 root supergroup       1366 2020-04-22 21:10 /README.txt
+drwxr-xr-x   - root supergroup          0 2020-04-22 21:14 /output
+drwx-w----   - root supergroup          0 2020-05-27 20:56 /tmp
+drwxr-xr-x   - root supergroup          0 2020-05-27 20:49 /user
+```
+
+3. 在hive cli命令窗口中如何查看==本地==文件系统
+
+```mysql
+hive> ! ls /opt/datas;
+hivef.hql
+hivef_result.txt
+study.txt
+```
+
+4. 查看在hive中输入的所有历史命令
+
+   （1）进入到当前用户的根目录/root或/home/atguigu
+   （2）查看. hivehistory文件
+
+```mysql
+root@hadoop2:/usr/local/apache-hive-1.2.2-bin# cd
+root@hadoop2:~# cat .hivehistory 
+show databases;
+exit
+quit
+......
+create table student(id int,name string);
+show tables;
+```
 
 
 
+###8.10. Hive常见属性配置
 
+##### 1. 查询后信息显示配置
+
+1）在hive-site.xml文件中添加如下配置信息，就可以实现显示当前数据库，以及查询表的头信息配置。
+
+```xml
+<property>
+	<name>hive.cli.print.header</name>
+	<value>true</value>
+</property>
+
+<property>
+	<name>hive.cli.print.current.db</name>
+	<value>true</value>
+</property>
+```
+
+2）重新启动hive，对比配置前后差异。
+
+​                             Hive重启前                                                                    Hive重启后
+
+<center class="center">
+  <img src = "pic/image-20200602164602459.png" width="420"> <img src="pic/image-20200602165512320.png" width="420">
+</center>
+
+
+3. 配置完毕后，如果启动h
+
+   
+
+##### 2. Hive数据仓库位置配置
+
+- Default数据仓库的最原始位置是在hdfs上的：/user/hive/warehouse路径下。
+
+  ![image-20200602170831467](pic/image-20200602170831467.png)
+
+- 在仓库目录下，没有对默认的数据库default创建文件夹。如果某张表属于default数据库，直接在数据仓库目录下创建一个文件夹。
+
+- 修改default数据仓库原始位置（将hive-default.xml.template如下配置信息拷贝到hive-site.xml文件中）。
+
+  ```xml
+    <property>
+      <name>hive.metastore.warehouse.dir</name>
+      <value>/user/hive/warehouse</value>
+      <description>location of default database for the warehouse</description>
+    </property>
+  ```
+
+  配置同组用户有执行权限
+
+  ```shell
+  bin/hdfs dfs -chmod g+w /user/hive/warehouse
+  ```
+
+  
+
+##### 3. Hive运行日志信息配置
+
+1. Hive的log默认存放在/tmp/root/hive.log目录下（当前用户名下）
+
+2. 修改hive的log存放日志到/opt/hive/logs
+
+   - 修改conf/hive-log4j.properties.template文件名称为:hive-log4j.properties
+
+     ```shell
+     root@hadoop2:/usr/local/apache-hive-1.2.2-bin/conf# mv hive-log4j.properties.template hive-log4j.properties
+     ```
+
+   - 在hive-log4j.properties文件中修改log存放位置
+
+     ```xml
+     hive.log.dir=/usr/local/apache-hive-1.2.2-bin/logs
+     ```
+
+     
+
+###8.11 s参数配置方式
+
+1．查看当前所有的配置信息
+
+```mysql
+hive>set;
+```
+
+2. 参数的配置三种方式
+
+   - 配置文件方式
+
+     默认配置文件：hive-default.xml
+
+     用户自定义配置文件：hive-site.xml
+
+     ​	注意：==用户自定义配置会覆盖默认配置==。另外，Hive也会读入Hadoop的配置，因为Hive是作为Hadoop的客户端启动的，==Hive的配置会覆盖Hadoop的配置==。配置文件的设定对本机启动的所有Hive进程都有效。
+
+   - 命令行参数方式
+
+     启动Hive时，可以在命令行添加-hiveconf param=value来设定参数。
+
+     ```shell
+     root@hadoop2:/usr/local/apache-hive-1.2.2-bin# bin/hive -hiveconf mapred.reduce.tasks=10;
+     
+     #查看参数设置：
+     hive (default)> set mapred.reduce.tasks;
+     mapred.reduce.tasks=10
+     ```
+
+     注意：仅对本次hive启动有效
+
+   - 参数声明方式
+
+     可以在HQL中使用SET关键字设定参数
+
+     ```mysql
+     hive (default)> set mapred.reduce.tasks=100;
+     ```
+
+     注意：仅对本次hive启动有效
+
+     上述三种设定方式的==优先级依次递增==。即==配置文件<命令行参数<参数声明==。注意某些系统级的参数，例如log4j相关的设定，必须用前两种方式设定，因为那些参数的读取在会话建立以前已经完成了。
+
+# 23. VSCode访问Docker容器内的文件系统
+
+1. 在vscode中下载插件: Remote - Containersms
+
+   ![image-20200602163630794](pic/image-20200602163630794.png)
+
+2. Attach
+
+   Another way to learn what you can do with the extension is to browse the commands it provides. Press `F1` to bring up the Command Palette and type in `Remote-Containers` for a full list of commands.
+
+   ![Command palette](pic/remote-command-palette.png)
+
+   You can also click on the Remote "Quick Access" status bar item to get a list of the most common commands.
+
+   ![Quick actions status bar item](pic/remote-dev-status-bar.png)
+
+   For more information, please see the [extension documentation](https://aka.ms/vscode-remote/containers).
+
+3. 选择需要打开的文件
+
+   选择File –> open file
+
+
+
+# 24. ubuntu 安装anydesk
+
+1. 进入<a href="https://anydesk.com/zhs">anydesk</a>官网下载最新版linux版本
+
+2. 直接双击运行.deb格式的安装包,然后在软件超市中安装即可
 
 
 
