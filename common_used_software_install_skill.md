@@ -106,7 +106,9 @@
 
 # 3. Java + IntelliJ
 
-- Java
+### Ubuntu
+
+- #### Java
 
   1. 下载 Java <a href="https://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html">安装包</a>
 
@@ -145,7 +147,7 @@
      $ java -version
      ```
 
-- IntelliJ
+- #### IntelliJ
 
   1. 在官网下载<a href="https://www.jetbrains.com/idea/download/#section=linux">linux安装包</a>
 
@@ -166,7 +168,7 @@
      
   
 
-**IntelliJ 配置**
+#### **IntelliJ 配置**
 
 - 鼠标滚轮放大字体
 
@@ -217,9 +219,75 @@
   Compile independent modules in parallel 
   Rebuild module on dependency change
 
+### Mac
+
+##### 安装
+
+1. 在<a href="https://www.oracle.com/java/technologies/javase/javase-jdk8-downloads.html">官网</a>下载jdk1.8安装包
+
+   需要登陆，账号为邮箱
+
+   ![Screen Shot 2020-06-11 at 6.35.06 PM](pic/Screen Shot 2020-06-11 at 6.35.06 PM.png)
+
+2. 安装jdk
+
+   ![Screen Shot 2020-06-11 at 6.42.44 PM](pic/Screen Shot 2020-06-11 at 6.42.44 PM.png)
+
+3. 如果不能安装，请打开Mac的安装权限，再重新安装
+
+   1. 导航到**“System Preferences”（系统偏好设置）>“Security & Privacy”（安全性与隐私）>“General”（通用）**选项卡。
+   2. 在对话框的底部，您将看到一条类似于如下的消息：
+       "JDK 8 Update 251.pkg"was blocked from use because it is not from an identified developer.（“JDK 8 Update 251.pkg”被禁止使用，因为它不是来自被认可的开发者。）
+   3. 单击**“Open Anyway”（仍然打开）**按钮。（如果“Open Anyway”（仍然打开）按钮未显示，请确保单击步骤 2 中对话框上的“OK”（确定）。）
+
+   ![Screen Shot 2020-06-11 at 6.29.55 PM](pic/Screen Shot 2020-06-11 at 6.29.55 PM.png)
+
+4. 查看是否安装成功
+
+   ```shell
+   xiyucai@xiyus-MacBook-Pro ~ % java -version
+   java version "1.8.0_251"
+   Java(TM) SE Runtime Environment (build 1.8.0_251-b08)
+   Java HotSpot(TM) 64-Bit Server VM (build 25.251-b08, mixed mode)
+   xiyucai@xiyus-MacBook-Pro ~ % 
+   ```
+
+##### 环境配置
+
+1. 如果是第一次配置环境变量，需新建～/.bash_profile文件
+
+   ```shell
+   xiyucai@xiyus-MacBook-Pro ~ % vim .bash_profile
+   ```
+
+2. 配置环境变量
+
+   在～/.bash_profile文件中加上：
+
+   ```shell
+   export JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk1.8.0_251.jdk/Contents/Home
+   export JRE_HOME=/Library/Java/JavaVirtualMachines/jdk1.8.0_251.jdk/Contents/Home/jre
+   export CLASSPAHT=.:$JAVA_HOME/lib/dt.jar:$JAVA_HOME/lib/tools.jar
+   export PATH=$JAVA_HOME/bin:$PATH
+   ```
+
+3. 使环境配置生效
+
+   ```shell
+   xiyucai@xiyus-MacBook-Pro ~ % source .bash_profile
+   ```
+
+4. 查看配置是否生效
+
+   ```shell
+   xiyucai@xiyus-MacBook-Pro ~ % echo $JAVA_HOME
+   ```
+
 
 
 # 4. 用git上传文件到Github
+
+### Ubuntu
 
 1. 在github中新建一个repositories，并命名
 
@@ -275,9 +343,76 @@
    $ git push origin master
    ```
 
+### Mac
+
+#### 安装git
+
+1. 在终端输入git会提示安装
+
+#### 创建ssh key、配置git
+
+1. 设置username和email（github每次commit都会记录他们）
+
+   ```shell
+   git config --global user.name "knd11"
+   git config --global user.email "946704740@qq.com"
+   ```
+
+2. 通过终端命令创建ssh key
+
+   ```shell
+   xiyucai@xiyus-MacBook-Pro ~ % ssh-keygen -t rsa -C "946704740@qq.com"
+   Generating public/private rsa key pair.
+   Enter file in which to save the key (/Users/xiyucai/.ssh/id_rsa): 
+   Created directory '/Users/xiyucai/.ssh'.
+   Enter passphrase (empty for no passphrase): 
+   Enter same passphrase again: 
+   Your identification has been saved in /Users/xiyucai/.ssh/id_rsa.
+   Your public key has been saved in /Users/xiyucai/.ssh/id_rsa.pub.
+   The key fingerprint is:
+   SHA256:iB+Uvkpzxu0AFzM62vEPEFnbEhh1BDcWADb9OSDACd0 946704740@qq.com
+   The key's randomart image is:
+   +---[RSA 3072]----+
+   |.+.+=**+B.       |
+   |  +.E+oO .       |
+   |    o.Oo..       |
+   |     * *+        |
+   |    B = S.       |
+   |   o X +         |
+   |  . + X .        |
+   |   . = =         |
+   |    .   o        |
+   +----[SHA256]-----+
+   ```
+
+3. 在GitHub端添加刚刚生成的公钥，在id_rsa.pub中
+
+   ![Screen Shot 2020-06-11 at 8.24.35 PM](pic/Screen Shot 2020-06-11 at 8.24.35 PM.png)
+
+4. 添加远程仓库的地址
+
+```shell
+xiyucai@xiyus-MacBook-Pro Documents % git init
+xiyucai@xiyus-MacBook-Pro Documents % git remote add origin git@github.com:knd11/learning.git
+```
+
+5. 添加文件/文件夹到本地库，提交，上传
+
+   ```shell
+   $ git add .
+   $ git commit -m "first commit"
+   $ git push origin master
+   ```
+
+   
+
+
+
 # 5. Hadoop安装
 
-## [5.1 Java安装](#3. linux Java + IntelliJ)
+## Ubuntu
+
+### [5.1 Java安装](#3. linux Java + IntelliJ)
 
 Hadoop官方网站：http://hadoop.apache.org/
 
@@ -290,13 +425,13 @@ Required software for Linux include:
 
 **安装**
 
-## 5.2 ssh免密登陆
+### 5.2 ssh免密登陆
 
 <a href="http://www.ruanyifeng.com/blog/2011/12/ssh_remote_login.html">什么是SSH</a>
 
 <a href="https://baijiahao.baidu.com/s?id=1662669440853469635&wfr=spider&for=pc">什么是SSH</a>
 
-If your cluster doesn't have the requisite software you will need to install it.
+==If your cluster doesn't have the requisite software== you will need to install it.
 
 For example on Ubuntu Linux:
 
@@ -335,27 +470,26 @@ $ ssh Cxy  #不用输密码了
 
 [若有报错](#报错:ssh: connect to host hadoop1 port 22: Connection refused)
 
-## 5.3 Hadoop安装
+### 5.3 Hadoop安装
 
 <a href="https://hadoop.apache.org/docs/stable/hadoop-project-dist/hadoop-common/SingleCluster.html">参考官网</a>
 
-###<a href="http://archive.cloudera.com/cdh5/cdh/5/">1. 下载</a>(速度很慢)
+#### <a href="http://archive.cloudera.com/cdh5/cdh/5/">1. 下载</a>(速度很慢)
 
 ```
 hadoop-2.6.0-cdh5.9.3.tar.gz
-hive-1.1.0-cdh5.9.3.tar.gz
 ```
 
-### 2. 解压到 ： ~/opt
+#### 2. 解压到 /opt
 
-###  3. 配置环境变量
+####  3. 配置环境变量
 
 到根目录下将Hadoop配置到环境变量
 
   ```shell
-#$ vi ~/.bash_profile #配置这个重启后就失效了
-#$ gedit ~/.bashrc #出问题
 $ sudo vi /etc/profile
+#$ sudo vi ~/.bash_profile #Mac配置此文件
+#$ gedit ~/.bashrc #出问题
   ```
 
   输入：
@@ -363,8 +497,14 @@ $ sudo vi /etc/profile
   ```shell
 export JAVA_HOME=/usr/local/jdk-8u231-linux-x64/jdk1.8.0_231
 export PATH=$PATH:$JAVA_HOME/bin
-
+#ubuntu
 export HADOOP_HOME=/opt/hadoop-2.6.0-cdh5.9.3
+export PATH=$PATH:$HADOOP_HOME/bin:$HADOOP_HOME/sbin
+
+#Mac
+export JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk1.8.0_251.jdk/Contents/Home
+export PATH=$JAVA_HOME/bin:$PATH
+export HADOOP_HOME=/usr/local/Apache/hadoop-3.2.1
 export PATH=$PATH:$HADOOP_HOME/bin:$HADOOP_HOME/sbin
   ```
 
@@ -382,7 +522,7 @@ $ source /etc/profile
 $ hadoop version
 ```
 
-## 5.4 Hadoop客户端环境搭建
+#### 5.4 Hadoop客户端环境搭建
 
 下面的依赖如果可以工作的话,就不用导入本地hadoop包了
 
@@ -578,6 +718,40 @@ $cxy@Cxy:$ vim /etc/hosts
 4. 在web端查看是否上传成功
 
    http://hadoop1:50070/explorer.html#/
+
+## Mac
+
+1. <a href="https://mirror.bit.edu.cn/apache/hadoop/common/">官方镜像</a>
+
+   官方网站：http://hadoop.apache.org/
+
+   ![Screen Shot 2020-06-12 at 11.26.00 AM](pic/Screen Shot 2020-06-12 at 11.26.00 AM.png)
+
+   
+
+2. 解压到/usr/local/Apache
+
+   ```shell
+   $ tar -zxvf hadoop-3.2.1.tar.gz -C /usr/local/Apache
+   ```
+
+3. Mac 安装 brew
+
+   ```shell
+   $/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"  
+   ```
+
+   *回车（这里有提示目录不存在，要创建需要按return键，如果用的windows键盘，就是回车键）*
+
+   *它的用法*
+
+4. 安装ssh
+
+   ```shell
+   $ brew install ssh
+   ```
+
+5. 其余的参考[Ubuntu安装Hadoop](#5.2 ssh免密登陆)
 
 # 6. VS Code + Java开发
 
@@ -791,11 +965,49 @@ sudo ./startup.sh
 localhost:8080
 ```
 
+## Mac 环境
+
+1. 到<a href="https://tomcat.apache.org/download-90.cgi#9.0.36">官网下载</a>安装包
+
+   ![Screen Shot 2020-06-12 at 9.32.19 AM](pic/Screen Shot 2020-06-12 at 9.32.19 AM.png)
+
+2. 解压tomcat文件，把它放入/usr/local目录（或其它目录）
+
+   ```shell
+   xiyucai@xiyus-MacBook-Pro Downloads % tar -zxf apache-tomcat-9.0.36.tar.gz 
+   xiyucai@xiyus-MacBook-Pro Downloads % sudo cp -r apache-tomcat-9.0.36 /usr/local/Apache
+   ```
+
+3. 授权bin目录下的所有操作
+
+   ```shell
+   $ cd /usr/local/Apache/apache-tomcat-9.0.36/bin
+   $ sudo chmod 755 *.sh
+   ```
+
+4. 启动Tomcat
+
+   ```shell
+   xiyucai@xiyus-MacBook-Pro bin % ./startup.sh 
+   Using CATALINA_BASE:   /usr/local/Apache/apache-tomcat-9.0.36
+   Using CATALINA_HOME:   /usr/local/Apache/apache-tomcat-9.0.36
+   Using CATALINA_TMPDIR: /usr/local/Apache/apache-tomcat-9.0.36/temp
+   Using JRE_HOME:        /Library/Java/JavaVirtualMachines/jdk1.8.0_251.jdk/Contents/Home
+   Using CLASSPATH:       /usr/local/Apache/apache-tomcat-9.0.36/bin/bootstrap.jar:/usr/local/Apache/apache-tomcat-9.0.36/bin/tomcat-juli.jar
+   Tomcat started.
+   ```
+
+5. 在浏览器端访问 http://localhost:8080/ 
+
+   ![Screen Shot 2020-06-12 at 10.36.49 AM](../../Desktop/Screen Shot 2020-06-12 at 10.36.49 AM.png)
+
+6. 
+
 
 
 # 9. Mysql 安装
 
-## 9.1 Windows 环境
+### Windows 环境
 
 1. 在官网下载 [MySQL](https://dev.mysql.com/downloads/mysql/) ， [安装版MySQL](https://link.zhihu.com/?target=https%3A//link.jianshu.com/%3Ft%3Dhttp%3A//dev.mysql.com/downloads/installer/)
 
@@ -881,11 +1093,11 @@ localhost:8080
 
    在 Navicat 中双击连接名，修改密码
 
-## 9.2 Linux 环境
+### Linux 环境
 
 <a href = "https://dev.mysql.com/downloads/mysql/">MySQL下载</a>
 
-### mysql 安装
+#### mysql 安装
 
 http://www.coozhi.com/youxishuma/g4/86480.html
 
@@ -999,7 +1211,7 @@ $ sudo apt-get install mysql-server-5.7 mysql-client-5.7
 
 
 
-### 使用 MySQL Client(Mysql客户端) 执行简单的SQL命令
+#### 使用 MySQL Client(Mysql客户端) 执行简单的SQL命令
 
  你可以在 MySQL Client(Mysql客户端) 使用 mysql 命令连接到 MySQL 服务器上，默认情况下 MySQL 服务器的登录密码为空，所以本实例不需要输入密码。
 
@@ -1015,7 +1227,7 @@ $ sudo apt-get install mysql-server-5.7 mysql-client-5.7
 mysql> SHOW DATABASES;
 ```
 
-### Mysql安装后需要做的
+#### Mysql安装后需要做的
 
  Mysql安装成功后，默认的root用户密码为空，你可以使用以下命令来创建root用户的密码：
 
@@ -1037,9 +1249,9 @@ flush privileges;#授权之后必须刷新权限才生生效
 
  **注意：**在输入密码时，密码是不会显示了，你正确输入即可。
 
-### MySQL提示ERROR 1698 (28000): Access denied for user 'root'@'localhost'错误解决办法
+#### MySQL提示ERROR 1698 (28000): Access denied for user 'root'@'localhost'错误解决办法
 
-#### Step1：修改mysqld.cnf配置文件
+##### Step1：修改mysqld.cnf配置文件
 
 在ubuntu的terminal（也即终端）上输入
 
@@ -1076,7 +1288,7 @@ skip-grant-tables　　　　<-- add here
 service mysql restart #重新启动mysql
 ```
 
-#### step2：设置root密码
+##### step2：设置root密码
 
 在终端上输入mysql -u root -p，遇见输入密码的提示直接回车即可,进入mysql后，分别执行下面三句话：
 
@@ -1097,7 +1309,7 @@ select user,plugin from user;
 quit;#退出mysql 
 ```
 
-#### step3：注释掉skip-grant-tables
+##### step3：注释掉skip-grant-tables
 
 ```shell
 sudo vim /etc/mysql/mysql.conf.d/mysqld.cnf  
@@ -1111,7 +1323,7 @@ mysql -u root -p
 
 ![img](pic/1425775-20180904131927504-1825749614.png)
 
-### navicat Can't connect to local MySQL server through socket '/var/lib/mysqld/mysqld.sock的解决办法
+#### navicat Can't connect to local MySQL server through socket '/var/lib/mysqld/mysqld.sock的解决办法
 
 navicat上报错的路径var/lib/mysqld/mysqld.sock和mysql配置环境的路径不一样，在配置环境中改一下[mysqld]下的sock路径，并给大权限
 
@@ -1121,7 +1333,7 @@ sudo chmod 777 /var/lib/mysql/
 
 
 
-### ERROR 2002 (HY000): Can’t connect to local MySQL server through socket ‘/var/run/mysqld/mysqld.sock’
+#### ERROR 2002 (HY000): Can’t connect to local MySQL server through socket ‘/var/run/mysqld/mysqld.sock’
 
 对于这类错误，要么找到/tmp/mysql.sock文件 进行修改(但是比较麻烦)。但是我没找到这个文件 于是就用下面的方法了比较暴力但是很实用，直接==卸载重装==
 
@@ -1147,7 +1359,7 @@ mysql -u root -p
 #登录不上去，没有设置密码，前面有重置密码的方法
 ```
 
-### ERROR 2002 (HY000): Can't connect to local MySQL server through socket '/var/run/mysqld/mysqld.sock' (2)
+#### ERROR 2002 (HY000): Can't connect to local MySQL server through socket '/var/run/mysqld/mysqld.sock' (2)
 
 客户端：终端和navicat的socket地址不一样，没有制定客户端所以两个不能同时登录。可以在配置文件中添加如下配置：
 
@@ -1159,11 +1371,7 @@ default-character-set = utf8
 socket          = /var/lib/mysql/mysql.sock
 ```
 
-
-
-
-
-### 服务管理
+#### 服务管理
 
 ```mysql
 #服务管理
@@ -1175,7 +1383,7 @@ sudo service mysql stop
 sudo service mysql status
 ```
 
-### 卸载
+#### 卸载
 
 ```mysql
 #首先使用以下命令删除MySQL服务器：
@@ -1188,7 +1396,74 @@ sudo apt-get remove <<package-name>>
 dpkg -l | grep mysql | grep ii
 ```
 
+### Mac
 
+参考 ： https://www.cnblogs.com/nickchen121/p/11145123.html
+
+<a href = "https://dev.mysql.com/downloads/mysql/">MySQL下载</a> 
+
+直接双击安装 ： mysql-8.0.20-macos10.15-x86_64.dmg
+
+#### 设置环境变量
+
+1. 配置环境变量 ：编辑~/.bash_profile文件
+
+```shell
+$ sudo vim ~/.bash_profile
+```
+
+2. 输入
+
+```shell
+export PATH=$PATH:/usr/local/mysql/bin
+export PATH=$PATH:/usr/local/mysql/support-files
+```
+
+3. 使配置文件的修改生效，并查看环境变量是否设置成功
+
+```shell
+$ source ~/.bash_profile 
+$ echo $PATH
+```
+
+4. MySQL服务的启停和状态的查看
+
+   ```shell
+   #停止MySQL服务
+   $ sudo mysql.server stop
+   
+   #重启MySQL服务
+   $ sudo mysql.server restart
+   
+   #查看MySQL服务状态
+   $ sudo mysql.server status
+   ```
+
+5. 启动mysql服务
+
+   ```shell
+   $ sudo mysql.server start
+   ```
+
+6. 登陆服务
+
+   ```mysql
+   xiyucai@xiyus-MacBook-Pro mysql % mysql -uroot -p 
+   Enter password: 
+   Welcome to the MySQL monitor.  Commands end with ; or \g.
+   Your MySQL connection id is 8
+   Server version: 8.0.20 MySQL Community Server - GPL
+   
+   Copyright (c) 2000, 2020, Oracle and/or its affiliates. All rights reserved.
+   
+   Oracle is a registered trademark of Oracle Corporation and/or its
+   affiliates. Other names may be trademarks of their respective
+   owners.
+   
+   Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+   
+   mysql> 
+   ```
 
 
 
@@ -1514,9 +1789,11 @@ winecfg
 
 # 13 Maven 安装
 
-#### 1. 下载压缩包:
+#### 1. 下载压缩包
 
 <a href="http://maven.apache.org/download.cgi">官网地址</a> 
+
+注意下载二进制包（binary），不要选择源码包（source）
 
 #### 2. 解压
 
@@ -1530,13 +1807,14 @@ $ gedit ~/.bashrc
 
 配置 MAVEN_HOME 和 PATH，如果没有配置JAVA_HOME，也加上
 
-```
+```shell
 JAVA_HOME=/usr/local/jdk-8u231-linux-x64/jdk1.8.0_231
 export MAVEN_HOME=/home/cxy/Programfiles/apache-maven-3.6.3
 export PATH=$MAVEN_HOME/bin:$PATH
+#Mac下安装路径： /usr/local/Apache/apache-maven-3.6.3
 ```
 
-#### 4.source 一下profile
+#### 4.使配置生效
 
 ```shell
 $source ~/.bashrc
@@ -1683,6 +1961,8 @@ https://www.jianshu.com/p/907bd880761c
 
 # 15. Redis安装
 
+### Ubuntu
+
 #### 安装
 
 ```shell
@@ -1700,6 +1980,7 @@ $ redis-server
 
 ```shell
 $ redis-cli
+#阻塞态
 ```
 
 以上命令将打开以下终端：
@@ -1716,6 +1997,14 @@ PONG
 ```
 
 whereis redis 查看redis的安装位置
+
+### Mac
+
+```shell
+$ brew install redis
+```
+
+其余的同Ubuntu
 
 # 16. Xmind安装
 
@@ -2013,7 +2302,7 @@ tip:若没有提前压缩,选择你想腾出空间的磁盘,只需将Free Space 
 
 <a href="https://docs.docker.com/engine/install/ubuntu/">官方文档</a>
 
-
+### Ubuntu
 
 sudo apt-get install docker-ce=5:19.03.8~3-0~ubuntu-bionic docker-ce-cli=5:19.03.8~3-0~ubuntu-bionic containerd.io
 
@@ -2237,6 +2526,22 @@ sudo apt-get autoremove docker-ce-*
 docker --version
 ```
 
+### Mac
+
+<a href="https://www.docker.com/get-started">下载docker desktop</a>
+
+拖动Docker 移动至Applications 完成安装
+
+如果启动Hadoop容器报错：WARNING: Error loading config file: /Users/xiyucai/.docker/config.json: EOF
+
+解决：
+
+1. Locate the `config.json` file located under the `.docker` folder in your `Users` folder.
+2. If the file is empty, add `{ }` to the file and save it.
+3. Try the Docker task or command again.
+
+
+
 # 22.Docker 内安装实例
 
 ## 1. Docker安装Tomcat
@@ -2278,6 +2583,16 @@ REPOSITORY          TAG                 IMAGE ID            CREATED             
 tomcat              latest              6ab907c973d2        4 days ago          528MB
 ```
 
+查看镜像的版本号并修改
+
+```shell
+$ docker image inspect tomcat:latest | grep -i version
+
+$ docker tag tomcat:latest tomcat:9.0.36 
+```
+
+
+
 ### 2. 通过 Dockerfile 构建
 
 #### 1. 创建 tomcat 目录
@@ -2296,11 +2611,14 @@ cxy@Cxy:~/文档/docker$ mkdir -p ./tomcat/webapps ./tomcat/logs ./tomcat/conf
 
 ```shell
 $ cp /home/cxy/下载/Java/apache-tomcat-9.0.33.tar.gz  ./
+#xiyucai@xiyus-MacBook-Pro big data % cp apache-tomcat-9.0.36.tar.gz ~/Documents/MyCode/docker/tomcat
 ```
 
 
 
 #### 2. 进入创建的 tomcat 目录，创建 Dockerfile
+
+Ubuntu:
 
 ```dockerfile
 FROM ubuntu
@@ -2318,8 +2636,6 @@ MAINTAINER cxy<946704740@qq.com>
 
 #把安装包添加到容器中
 ADD apache-tomcat-9.0.33.tar.gz /usr/local
-
-
 
 #配置 java 和 tomcat 环境变量
 #ENV JAVA_HOME /usr/local/jdk
@@ -2343,22 +2659,67 @@ EXPOSE 8080
 CMD /usr/local/apache-tomcat-9.0.33/bin/startup.sh && tail -F /usr/local/apache-tomcat-9.0.33/bin/logs/catalina.out
 ```
 
+Mac :
+
+```dockerfile
+FROM ubuntu
+FROM openjdk
+MAINTAINER cxy<946704740@qq.com>
+
+#下载镜像加速
+#RUN sed -i 's/archive.ubuntu.com/mirrors.ustc.edu.cn/g' /etc/apt/sources.list
+#RUN sed -i 's#http://archive.ubuntu.com/#http://mirrors.tuna.tsinghua.edu.cn/#' /etc/apt/sources.list
+#RUN sed -i 's/mirrors.ustc.edu.cn/archive.ubuntu.com/g' /etc/apt/sources.list
+
+#安装vim编辑器,-y表示不询问直接安装
+#RUN apt-get update
+#RUN apt-get install -y vim
+
+#把安装包添加到容器中
+ADD apache-tomcat-9.0.36.tar.gz /usr/local
+
+#配置 java 和 tomcat 环境变量
+#ENV JAVA_HOME /usr/local/jdk
+ENV CATALINA_HOME /usr/local/apache-tomcat-9.0.36
+#ENV CATALINA_BASE  /usr/local/apache-tomcat-9.0.33
+ENV PATH $PATH:$JAVA_HOME/bin:$CATALINA_HOME/lib:$CATALINA_HOME/bin
+
+#设置工作时访问的WORKDIR, 即登录落脚点
+#ENV MYPATH /usr/local
+#WORKDIR $MYPATH
+RUN mkdir -p "$CATALINA_HOME"
+WORKDIR $CATALINA_HOME
+
+#容器运行时监听的端口
+EXPOSE 8080
+
+#启动时运行tomcat
+# ENTRYPOINT ["/usr/local/apache-tomcat-9.0.33/bin/startup.sh"]
+# CMD ["/usr/local/apache-tomcat-9.0.33/bin/startup.sh"]
+# ENTRYPOINT ["/usr/local/apache-tomcat-9.0.33/bin/catalina.sh","run"]
+CMD /usr/local/apache-tomcat-9.0.36/bin/startup.sh && tail -F /usr/local/apache-tomcat-9.0.36/bin/logs/catalina.out
+```
+
 #### 3. 构建
 
 ```shell
 #在tomcat路径
 cxy@Cxy:~/文档/docker/tomcat$ docker build -t cxytomcat9 .
+#xiyucai@xiyus-MacBook-Pro tomcat % docker build -t tomcat-bydfile . 
 #在其它任意路径, 镜像命名为cxy/tomcat
 $docker build -f ~/文档/docker/tomcat/Dockerfile -t cxytomcat9 .
+#xiyucai@xiyus-MacBook-Pro tomcat % docker build -f ~/Documents/MyCode/docker/tomcat/Dockerfile -t tomcat-bydfile .
 #给镜像改名
 $ docker tag 70ff7873d7cd 新名字:旧名字
+#xiyucai@xiyus-MacBook-Pro tomcat % docker tag tomcat-bydfile:latest tomcat-bydfile:9.0.36
 ```
 
 #### 4. run
 
 ```shell
 cxy@Cxy:~/文档/docker/tomcat9$ docker run -d -p 8080:8080 --name mytomcat9 -v $PWD/test:/usr/local/apache-tomcat-9.0.33/webapps/test -v $PWD/logs:/usr/local/apache-tomcat-9.0.33/logs --privileged=true cxytomcat9
-7b0a81bb51b3581a9ba54a605c270e5e96daaab11d4a263b493ec744064c6744
+
+#docker run -d -p 8080:8080 --name tomcat-bydfile -v $PWD/test:/usr/local/apache-tomcat-9.0.36/webapps/test -v $PWD/logs:/usr/local/apache-tomcat-9.0.36/logs --privileged=true tomcat-bydfile:9.0.36
 ```
 
 > 命令说明：
@@ -2481,7 +2842,7 @@ $ docker run -itd --name mysql-d -p 3307:3306 -e MYSQL_ROOT_PASSWORD=12345c mysq
 
 > - -p 3307:3306 : 将主机的
 
-####查看是否安装成功
+#### 查看是否安装成功
 
 ```shell
 cxy@Cxy:~$ docker ps
@@ -2563,7 +2924,7 @@ $ docker ps
 
 > **-p 6379:6379**：映射容器服务(服务器端)的 6379 端口到宿主机(客户端)的 6379 端口。外部可以直接通过宿主机ip:6379 访问到 Redis 的服务
 
-####测试redis服务
+#### 测试redis服务
 
 接着我们通过 redis-cli 连接测试使用 redis 服务。
 
@@ -2585,6 +2946,7 @@ OK
 ### 1. 配置Dockerfile
 
 ```dockerfile
+#Ubuntu
 FROM ubuntu:18.04
 VOLUME ["/dataVolumeContainer1","/dataVolumeContainer2"]
 
@@ -2807,7 +3169,7 @@ yarn	1
      #输入:
      
      export JAVA_HOME=/usr/local/jdk1.8.0_231
-     #export HADOOP_PREFIX=/usr/local/hadoop-2.6.0-cdh5.9.3
+     export HADOOP_HOME=/usr/local/hadoop-2.6.0-cdh5.9.3
      
      #export HADOOP_SSH_OPTS="-p 22"
      ```
@@ -2905,10 +3267,14 @@ yarn	1
 
      http://172.17.0.2:50070/dfshealth.html#tab-overview
 
+     注意自己设置的端口号
+
+     http://localhost:50071/dfshealth.html#tab-overview
+
      看到如下图则配置成功:
-
+     
      ![image-20200409212540503](pic/image-20200409212540503-1587028404503.png)
-
+     
      ![image-20200409212501730](pic/image-20200409212501730-1587028404504.png)
 
 - **操作集群**
@@ -3105,11 +3471,25 @@ hadoop fs -cat /wcoutput/*
 
 #### 3. 完全分布模式
 
+Docker Ubuntu容器安装ping
+
+```shell
+apt-get update
+apt-get install iputils-ping
+apt-get install net-tools
+```
+
 ##### 3.1 开启3个容器实例
 
 https://cr.console.aliyun.com/repository/cn-chengdu/cxy_explore
 
-1. 生成镜像并推送到Registry
+1. 如果集群是第一次启动，需要格式化NameNode（注意格式化之前，一定要先停止上次启动的所有namenode和datanode进程，然后再==删除data和log数据==）
+
+   ```shell
+   root@hadoop1:/usr/local/hadoop-2.6.0-cdh5.9.3# rm -rf temp/ logs/
+   ```
+
+2. 生成镜像并推送到Registry
 
 ```shell
 #生成镜像,提交到本地库
@@ -3137,7 +3517,7 @@ $ sudo docker push registry.cn-chengdu.aliyuncs.com/cxy_explore/cxy-hadoop:2.6.0
    #$ docker run -it --name hadoop5 --hostname hadoop5 --ip 172.17.5 -P -p 50074:50070 -p 8092:8088 --privileged=true cxy/hadoop:2.6.0-cdh5.9.3-2
    ```
 
-3. 改配置中的主机名和设置hosts(vim /etc/hosts)
+3. 改配置中的主机名和设置hosts(vim /etc/hosts),==容器和宿主机的hosts都要将所有ip加进去==
 
    - core-site.xml
    - yarn-site.xml
@@ -3190,7 +3570,7 @@ $ sudo docker push registry.cn-chengdu.aliyuncs.com/cxy_explore/cxy-hadoop:2.6.0
   > ```
   >
   > ```shell
-  > root@hadoop3# rsync -av hadoop2:/usr/local/hadoop-2.6.0-cdh5.9.3/input /usr/local/hadoop-2.6.0-cdh5.9.3/
+  > root@hadoop2# rsync -av hadoop2:/usr/local/hadoop-2.6.0-cdh5.9.3/input /usr/local/hadoop-2.6.0-cdh5.9.3/
   > ```
   >
   > | 选项 | 功能                                               |
@@ -3241,8 +3621,8 @@ $ sudo docker push registry.cn-chengdu.aliyuncs.com/cxy_explore/cxy-hadoop:2.6.0
   >   > 
   >   > #5 循环, 注意起始位置不要把自己算进去了
   >   > for((host=3; host<5; host++)); do
-  >   >      echo ------------------- hadoop$host --------------
-  >   >      rsync -av $pdir/$fname $user@hadoop$host:$pdir
+  >   >   echo ------------------- hadoop$host --------------
+  >   >   rsync -av $pdir/$fname $user@hadoop$host:$pdir
   >   > done
   >   > ```
   >   >
@@ -3270,6 +3650,17 @@ $ sudo docker push registry.cn-chengdu.aliyuncs.com/cxy_explore/cxy-hadoop:2.6.0
   >   > do
   >   > echo --------------------- $i -------------------------------
   >   > ssh $i  "source /etc/profile && jps | grep -v Jps "
+  >   > done
+  >   > ```
+  >   >
+  >   > 如果报错：<a href="https://www.52pojie.cn/thread-1108853-1-1.html">bash: jps: command not found</a>,可输入jps命令下的绝对路径：
+  >   >
+  >   > ```shell
+  >   > #!/bin/bash
+  >   > for((host=2;host<5;host++));
+  >   > do
+  >   > echo --------------------- hadoop$host -------------------------------
+  >   > ssh hadoop$host "/usr/local/jdk1.8.0_231/bin/jps"
   >   > done
   >   > ```
   >
@@ -3411,8 +3802,8 @@ https://cr.console.aliyun.com/repository/cn-chengdu/cxy_explore
 ```shell
 #hadoop1格式化
 #注意现在用的镜像是运行过单机模式和伪分布模式的,已经格式化过了
-#如果未格式化过请格式化
-#root@hadoop1:/usr/local/hadoop-2.6.0-cdh5.9.3# hdfs namenode -format
+#如果未格式化过请格式化,如果删除了temp 和 log文件夹，需要重新格式化，不然namenode不能启动
+root@hadoop1:/usr/local/hadoop-2.6.0-cdh5.9.3# hdfs namenode -format
 
 #hadoop2启动namenode
 root@hadoop2:/usr/local/hadoop-2.6.0-cdh5.9.3#hadoop-daemon.sh start namenode
@@ -3429,11 +3820,13 @@ root@hadoop4:/usr/local/hadoop-2.6.0-cdh5.9.3# hadoop-daemon.sh start secondaryn
 关闭：
 
 ```shell
-sbin/hadoop-daemon.sh start namenode
+sbin/hadoop-daemon.sh stop namenode
 sbin/hadoop-daemon.sh stop datanode
 ```
 
 http://172.17.0.2:50070/dfshealth.html#tab-overview
+
+http://localhost:50071/dfshealth.html#tab-overview
 
 ##### 3.5 SSH无密登录配置
 
@@ -3530,6 +3923,8 @@ hadoop4: starting secondarynamenode, logging to /usr/local/hadoop-2.6.0-cdh5.9.3
 
   http://172.17.0.2:50070/dfshealth.html#tab-overview
 
+  http://localhost:50071/dfshealth.html#tab-overview
+  
   ![image-20200422145806222](pic/image-20200422145806222.png)
   
   注意: 如果发现只有hadoop2一个节点,可能是因为我之前的镜像是格式化且启动过hdfs发,导致datanode的VERSION里面有2个id是一样的，datanodeUuid和storageID，因此在master:50070上死活只看到一个datanode.
@@ -3543,8 +3938,25 @@ hadoop4: starting secondarynamenode, logging to /usr/local/hadoop-2.6.0-cdh5.9.3
   
   
   http://172.17.0.3:8088/cluster  : 看Nodes
+  
+  http://localhost:8090/cluster 注意端口
 
-3. 集群基本测试
+3. 在Mac下不能ping通容器的IP。
+
+   ​				                     ==LINUX的docker架构==                          ==OSX的docker架构==
+
+   <center>
+     <img src="pic/70-20200616111000570.png"> <img src="pic/70.png">
+   </center>
+
+
+   docker是在linux内核容器基础上实现的，linux安装docker后，会创建一个为docker0的虚拟网卡，linux宿机与docker容器之间的通信，通过docker0虚拟网卡进行
+
+   docker在OSX的实现方式，是首先创建一个linux的虚拟机，在将docker放入到虚拟机中实现，而对于linux虚拟机，与OSX之间的通信，目前版本采用`/var/run/docker.sock`这种socket文件来通信，在OSX宿机中自然ping不通docker容器。
+
+   
+
+4. 集群基本测试
 
    - 上传文件
 
@@ -3558,7 +3970,7 @@ hadoop4: starting secondarynamenode, logging to /usr/local/hadoop-2.6.0-cdh5.9.3
      $hadoop jar share/hadoop/mapreduce/hadoop-mapreduce-examples-2.6.0-cdh5.9.3.jar wordcount /wcinput /wcoutput
      ```
 
-4. 一些问题
+5. 一些问题
 
    如果登录后执行,用到的环境变量文件是 : /etc/profile
 
@@ -3597,12 +4009,10 @@ hadoop4: starting secondarynamenode, logging to /usr/local/hadoop-2.6.0-cdh5.9.3
    >   $ stop-dfs.sh
    >   ```
    >
-   >   
-   >
    > - 整体启动/停止YARN
    >
    >   ```shell
-   >   $ start-yarn.sh 
+   >  $ start-yarn.sh 
    >   $ stop-yarn.sh
    >   ```
 
@@ -3718,25 +4128,25 @@ SYNC_HWCLOCK=yes
 1. 上传文件到hadoop2
 
    ```shell
-   cxy@Cxy:~/下载$ docker cp apache-zookeeper-3.6.0.tar.gz hadoop2:/usr/local/
+   cxy@Cxy:~/下载$ docker cp apache-zookeeper-3.6.0-bin.tar.gz hadoop2:/usr/local/
    ```
 
 2. 解压
 
    ```shell
-   root@hadoop2:/usr/local# tar -zxvf apache-zookeeper-3.6.0.tar.gz
+   root@hadoop2:/usr/local# tar -zxvf apache-zookeeper-3.6.0-bin.tar.gz
    ```
 
-3. 重命名apache-zookeeper-3.6.0/conf这个目录下的zoo_sample.cfg为zoo.cfg
+3. 重命名apache-zookeeper-3.6.0-bin/conf这个目录下的zoo_sample.cfg为zoo.cfg
 
    ```shell
-   root@hadoop2:/usr/local/apache-zookeeper-3.6.0/conf# mv zoo_sample.cfg zoo.cfg
+   root@hadoop2:/usr/local/apache-zookeeper-3.6.0-bin/conf# mv zoo_sample.cfg zoo.cfg
    ```
 
 4. 配置zoo.cfg文件
 
    ```cfg
-   dataDir=/usr/local/apache-zookeeper-3.6.0/zkData
+   dataDir=/usr/local/apache-zookeeper-3.6.0-bin/zkData
    #######################cluster##########################
    server.2=hadoop2:2888:3888
    server.3=hadoop3:2888:3888
@@ -3781,10 +4191,10 @@ SYNC_HWCLOCK=yes
 
    
 
-5. 创建并修改myid(如果是本地模式,则不用配置此文件)
+5. 创建并修改==zkData==下的myid(如果是本地模式,则不用配置此文件)
 
    ```shell
-   $ vim myid
+   root@hadoop2:/usr/local/apache-zookeeper-3.6.0-bin/zkData# vim myid
    #表示这个是第几号服务器
    2
    ```
@@ -3793,7 +4203,7 @@ SYNC_HWCLOCK=yes
 
    ```shell
    #注意在此之前,先检查hosts和xsync,还有ssh是否启动
-   root@hadoop2:/usr/local/apache-zookeeper-3.6.0# xsync apache-zookeeper-3.6.0/
+   root@hadoop2:/usr/local/apache-zookeeper-3.6.0-bin# xsync apache-zookeeper-3.6.0-bin/
    ```
 
 7. 修改hadoop3,hadoop4的myid文件中内容为3、4
@@ -3801,18 +4211,18 @@ SYNC_HWCLOCK=yes
 8. 启动zookeeper
 
    ```shell
-   root@hadoop2:/usr/local/apache-zookeeper-3.6.0# bin/zkServer.sh start
-   root@hadoop3:/usr/local/apache-zookeeper-3.6.0# bin/zkServer.sh start
-   root@hadoop4:/usr/local/apache-zookeeper-3.6.0# bin/zkServer.sh start
+   root@hadoop2:/usr/local/apache-zookeeper-3.6.0-bin# bin/zkServer.sh start
+   root@hadoop3:/usr/local/apache-zookeeper-3.6.0-bin# bin/zkServer.sh start
+   root@hadoop4:/usr/local/apache-zookeeper-3.6.0-bin# bin/zkServer.sh start
    ```
 
 9. 查看状态
 
    ```shell
-   root@hadoop2:/usr/local/apache-zookeeper-3.6.0# bin/zkServer.sh status
+   root@hadoop2:/usr/local/apache-zookeeper-3.6.0-bin# bin/zkServer.sh status
    #当所有节点都启动了,就不会提示以下警告了
    ZooKeeper JMX enabled by default
-   Using config: /usr/local/apache-zookeeper-3.6.0/bin/../conf/zoo.cfg
+   Using config: /usr/local/apache-zookeeper-3.6.0-bin/bin/../conf/zoo.cfg
    Client port found: 2181. Client address: localhost.
    Error contacting service. It is probably not running.
    ```
@@ -3836,7 +4246,7 @@ root@hadoop2:/usr/local/ha/hadoop-2.6.0-cdh5.9.3# rm -rf output/ input/ logs/ te
 root@hadoop2:/usr/local/ha/hadoop-2.6.0-cdh5.9.3# rm -rf wc*
 ```
 
-2. 修改Hadoop的环境变量
+2. ==修改Hadoop的环境变量,$HADOOP_HOME改到ha下==
 
    hadoop-env.sh
 
@@ -3930,7 +4340,7 @@ root@hadoop2:/usr/local/ha/hadoop-2.6.0-cdh5.9.3# rm -rf wc*
    
    	<!-- 访问代理类：client，mycluster，active配置失败自动切换实现方式-->
    	<property>
-     		<name>dfs.client.failover.proxy.provider.mycluster</name
+       <name>dfs.client.failover.proxy.provider.mycluster</name>
           <value>org.apache.hadoop.hdfs.server.namenode.ha.ConfiguredFailoverProxyProvider</value>
    	</property>
    </configuration>
@@ -3953,7 +4363,7 @@ hadoop4: starting journalnode, logging to /usr/local/hadoop-2.6.0-cdh5.9.3/logs/
 hadoop3: starting journalnode, logging to /usr/local/hadoop-2.6.0-cdh5.9.3/logs/hadoop-root-journalnode-hadoop3.out
 
 #查看,jpsall
-root@hadoop2:/usr/local/ha/hadoop-2.6.0-cdh5.9.3# jps
+root@hadoop2:/usr/local/ha/hadoop-2.6.0-cdh5.9.3# jpsall
 578 JournalNode
 630 Jps
 474 QuorumPeerMain
@@ -3967,6 +4377,8 @@ root@hadoop2:/usr/local/ha/hadoop-2.6.0-cdh5.9.3# jps
    ```
 
    http://172.17.0.2:50070/dfshealth.html#tab-overview
+
+   http://localhost:50071/dfshealth.html#tab-overview
 
    ![image-20200428161313995](pic/image-20200428161313995-1588067669243.png)
 
@@ -3990,6 +4402,8 @@ root@hadoop2:/usr/local/ha/hadoop-2.6.0-cdh5.9.3# jps
    ```
 
    http://172.17.0.3:50070/dfshealth.html#tab-overview
+
+   http://localhost:50072/dfshealth.html#tab-overview
 
    ![image-20200428161801781](pic/image-20200428161801781-1588067669244.png)
 
@@ -4074,7 +4488,7 @@ root@hadoop2:/usr/local/ha/hadoop-2.6.0-cdh5.9.3#bin/hdfs namenode -format
 4. 初始化HA在Zookeeper中状态
 
 ```shell
-root@hadoop2:/usr/local/apache-zookeeper-3.6.0-bin/bin# ./zkCli.sh
+root@hadoop2:/usr/local/apache-zookeeper-3.6.0-bin-bin/bin# ./zkCli.sh
 #查看历史节点,如果是如下结果即可有其他目录需用rmr加节点名称 删掉
 [zk: localhost:2181(CONNECTED) 1] ls /
 [zookeeper]
@@ -4222,8 +4636,10 @@ active
 
    http://172.17.0.2:8088/cluster/nodes
 
-   ![image-20200428190333094](pic/image-20200428190333094.png)
+   http://localhost:8089/cluster
 
+   ![image-20200428190333094](pic/image-20200428190333094.png)
+   
    查看hadoop3会自动跳到hadoop2,跳过去是用的域名,如果不能显示,查看hosts里有没有加入hadoop2,hadoop3,hadoop4的IP地址
 
 ## 8. Hive 安装与配置
@@ -4307,6 +4723,27 @@ active
 
 #### 安装MySql服务器
 
+<a href="https://blog.csdn.net/qq_31811537/article/details/89226096">apt安装mysql</a>
+
+<a href="https://blog.csdn.net/weixin_43185093/article/details/103217400">修改密码：</a>
+
+这里是关键点，由于mysql5.7没有password字段，密码存储在authentication_string字段中，password()方法还能用
+
+```mysql
+mysql>show databases;
+mysql>use mysql;
+mysql>update user set authentication_string=PASSWORD("自定义密码") where user='root';
+mysql>update user set plugin="mysql_native_password";
+mysql>flush privileges;
+mysql>quit;
+```
+
+修改完密码，需要重启mysql （我没有重启，貌似也可以）
+
+```shell
+$/etc/init.d/mysql restart;
+```
+
 http://www.coozhi.com/youxishuma/g4/86480.html
 
 ```mysql
@@ -4331,12 +4768,12 @@ root@hadoop2:/usr/local/mysql# cd /usr/local/mysql
 #然后给移动后的文件夹添加目录权限到mysql用户组
 root@hadoop2:/usr/local/mysql#mkdir mysql-files
 root@hadoop2:/usr/local/mysql#chown mysql:mysql mysql-files
-root@hadoop2:/usr/local/mysql#  chmod 750 mysql-files
+root@hadoop2:/usr/local/mysql#chmod 750 mysql-files
 
 #对mysql数据库执行初始化命令
 root@hadoop2:/usr/local/mysql#  bin/mysqld --initialize --user=mysql
 2020-05-30T12:37:26.837048Z 6 [Note] [MY-010454] [Server] A temporary password is generated for root@localhost: IX=KXe2wZc:B
-
+Wki-tAqhV7(d
 #开启MySQL服务
 root@hadoop2:/usr/local/mysql# bin/mysqld_safe --user=mysql&
 ```
@@ -4345,6 +4782,12 @@ root@hadoop2:/usr/local/mysql# bin/mysqld_safe --user=mysql&
 
 ```shell
 root@hadoop2:/usr/local/mysql# mysqladmin --version
+```
+
+如果报错：bash: mysqladmin: command not found
+
+```shell
+$ln -s /usr/local/mysql/bin/mysqladmin /usr/bin
 ```
 
  linux上该命令将输出以下结果，该结果基于你的系统信息：
@@ -4375,6 +4818,12 @@ Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
 
 mysql>
 ```
+
+如果报错：
+
+![image-20200618103654957](pic/image-20200618103654957.png)
+
+查看启动日志，发现是因为之前安装一个的mysql.sock文件没有删，找到报错的目录把那个文件删了重新初始化就好了
 
 重置密码:
 
@@ -4468,9 +4917,10 @@ mysql>flush privileges;
 mysql>quit;
 ```
 
-###8.4. Hive基本操作
+### 8.4. Hive基本操作
 
-1. 启动hive
+1. 在新hadoop2窗口启动mysql
+2. 启动hive
 
 ```shell
 root@hadoop2:/usr/local/apache-hive-1.2.2-bin# bin/hive
@@ -4530,7 +4980,21 @@ hive> insert into student values(1000,"ss");
 hive> select * from student;
 ```
 
-9. 退出hive
+9. 删除表
+
+```mysql
+hive> drop table student;
+```
+
+如果不能删除，可能是字符集的问题，退出hive，在mysql中移除hive的database，再新建其字符集，改变字符集，最后重启hive。如下：
+
+```MySQL
+mysql> drop database metastore ;
+mysql> create database metastore ;
+mysql> alter database metastore character set latin1;
+```
+
+10.退出hive
 
 ```mysql
 hive> quit;
@@ -4555,7 +5019,7 @@ hive> quit;
 2. 创建student表, 并声明文件分隔符’\t’
 
 ```mysql
-hive> create table staudent(id int,name string) ROW FORMAT DELIMITED FIELDS TERMINATED BY '\t';
+hive> create table student(id int,name string) ROW FORMAT DELIMITED FIELDS TERMINATED BY '\t';
 ```
 
 3. 加载/opt/datas/student.txt 文件到student数据库表中。
@@ -4576,7 +5040,6 @@ OK
 1001	zhangshan
 1002	lishi
 1003	zhaoliu
-
 ```
 
 5. 再打开一个客户端窗口启动hive，会产生java.sql.SQLException异常。
@@ -4601,7 +5064,7 @@ Exception in thread "main" java.lang.RuntimeException: java.lang.RuntimeExceptio
 
 hive默认将元数据存储到本地内嵌的Derby数据库中，但是Derby不支持多会话链接，因此我们使用mysql数据库来存储hive的元数据。配置完成hiveSQL的元数据库之后再开始安装、配置hive
 
-###8.6. Hive元数据配置到MySql
+### 8.6. Hive元数据配置到MySql
 
 驱动下载: https://mvnrepository.com/artifact/mysql/mysql-connector-java
 
@@ -4677,7 +5140,7 @@ mysql> show databases;
 
 3. 配置完毕后，如果启动hive异常，可以重新启动虚拟机。（重启后，别忘了启动hadoop集群）
 
-###8.7. 多窗口启动Hive测试
+### 8.7. 多窗口启动Hive测试
 
 在两个窗口中分别启动Hive
 
@@ -4761,7 +5224,7 @@ Time taken: 0.366 seconds, Fetched: 3 row(s)
    - 执行文件中的sql语句
 
      ```mysql
-     root@hadoop2:/usr/local/apache-hive-1.2.2-bin# bin/hive -f hivef.hql
+     root@hadoop2:/usr/local/apache-hive-1.2.2-bin# bin/hive -f /opt/datas/hivef.hql
      ......
      OK
      1001	zhangshan
@@ -4776,7 +5239,7 @@ Time taken: 0.366 seconds, Fetched: 3 row(s)
      root@hadoop2:/usr/local/apache-hive-1.2.2-bin# bin/hive -f /opt/datas/hivef.hql > /opt/datas/hivef_result.txt
      ```
 
-###8.9. Hive其他命令操作
+### 8.9. Hive其他命令操作
 
 1. 退出hive窗口
 
@@ -4829,7 +5292,7 @@ show tables;
 
 
 
-###8.10. Hive常见属性配置
+### 8.10. Hive常见属性配置
 
 ##### 1. 查询后信息显示配置
 
@@ -4856,7 +5319,7 @@ show tables;
 </center>
 
 
-3. 配置完毕后，如果启动h
+3. 配置完毕后，如果启动hive
 
    
 
@@ -4906,7 +5369,7 @@ show tables;
 
      
 
-###8.11 s参数配置方式
+### 8.11 参数配置方式
 
 1．查看当前所有的配置信息
 
@@ -4982,7 +5445,53 @@ hive>set;
 
 
 
+# 25. Mac 安装 Matlab
 
+1. 下载<a href="https://www.jianshu.com/p/a5466682ba3d?from=singlemessage&isappinstalled=0">安装包</a>
+
+2. 安装包太大，被分成多个保存，用The Unarchiever打开 Matlab98R2020a_Mac64.zip。自动生成dmg格式安装包
+
+   ![Screen Shot 2020-06-13 at 10.05.26 AM](pic/Screen Shot 2020-06-13 at 10.05.26 AM.png)
+
+   ![Screen Shot 2020-06-13 at 10.04.31 AM](pic/Screen Shot 2020-06-13 at 10.04.31 AM.png)
+
+   ![Screen Shot 2020-06-13 at 10.06.06 AM](pic/Screen Shot 2020-06-13 at 10.06.06 AM.png)
+
+3. 双击dmg文件开始安装
+
+   ![Screen Shot 2020-06-13 at 10.18.14 AM](pic/Screen Shot 2020-06-13 at 10.18.14 AM.png)
+
+4. 输入密钥
+
+   09806-07443-53955-64350-21751-41297
+
+5. 选择license file，license_standalone.lic的目录
+
+   ![Screen Shot 2020-06-13 at 10.37.46 AM](pic/Screen Shot 2020-06-13 at 10.37.46 AM.png)
+
+   
+
+   ![Screen Shot 2020-06-13 at 10.40.41 AM](pic/Screen Shot 2020-06-13 at 10.40.41 AM.png)
+
+6. 破解
+
+   安装完成，我们来激活Matlab R2020a，解压破解补丁（破解证书）压缩包，拷贝==替换==补丁即libmwlmgrimpl.dylib文件到软件安装目录
+
+   我的是在/Applications/Matlab/R2020a/bin/maci64/matlab_startup_plugins/lmgrimpl下
+
+7. 在安装目录下的bin目录下点击active激活
+
+   ![Screen Shot 2020-06-13 at 1.38.19 PM](pic/Screen Shot 2020-06-13 at 1.38.19 PM.png)
+
+   之后按提示操作即可
+
+8. 创建桌面图标
+
+   ![img](https://upload-images.jianshu.io/upload_images/4965484-02933573969324a9.gif?imageMogr2/auto-orient/strip|imageView2/2/w/1024/format/webp)
+
+   
+
+   
 
 
 

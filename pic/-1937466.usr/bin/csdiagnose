@@ -1,0 +1,514 @@
+#!/usr/bin/env perl -w
+# Copyright (c) 2010-2014 Apple Inc. All rights reserved.
+
+use strict;
+no strict "subs";
+use POSIX "strftime";
+use Getopt::Long;
+use Data::Dumper; # pretty print hash table
+use File::Find;
+use Cwd;
+use version;
+
+my $part_type_Apple_CoreStorage = "53746F72-6167-11AA-AA11-00306543";
+
+my $tmp_path = "/tmp";
+my $literal_tmp_path = $tmp_path;
+my $out_path;
+my $literal_out_path;
+my $os_support_cs = 1;
+my $verbose = 0;
+my $sudo_cmd = "sudo";
+
+sub main
+{
+	my $user;
+	my $group;
+	my $mount_point;
+	my $help = 0;
+	my $final_out_path;
+	my $use_custom_path = 0;
+	my @devs;
+
+	display_legal_disclaimer();
+
+	$user = run_nofail("id -u -n");
+	chop $user;
+	$group = run_nofail("id -g -n");
+	chop $group;
+
+	GetOptions(
+		"f=s" => \$final_out_path,
+		"h" => \$help,
+		"v" => \$verbose,
+		) or die "[FAIL] wrong options ";
+
+	if ($help) {
+		exec("man -s 1 csdiagnose");
+	}
+
+	if (@ARGV) {
+		foreach my $dev (@ARGV) {
+			push @devs, $dev;
+		}
+	} else {
+		push @devs, '*'; # all devs are accepted
+	}
+
+	if (defined $final_out_path) {
+		if ($final_out_path =~ q|^/|) { # an absolute path
+			if (-d $final_out_path) {
+				$use_custom_path = 1;
+			}
+		} else { # relative path
+			my $cur_dir = getcwd;
+			if (-d "$cur_dir/$final_out_path") {
+				$final_out_path = "$cur_dir/$final_out_path";
+				$use_custom_path = 1;
+			}
+		}
+		if ($use_custom_path) {
+			$literal_tmp_path = $final_out_path;
+			$final_out_path = "\"$final_out_path\"";
+			$tmp_path = $final_out_path;
+		} else {
+			print "Target directory \"$final_out_path\" does not exist!\n";
+			exit 1;
+		}
+	}
+
+	my $verbose_saved = $verbose;
+	$verbose = 1; # let user know we are running the 'sudo' command
+	run("sudo id -un");
+	$verbose = $verbose_saved;
+	if ($?) {
+		print "The script requires root access and uses sudo as needed; please authenticate.\n";
+		exit 1;
+	}
+
+	my $missing_csgather_msg = "You need csgather to run csdiagnose.
+
+csgather is installed in /usr/bin/ in 10.10 or later
+";
+
+	run("which csgather");
+	if ($?) {
+		print $missing_csgather_msg;
+		exit 1;
+	}
+
+	my $time_str = strftime('%Y-%m-%d-%H%M%S', localtime);
+	$out_path = "$tmp_path/csdiagnose-$time_str";
+	$literal_out_path = "$literal_tmp_path/csdiagnose-$time_str";
+	if (dir_exists($out_path)) {
+		print "Directory $out_path already exists, please run this script again\n";
+		exit 1;
+	}
+	run_nofail("mkdir $out_path");
+
+	print "Temp files will be saved in $out_path\n";
+
+	my $ver = `sw_vers -productVersion`; chomp($ver);
+	if (version->parse("v".$ver) < version->parse("v10.7")) {
+		$os_support_cs = 0;
+	}
+
+	my $line;
+
+	print "Collecting system configuration...\n";
+	run_nofail("sw_vers > $out_path/sw_vers.txt");
+	run_nofail("diskutil list > $out_path/diskutil-list.txt");
+	open F, "mount -t hfs|";
+	while ($line = <F>) {
+		if (!care_about_dev(\@devs, $line)) {
+			next;
+		}
+		if ($line =~ q|^/dev/disk[\ds]+ on (.*) \(|) {
+			if (-f "$out_path/hfs-df.txt") {
+				# not the first volume, filter out the title line
+				run_nofail("df -H \"$1\" | tail -1 >> $out_path/hfs-df.txt");
+			} else {
+				run_nofail("df -H \"$1\" > $out_path/hfs-df.txt");
+			}
+		}
+	}
+	close F;
+	if ($os_support_cs) {
+		run_nofail("diskutil cs list > $out_path/diskutil-cs-list.txt");
+	}
+	if (file_exists("~/Library/Logs/fsck_hfs.log")) {
+		run_nofail("cp ~/Library/Logs/fsck_hfs.log $out_path/fsck_hfs.log");
+	}
+
+	my $disk_slice;
+	my $fh;
+	open $fh, "diskutil list |" or die "diskutil list failed\n";
+	while ($line = <$fh>) {
+		if (!care_about_dev(\@devs, $line)) {
+			next;
+		}
+		if ($line =~ /\d+\:\s+Apple_CoreStorage.*(disk\d+s?\d*)\n/ ||
+			$line =~ /\d+\:\s+${part_type_Apple_CoreStorage}.*(disk\d+s?\d*)\n/) {
+			$disk_slice = $1;
+			# found a CoreStorage partition
+			print "Collecting CoreStorage metadata on $disk_slice...\n";
+			my $out_path_csgather = "$out_path/${disk_slice}-Apple_CoreStorage";
+			my $out;
+			$out = run("$sudo_cmd csgather -G $out_path_csgather $disk_slice");
+			if ($?) {			# log the csgather error
+				my $literal_out_path_csgather = "$literal_out_path/${disk_slice}-Apple_CoreStorage";
+				open F, ">$literal_out_path_csgather/csgather_error.txt"
+					or die "Cannot open \"$literal_out_path_csgather/csgather_error.txt\"\n";
+				print F $out;
+				close F;
+				exit;
+			} else {
+				run_nofail("$sudo_cmd chown -R $user:$group $out_path_csgather");
+			}
+		} elsif ($line =~ /\d+\:\s+Apple_Boot.*(disk\d+s?\d*)\n/) {
+			$disk_slice = $1;
+
+			# found a Apple Boot partition
+			print "Collecting Apple Boot metadata on $disk_slice...\n";
+			$mount_point = "$tmp_path/mnt";
+			run_nofail("mkdir -p $mount_point");
+			my $out_path_boot = "$out_path/${disk_slice}-Apple_Boot";
+			my $out = run("sudo mount -t hfs -o rdonly,nobrowse /dev/$disk_slice $mount_point 2>&1");
+			if ($?) {
+				print "Failed to mount $disk_slice $out_path_boot/filelist.txt\n";
+				open F, ">$out_path_boot/filelist.txt" or die "Cannot open \"$out_path_boot/filelist.txt\"\n";
+				print F "mount Apple_Boot partition failed:\n$out";
+				close F;
+			} else {
+				run_nofail("mkdir $out_path_boot");
+
+				run_nofail("$sudo_cmd find $mount_point -type f -ls > $out_path_boot/filelist.txt");
+				my @all_postfix = ('R', 'P', 'S');
+				foreach my $postfix (@all_postfix) {
+					run("$sudo_cmd cp $mount_point/com.apple.boot.$postfix/System/Library/Caches/com.apple.corestorage/EncryptedRoot.plist.wipekey $out_path_boot/ 2>&1");
+				}
+
+				run_nofail("$sudo_cmd chown -R $user:$group $out_path_boot");
+				run_nofail("sudo umount -f $mount_point");
+			}
+		} elsif ($line =~ /\d+:.*(disk\d+s?\d*)\n/) {
+			$disk_slice = $1;
+			if ($os_support_cs) {
+				# get decrypted context plist if possible
+				$line = run("diskutil cs info $1 2>&1 | grep Role");
+				if ($? == 0 && $line =~ /Role:\s+Logical Volume/) {
+					run("diskutil mount $disk_slice");
+					if ($? == 0) {
+						my $out_path = "$out_path/${disk_slice}-lv";
+						run_nofail("mkdir $out_path");
+						$mount_point = get_mount_point($disk_slice);
+						run("$sudo_cmd csgather -r \"$mount_point\" -o $out_path/EncryptedRoot.plist");
+						run_nofail("$sudo_cmd chown -R $user:$group $out_path");
+					}
+				}
+			}
+
+			# collect boot root info
+			my $err = 0;
+			($mount_point, $err) = get_mount_point($disk_slice, 1);
+			if ($err == 0) {
+				$mount_point = "\"$mount_point\"";
+
+				my $dir = "$out_path/${disk_slice}-logs/var/log";
+				run_nofail("mkdir -p $dir");
+				run("cp $mount_point/var/log/kernel.log* $dir 2>&1");
+				run("cp $mount_point/var/log/system.log* $dir 2>&1");
+				run("cp $mount_point/var/log/install.log* $dir 2>&1");
+				run("cp $mount_point/var/log/secure.log* $dir 2>&1");
+				run("cp $mount_point/var/log/fsck_hfs.log* $dir 2>&1");
+				run("cp -R $mount_point/var/log/DiagnosticMessages $dir 2>&1");
+
+				$dir = "$out_path/${disk_slice}-logs/Library/Logs";
+				run_nofail("mkdir -p $dir");
+				run("cp $mount_point/Library/Logs/CoreStorage.log $dir 2>&1");
+				run("cp $mount_point/Library/Logs/diskmanagementd.log $dir 2>&1");
+				my $sub_dir = "$dir/CrashReporter";
+				run_nofail("mkdir -p $sub_dir");
+				run("cp $mount_point/Library/Logs/CrashReporter/disk* $sub_dir 2>&1");
+				run("cp $mount_point/Library/Logs/CrashReporter/Disk* $sub_dir 2>&1");
+				run("cp $mount_point/Library/Logs/DiagnosticReports/disk* $sub_dir 2>&1");
+				run("cp $mount_point/Library/Logs/DiagnosticReports/Disk* $sub_dir 2>&1");
+
+				if (dir_exists("$mount_point/System/Library/Extensions") ||
+						file_exists("$mount_point/mach_kernel") ||
+						file_exists("$mount_point/System/Library/Kernels")) {
+					$dir = "$out_path/${disk_slice}-boot-root-files";
+					run_nofail("mkdir -p $dir");
+					my $out_file = "$dir/bootstamps.txt";
+
+					get_timestamps("$mount_point/System/Library/Extensions", $out_file);
+					get_timestamps("$mount_point/mach_kernel", $out_file);
+					get_timestamps("$mount_point/System/Library/Kernels/kernel", $out_file);
+
+					# If '/' is FDE, check login forwarding
+					if ($mount_point eq '"/"' && 0 == system("fdesetup isactive > /dev/null")) {
+						my $outf = "$dir/login-forwarding.txt";
+						my $cmd;
+						my $logfh;
+						open($logfh, ">> $outf") or die("couldn't open $outf");
+
+						print $logfh "# Existing OS users\n";
+						$cmd = 'dscl . -ls /Users | grep -v ^_ | while read u; '
+							. 'do '
+							. 'uuid=$(dscl . -read /Users/$u GeneratedUID | awk \'{ print $2 }\'); '
+							. '[[ $uuid == FFFFEEEE* ]] && continue; '
+							. 'uname=$(dscl . -read /Users/$u RecordName  | awk \'{ print $2 }\'); '
+							. 'echo ${uname}: $uuid; '
+							. 'done';
+						print $logfh "\$ $cmd\n";
+						run("$cmd >> $outf 2>&1");
+
+						print $logfh "\n";
+
+						# might want to try fdesetup list -extended (16369519)
+						print $logfh "# Users configured for FDE\n";
+						$cmd = "$sudo_cmd fdesetup list";
+						print $logfh "\$ $cmd\n";
+						run("$cmd >> $outf 2>&1");
+
+						print $logfh  "\n";
+
+						print $logfh "# Users encountered EFI Login\n";
+						$cmd = "ioreg -p IODeviceTree -n chosen -rd1 | "
+							   . "grep efilogin";
+						print $logfh "\$ $cmd\n";
+						run("$cmd >> $outf 2>&1");
+
+						close($logfh);
+					}
+				}
+
+				if (dir_exists("$mount_point/System/Library/Caches/com.apple.bootstamps")) {
+					my $out_path = "$out_path/${disk_slice}-boot-root-files";
+					if (!dir_exists($out_path)) {
+						run_nofail("mkdir $out_path");
+					}
+					my $out_file = "$out_path/bootstamps.txt";
+
+					my $fname;
+					my @fnames = ("$mount_point/System/Library/Caches/com.apple.bootstamps",
+								  "$mount_point/System/Library/Caches/com.apple.bootstamps/*");
+
+					foreach $fname (@fnames) {
+						get_timestamps($fname, $out_file);
+						get_more_timestamps($fname, $out_file);
+					}
+
+					my $f;
+					if (open $f, "ls -1f $mount_point/System/Library/Caches/com.apple.bootstamps/* |") {
+						while ($line = <$f>) {
+							chop $line;
+							if ($line eq '.' || $line eq '..') {
+								next;
+							}
+							$line =~ s/:/\//g;
+							if ($line ne "") {
+								get_timestamps("$line", $out_file);
+								get_more_timestamps("$line", $out_file);
+							}
+						}
+						close $f;
+					}
+				}
+			} # if we have mount point of disk_slice
+		} # if this is a disk node
+	} # while file not finished
+	close $fh;
+
+	# remove all empty directories
+	# for non-empty directories, rmdir will silently fail
+	finddepth(sub {rmdir $_ if -d;}, "$literal_tmp_path/csdiagnose-$time_str");
+
+	my $final_file;
+
+	if ($use_custom_path) {
+		$final_file = "$literal_tmp_path/csdiagnose-$time_str.tar";
+	} else {
+		$final_file = "$tmp_path/csdiagnose-$time_str.tar";
+		if ($ENV{'HOME'}) {
+			my $home_dir = "$ENV{'HOME'}";
+			if (dir_exists("\"$home_dir/Desktop\"")) {
+				$final_file = "$home_dir/Desktop/csdiagnose-$time_str.tar";
+			} elsif (dir_exists("$home_dir")) {
+				$final_file = "$home_dir/csdiagnose-$time_str.tar";
+			}
+		}
+	}
+
+	run_nofail("cd $tmp_path ; sudo tar cf \"$final_file\" csdiagnose-$time_str ; sudo chown $user:$group \"$final_file\"");
+	run_nofail("rm -rf $out_path");
+
+	print "The following FDE diagnose file has been generated:\n\"$final_file\"\n";
+
+	run("open -R \"$final_file\"");
+} # main
+
+sub get_timestamps( $$ ) {
+	my $fname = shift;
+	my $out_file = shift;
+	if ($fname eq "") {
+		die "empty file name\n";
+	}
+	run_ls_command("lTd", $fname, $out_file);
+	run_ls_command("clTd", $fname, $out_file);
+}
+
+sub get_more_timestamps( $$ ) {
+	my $fname = shift;
+	my $out_file = shift;
+	run_ls_command("lT", $fname, $out_file);
+	run_ls_command("clT", $fname, $out_file);
+}
+
+sub run_ls_command( $$ ) {
+	my $flags = shift;
+	my $fname = shift;
+	my $out_file = shift;
+
+	run("echo \$ ls -$flags $fname >> $out_file");
+	if ($fname =~ /\*/) {
+		run("ls -$flags $fname >> $out_file 2>&1");
+	} else {
+		run("ls -$flags $fname >> $out_file 2>&1");
+	}
+	run("echo  >> $out_file");
+}
+
+# return the mount point of a disk node.  Sample usage:
+# $mount_point = get_mount_point("disk3s2");
+#
+# if the caller wants the function to return error other than die on error
+# pass in a second parameter:
+# ($mount_point, $err) = get_mount_point("disk3s2", 1);
+#
+sub get_mount_point {
+	my $disk_node = shift;
+	my $return_err = shift;
+	my $err = 0;
+	my $mount_point;
+	my $line;
+	my $fh;
+	open $fh, "mount |";
+	while ($line = <$fh>) {
+		if ($line =~ /\/dev\/$disk_node on (.+) \(/) {
+			if (defined $mount_point) {
+				if (defined $return_err) {
+					$err = 1;
+				} else {
+					die "[FAIL]: found duplicate $disk_node!\n";
+				}
+			}
+			$mount_point = $1;
+		}
+	}
+	close $fh;
+	if (!defined $mount_point) {
+		if (defined $return_err) {
+			$err = 1;
+		} else {
+			die "[FAIL]: cannot find mount point of $disk_node\n";
+		}
+	}
+	if (defined $return_err) {
+		return ($mount_point, $err);
+	} else {
+		return $mount_point;
+	}
+}
+
+# run a shell command and return its output
+sub run( $ ) {
+	my $cmd = shift;
+	if ($verbose) {
+		print $cmd, "\n";
+	}
+	`$cmd`;
+}
+
+# run a shell command and return its output
+# the command must return 0
+sub run_nofail( $ ) {
+	my $cmd = shift;
+	my $cmd_out;
+	$cmd_out = run($cmd);
+	if ($?) {
+		die "[FAIL]: Command failed ($?):\n$cmd\n$cmd_out\n" if ($?);
+	}
+	$cmd_out;
+}
+
+# we cannot use perl's buildin -d or -f operator, because perl
+# doesn't handle spaces in the directory name the same way
+# as shell, for example, shell thinks "/Volumes/Data 1"/System
+# is a valid directory, but perl doesn't think so
+sub dir_exists( $ ) {
+	my $dir = shift;
+	run("[[ -d $dir ]]");
+	if ($?) {
+		return 0; # doesn't exist
+	} else {
+		return 1; # already exists
+	}
+}
+sub file_exists( $ ) {
+	my $dir = shift;
+	run("[[ -f $dir ]]");
+	if ($?) {
+		return 0; # doesn't exist
+	} else {
+		return 1; # already exists
+	}
+}
+
+sub care_about_dev( $ $ ) {
+	my ($devs_ref, $target_dev_str) = @_;
+	my $dev;
+	my $target_dev;
+
+	if ($$devs_ref[0] eq '*') {
+		return 1; # all devices match
+	}
+
+	if ($target_dev_str =~ /(disk\d+s\d+)/) {
+		$target_dev = $1;
+	} elsif ($target_dev_str =~ /(disk\d+)/) {
+		$target_dev = $1;
+	} else {
+		return 0;
+	}
+
+	foreach $dev (@$devs_ref) {
+		if ($target_dev =~ /${dev}$/ ||
+			$target_dev =~ /${dev}s\d+$/) {
+			return 1;
+		}
+	}
+	return 0;
+}
+
+sub display_legal_disclaimer() {
+    my $disclaimer = "\
+    This tool generates files that permit Apple to investigate issues with\
+    the disk and storage configuration of your device and to help improve\
+    related Apple products. The diagnostic files generated by this tool may\
+    contain personal information found on your device that is related to\
+    your disk and storage configuration, including but not limited to,\
+    encrypted volume keys, confirmation hashes, the number and types of\
+    disks attached to your system, volume names, identifiers and sizes,\
+    and user names, contact card photos and password hints.\
+    This information is used by Apple in accordance with its privacy policy\
+    and is not shared with any other company. By using this tool and sending\
+    the results to Apple, you consent to Apple using the contents of these\
+    files to improve related Apple products.\n\n";
+
+    print $disclaimer;
+    print "Press 'Enter' or 'Return' to continue ...";
+    <STDIN>;
+}
+
+main();
