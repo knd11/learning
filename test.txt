@@ -1,3 +1,5 @@
+<<<<<<< HEAD
 test origin
 branch
 test
+Creating a new branch is quick & simple.
