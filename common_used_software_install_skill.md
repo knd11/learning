@@ -129,7 +129,7 @@
      在文件末尾加上Java信息
 
      ```shell
-     export JAVA_HOME=/usr/local/jdk-8u231-linux-x64/jdk1.8.0_231
+     export JAVA_HOME=/usr/local/java/jdk1.8.0_231
      export JRE_HOME=${JAVA_HOME}/jre
      export CLASSPATH=.:${JAVA_HOME}/lib:${JRE_HOME}/lib
      export PATH=${JAVA_HOME}/bin:$PATH
@@ -747,8 +747,12 @@ $cxy@Cxy:$ vim /etc/hosts
 
 4. 安装ssh
 
+   mac本身安装了ssh服务，默认情况下不会开机自启
+
+   启动ssh服务：
+
    ```shell
-   $ brew install ssh
+   $ sudo launchctl load -w /System/Library/LaunchDaemons/ssh.plist
    ```
 
 5. 其余的参考[Ubuntu安装Hadoop](#5.2 ssh免密登陆)
@@ -1180,7 +1184,7 @@ Query OK, 0 rows affected (0.02 sec)
 
 
 
-卸载与在线安装:
+##### 卸载与在线安装:
 
 ```shell
 $ sudo apt-get --yes autoremove --purge mysql-server-5.7
@@ -1464,6 +1468,10 @@ $ echo $PATH
    
    mysql> 
    ```
+
+https://blog.csdn.net/chi0830/article/details/100590056
+
+https://www.cnblogs.com/R-S-PY/p/12680870.html
 
 
 
@@ -1820,7 +1828,7 @@ export PATH=$MAVEN_HOME/bin:$PATH
 $source ~/.bashrc
 ```
 
-#### 修改配置文件
+#### 修改配置文件($MAVEN_HOME/conf/setting.xml)
 
 ```xml
 <localRepository>/home/cxy/Programfiles/apache-maven/repository</localRepository>
@@ -2080,13 +2088,39 @@ InitialPreference=9
 
 ### 安装
 
+#### Linux
+
 ```shell
 apt install ffmpeg imagemagick
 ```
 
+#### Mac
+
+先安装 imagemagick
+
+
+
+```shell
+$brew install ImageMagick
+```
+
+还要安装  pkg-config
+
+```shell
+$brew install pkg-config
+```
+
+然后安装 imagick
+
+```shell
+$pecl install imagick
+```
+
+
+
 ### 应用
 
-####把图片放缩为640x480
+#### 把图片放缩为640x480
 
 ```shell
 $ mogrify -resize 640x480 \*.jpg
@@ -2094,7 +2128,7 @@ $ mogrify -resize 640x480 \*.jpg
 
 
 
-####图片生成动态 GIF
+#### 图片生成动态 GIF
 
 如果你有静态的 jpg 图片序列，在 Linux 中也可轻松生成动态 GIF，而不必动用到 Windows 中像 Photoshop 这样的神器。先将所有 JPG 放到同一文件夹，再在终端中执行如下命令即可：
 
@@ -2996,7 +3030,7 @@ cxy@Cxy:~/文档/docker/hadoop$ docker build -f Dockerfile -t hadoop1:2.6.0-cdh5
 ```shell
 #每次启动容器会重置/etc/hosts下的主机名和IP地址,
 #以下方式可在创建容器时就加入多个主机名和地址
-#docker run -itd --name hadoop1 --hostname hadoop1  --ip 172.17.3 --add-host hadoop2:172.17.4 --add-host hadoop3:172.17.5 -P -p 50070:50070 -p 8088:8088 ubuntu:18.04
+#docker run -itd --name hadoop1 --hostname hadoop1  --ip 172.17.0.3 --add-host hadoop2:172.17.0.4 --add-host hadoop3:172.17.0.5 -P -p 50070:50070 -p 8088:8088 ubuntu:18.04
 
 #cxy@Cxy:~$ docker run -it --name standalone_hadoop ubuntu:18.04 /bin/bash
 #登录时加上主机名,在后面配置的时候少出错
@@ -3506,15 +3540,15 @@ $ sudo docker push registry.cn-chengdu.aliyuncs.com/cxy_explore/cxy-hadoop:2.6.0
    –hostname 和–ip中的配置会加载到 /etc/hosts中,但是当容器关闭,/etc/hosts中的自己配置的内容就会清掉,建议不要随便关掉容器. 
 
    ```shell
-   #$docker run -it --name hadoop1 --hostname hadoop1 --ip 172.17.2 -P -p 50070:50070 -p 8088:8088 --privileged=true cxy/hadoop:2.6.0-cdh5.9.3-2
+   #$docker run -it --name hadoop1 --hostname hadoop1 --ip 172.17.2 -P -p 50070:50070 -p 8088:8088 -p 3306:3306 --privileged=true cxy/hadoop:2.6.0-cdh5.9.3-2
    
-   $docker run -it --name hadoop2 --hostname hadoop2 --ip 172.17.2 -P -p 50071:50070 -p 8089:8088 --privileged=true cxy/hadoop:2.6.0-cdh5.9.3-2
+   $docker run -it --name hadoop2 --hostname hadoop2 --ip 172.17.0.2 --add-host hadoop3:172.17.0.3 --add-host hadoop4:172.17.0.4 -P -p 50071:50070 -p 8089:8088 -p 3307:3306 --privileged=true cxy/hadoop:2.6.0-cdh5.9.3-2
    
-   $docker run -it --name hadoop3 --hostname hadoop3 --ip 172.17.3 -P -p 50072:50070 -p 8090:8088 --privileged=true cxy/hadoop:2.6.0-cdh5.9.3-2
+   $docker run -it --name hadoop3 --hostname hadoop3 --ip 172.17.0.3 --add-host hadoop2:172.17.0.2 --add-host hadoop4:172.17.0.4 -P -p 50072:50070 -p 8090:8088 -p 3308:3306 --privileged=true cxy/hadoop:2.6.0-cdh5.9.3-2
    
-   $docker run -it --name hadoop4 --hostname hadoop4 --ip 172.17.4 -P -p 50073:50070 -p 8091:8088 --privileged=true cxy/hadoop:2.6.0-cdh5.9.3-2
+   $docker run -it --name hadoop4 --hostname hadoop4 --ip 172.17.0.4 --add-host hadoop2:172.17.0.2 --add-host hadoop3:172.17.0.3 -P -p 50073:50070 -p 8091:8088 -p 3309:3306 --privileged=true cxy/hadoop:2.6.0-cdh5.9.3-2
    
-   #$ docker run -it --name hadoop5 --hostname hadoop5 --ip 172.17.5 -P -p 50074:50070 -p 8092:8088 --privileged=true cxy/hadoop:2.6.0-cdh5.9.3-2
+   #$docker run -it --name hadoop5 --hostname hadoop5 --ip 172.17.0.5 --add-host hadoop2:172.17.0.2 --add-host hadoop3:172.17.0.3 --add-host hadoop4:172.17.0.4 -P -p 50074:50070 -p 8092:8088 -p 3310:3306 --privileged=true cxy/hadoop:2.6.0-cdh5.9.3-2
    ```
 
 3. 改配置中的主机名和设置hosts(vim /etc/hosts),==容器和宿主机的hosts都要将所有ip加进去==
@@ -3621,8 +3655,8 @@ $ sudo docker push registry.cn-chengdu.aliyuncs.com/cxy_explore/cxy-hadoop:2.6.0
   >   > 
   >   > #5 循环, 注意起始位置不要把自己算进去了
   >   > for((host=3; host<5; host++)); do
-  >   >   echo ------------------- hadoop$host --------------
-  >   >   rsync -av $pdir/$fname $user@hadoop$host:$pdir
+  >   > echo ------------------- hadoop$host --------------
+  >   > rsync -av $pdir/$fname $user@hadoop$host:$pdir
   >   > done
   >   > ```
   >   >
@@ -3663,6 +3697,30 @@ $ sudo docker push registry.cn-chengdu.aliyuncs.com/cxy_explore/cxy-hadoop:2.6.0
   >   > ssh hadoop$host "/usr/local/jdk1.8.0_231/bin/jps"
   >   > done
   >   > ```
+  >   >
+  >   > 建立群起集群的脚本：start-dfs.sh
+  >   >
+  >   > ```shell
+  >   > #!/bin/bash
+  >   > user=`whoami`
+  >   > 
+  >   > echo "===============     开始启动所有节点服务        ==============="
+  >   > for((host=2; host<=4; host++)); do
+  >   >                 echo "--------------- hadoop$host Zookeeper...... ----------------"
+  >   >         ssh $user@hadoop$host '/usr/local/apache-zookeeper-3.6.0-bin/bin/zkServer.sh start'
+  >   > done
+  >   > 
+  >   > echo "================    正在启动HDFS                ==============="
+  >   > ssh $user@hadoop2 '/usr/local/hadoop-2.6.0-cdh5.9.3/sbin/start-dfs.sh'
+  >   > 
+  >   > echo "================    正在启动YARN                ==============="
+  >   > ssh $user@hadoop3 '/usr/local/hadoop-2.6.0-cdh5.9.3/sbin/start-yarn.sh'
+  >   > 
+  >   > echo "================ hadoop4正在启动JobHistoryServer  ==============="
+  >   > ssh $user@hadoop4 '/usr/local/hadoop-2.6.0-cdh5.9.3/sbin/mr-jobhistory-daemon.sh start historyserver'
+  >   > ```
+  >   >
+  >   > 
   >
   > 注意：如果将xsync放到/home/xxx/bin目录下仍然不能实现全局使用，可以将xsync移动到/usr/local/bin目录下
 
@@ -3901,6 +3959,8 @@ root@hadoop4:/usr/local/hadoop-2.6.0-cdh5.9.3# rm -rf temp/ logs/
 root@hadoop2:/usr/local/hadoop-2.6.0-cdh5.9.3# vim etc/hadoop/core-site.xml 
 root@hadoop2:/usr/local/hadoop-2.6.0-cdh5.9.3# vim etc/hadoop/yarn-site.xml 
 root@hadoop2:/usr/local/hadoop-2.6.0-cdh5.9.3# vim etc/hadoop/hdfs-site.xml 
+#因为删除了data/和logs/所以启动namenode需要格式化
+root@hadoop2:/usr/local/hadoop-2.6.0-cdh5.9.3# bin/hdfs namenode -format
 root@hadoop2:/usr/local/hadoop-2.6.0-cdh5.9.3# start-dfs.sh                          
 Starting namenodes on [hadoop2]
 hadoop2: starting namenode, logging to /usr/local/hadoop-2.6.0-cdh5.9.3/logs/hadoop-root-namenode-hadoop2.out
@@ -3918,6 +3978,14 @@ hadoop4: starting secondarynamenode, logging to /usr/local/hadoop-2.6.0-cdh5.9.3
   ```
 
   注意：NameNode和ResourceManger如果不是同一台机器，不能在NameNode上启动 YARN，应该在ResouceManager所在的机器上启动YARN
+
+  或者直接用脚本启动：
+
+  ```shell
+  root@hadoop2:/usr/local/hadoop-2.6.0-cdh5.9.3# start-cluster.sh 
+  ```
+
+  
 
 - Web端查看SecondaryNameNode
 
@@ -4029,7 +4097,7 @@ root@hadoop3:/usr/local/hadoop-2.6.0-cdh5.9.3# stop-yarn.sh
 
 > - mapred-site.xml
 >
->   配置在哪个主机都可以
+>   日志聚集配置在哪个主机都可以，因为hadoop4空着，所以配置在hadoop4上。加上下面的配置
 >
 >   ```xml
 >   <!-- 历史服务器端地址 -->
@@ -4676,7 +4744,19 @@ active
    root@hadoop2:/usr/local# tar -xzvf apache-hive-1.2.2-bin.tar.gz
    ```
 
-3. 修改conf目录下的hive-env.sh.template名称为hive-env.sh,并配置hive-env.sh文件
+3. 配置环境变量
+
+   ```shell
+   $ vim ~/.bashrc
+   #写入：
+   export HIVE_HOME=/usr/local/apache-hive-1.2.2-bin
+   export PATH=$PATH:$HIVE_HOME/bin
+   
+   #使设置生效
+   $ source ~/.bashrc
+   ```
+   
+4. 修改conf目录下的hive-env.sh.template名称为hive-env.sh,并配置hive-env.sh文件
 
    ```shell
    root@hadoop2:/usr/local/apache-hive-2.3.7-bin/conf# mv hive-env.sh.template hive-env.sh 
@@ -4690,14 +4770,41 @@ active
 
 1. 设置hosts,开启ssh服务
 
-2. 必须启动hdfs和yarn
+2. 启动Hadoop集群
+
+   创建shell脚本启动
 
    ```shell
-   root@hadoop2:/usr/local/hadoop-2.6.0-cdh5.9.3# sbin/start-dfs.sh
-   root@hadoop2:/usr/local/hadoop-2.6.0-cdh5.9.3#  sbin/start-yarn.sh
+   #!/bin/bash
+   user=`whoami`
+   
+   echo "===============     开始启动所有节点服务        ==============="
+   for((host=2; host<=4; host++)); do
+                   echo "--------------- hadoop$host Zookeeper...... ----------------"
+           ssh $user@hadoop$host '/usr/local/apache-zookeeper-3.6.0-bin/bin/zkServer.sh start'
+   done
+   
+   echo "================    正在启动HDFS                ==============="
+   ssh $user@hadoop2 '/usr/local/hadoop-2.6.0-cdh5.9.3/sbin/start-dfs.sh'
+   
+   echo "================    正在启动YARN                ==============="
+   ssh $user@hadoop3 '/usr/local/hadoop-2.6.0-cdh5.9.3/sbin/start-yarn.sh'
+   
+   echo "================ hadoop4正在启动JobHistoryServer  ==============="
+   ssh $user@hadoop4 '/usr/local/hadoop-2.6.0-cdh5.9.3/sbin/mr-jobhistory-daemon.sh start historyserver'
    ```
 
    
+
+   或启动hdfs和yarn
+
+   ```shell
+   #脚本启动
+   root@hadoop2:/usr/local# start-cluster.sh 
+   #或单独启动
+   root@hadoop2:/usr/local/hadoop-2.6.0-cdh5.9.3# sbin/start-dfs.sh
+   root@hadoop2:/usr/local/hadoop-2.6.0-cdh5.9.3#  sbin/start-yarn.sh
+   ```
 
 3. 在HDFS上创建/tmp和/user/hive/warehouse两个目录并修改他们的同组权限可写
 
@@ -4721,9 +4828,25 @@ active
 
 为了将元数据放到MySQL而安装MySQL,在hadoop==2==中安装mysql
 
-#### 安装MySql服务器
+#### 安装MySql服务器（在hadoop3中安装）
 
-<a href="https://blog.csdn.net/qq_31811537/article/details/89226096">apt安装mysql</a>
+**==建议apt安装==**，下载的安装包安装会出现很多问题
+
+##### 1. <a href="https://blog.csdn.net/qq_31811537/article/details/89226096">apt安装mysql</a>
+
+https://www.jb51.net/article/157282.htm
+
+```shell
+root@hadoop3:/usr/local# apt-get install mysql-server
+```
+
+如果报找不到套接字的错误，可能是上次卸载没有删除干净，先找到目录删除了再重装。或者[用auto-remove移除](#卸载与在线安装:)
+
+如果报错：
+
+![image-20200618103654957](pic/image-20200618103654957.png)
+
+查看启动日志，发现是因为之前安装一个的mysql.sock文件没有删，找到报错的目录把那个文件删了重新初始化就好了
 
 <a href="https://blog.csdn.net/weixin_43185093/article/details/103217400">修改密码：</a>
 
@@ -4732,8 +4855,15 @@ active
 ```mysql
 mysql>show databases;
 mysql>use mysql;
-mysql>update user set authentication_string=PASSWORD("自定义密码") where user='root';
+#注意自定义自己的密码，必须和hive-site.xml里写的密码一致
+mysql>update user set authentication_string=PASSWORD("12345c") where user='root';
 mysql>update user set plugin="mysql_native_password";
+mysql>flush privileges;
+
+#在mysql下执行授权命令(授权给远程任意的计算机登陆数据库)
+GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' IDENTIFIED BY '12345c' WITH GRANT OPTION;
+#如何在mac环境的docker中运行mysql 并使得其能够通过navicat被连接
+mysql>ALTER user 'root'@'%' IDENTIFIED WITH mysql_native_password BY '12345c';
 mysql>flush privileges;
 mysql>quit;
 ```
@@ -4744,7 +4874,7 @@ mysql>quit;
 $/etc/init.d/mysql restart;
 ```
 
-http://www.coozhi.com/youxishuma/g4/86480.html
+##### 2. <a href="http://www.coozhi.com/youxishuma/g4/86480.html">下载安装包安装</a>
 
 ```mysql
 # 安装MySQL的依赖库
@@ -4752,36 +4882,36 @@ sudo apt install yum
 sudo apt install numactl
 sudo apt install libaio-dev
 
-#复制安装包到hadoop2容器内的 /usr/local/mysql 下
+#复制安装包到hadoop3容器内的 /usr/local/mysql 下
 #也可解压后重命名为mysql，再移动到/usr/local/
 sudo mv mysql /usr/local
 
 #给Ubuntu系统添加一个mysql的用户组
-root@hadoop2:/usr/local/# groupadd mysql
+root@hadoop3:/usr/local/# groupadd mysql
 
 #添加一个mysql用户到mysql用户组中
-root@hadoop2:/usr/local/# useradd -r -g mysql -s /bin/false mysql
+root@hadoop3:/usr/local/# useradd -r -g mysql -s /bin/false mysql
 
 #切换到/usr/local/mysql目录
-root@hadoop2:/usr/local/mysql# cd /usr/local/mysql
+root@hadoop3:/usr/local/mysql# cd /usr/local/mysql
 
 #然后给移动后的文件夹添加目录权限到mysql用户组
-root@hadoop2:/usr/local/mysql#mkdir mysql-files
-root@hadoop2:/usr/local/mysql#chown mysql:mysql mysql-files
-root@hadoop2:/usr/local/mysql#chmod 750 mysql-files
+root@hadoop3:/usr/local/mysql#mkdir mysql-files
+root@hadoop3:/usr/local/mysql#chown mysql:mysql mysql-files
+root@hadoop3:/usr/local/mysql#chmod 750 mysql-files
 
 #对mysql数据库执行初始化命令
-root@hadoop2:/usr/local/mysql#  bin/mysqld --initialize --user=mysql
+root@hadoop3:/usr/local/mysql#  bin/mysqld --initialize --user=mysql
 2020-05-30T12:37:26.837048Z 6 [Note] [MY-010454] [Server] A temporary password is generated for root@localhost: IX=KXe2wZc:B
 Wki-tAqhV7(d
 #开启MySQL服务
-root@hadoop2:/usr/local/mysql# bin/mysqld_safe --user=mysql&
+root@hadoop3:/usr/local/mysql# bin/mysqld_safe --user=mysql&
 ```
 
 测试是否安装成功
 
 ```shell
-root@hadoop2:/usr/local/mysql# mysqladmin --version
+root@hadoop3:/usr/local/mysql# mysqladmin --version
 ```
 
 如果报错：bash: mysqladmin: command not found
@@ -4802,7 +4932,7 @@ mysqladmin  Ver 8.42 Distrib 5.7.29, for Linux on x86_64
 
 ```mysql
 #输入初始化时得到的密码
-root@hadoop2:/usr/local/# mysql -uroot -p
+root@hadoop3:/usr/local/# mysql -uroot -p
 Enter password: 
 Welcome to the MySQL monitor.  Commands end with ; or \g.
 Your MySQL connection id is 9
@@ -4834,14 +4964,16 @@ mysql> alter user 'root'@'localhost' identified by '12345c';
 Query OK, 0 rows affected (0.02 sec)
 ```
 
-#### MySql中user表中主机配置
+#### MySql中user表中主机配置，配置无主机登陆
 
-目标是配置: 只要是root用户+密码，在==任何主机==上都能登录MySQL数据库。
+现在还只能在hadoop3上登陆mysql。
+
+目标是配置: 只要是root用户+密码，在==任何主机==上都能登录此主机上的MySQL数据库。
 
 1. 进入mysql
 
 ```shell
-root@hadoop2:/usr/local# mysql -uroot -p  
+root@hadoop3:/usr/local# mysql -uroot -p  
 ```
 
 2．显示数据库
@@ -4871,30 +5003,30 @@ mysql>desc user;
 6．查询user表
 
 ```mysql
-mysql> select User, Host, Password_require_current from user;
-+------------------+-----------+--------------------------+
-| User        								     | Host      | Password_require_current |
-+------------------+-----------+--------------------------+
-| mysql.infoschema | localhost | NULL                     |
-| mysql.session          | localhost | NULL                     |
-| mysql.sys      						  | localhost | NULL                     |
-| root          									   | localhost | NULL                     |
-+------------------+-----------+--------------------------+
+mysql> select User, Host, authentication_string from user;
++------------------+-----------+-------------------------------------------+
+| User             | Host      | authentication_string                     |
++------------------+-----------+-------------------------------------------+
+| root             | localhost | *4061089A93A9EDD305DDF17D1FF7FD3070621BB5 |
+| mysql.session    | localhost | *THISISNOTAVALIDPASSWORDTHATCANBEUSEDHERE |
+| mysql.sys        | localhost | *THISISNOTAVALIDPASSWORDTHATCANBEUSEDHERE |
+| debian-sys-maint | localhost | *1EA5EE2A327FEC882B323A3451E332710BE904AC |
++------------------+-----------+-------------------------------------------+
 ```
 
 7．修改user表，把Host表内容修改为%
 
 ```mysql
 mysql> update user set host='%' where host='localhost';
-mysql> select User, Host, Password_require_current from user;
-+------------------+------+--------------------------+
-| User                             | Host | Password_require_current |
-+------------------+------+--------------------------+
-| mysql.infoschema | %    | NULL                     |
-| mysql.session          | %    | NULL                     |
-| mysql.sys                   | %    | NULL                     |
-| root                              | %    | NULL                     |
-+------------------+------+--------------------------+
+mysql> select User, Host, authentication_string from user;
++------------------+------+-------------------------------------------+
+| User             | Host | authentication_string                     |
++------------------+------+-------------------------------------------+
+| root             | %    | *4061089A93A9EDD305DDF17D1FF7FD3070621BB5 |
+| mysql.session    | %    | *THISISNOTAVALIDPASSWORDTHATCANBEUSEDHERE |
+| mysql.sys        | %    | *THISISNOTAVALIDPASSWORDTHATCANBEUSEDHERE |
+| debian-sys-maint | %    | *1EA5EE2A327FEC882B323A3451E332710BE904AC |
++------------------+------+-------------------------------------------+
 ```
 
 8．删除root用户的其他host,有则删
@@ -4925,6 +5057,10 @@ mysql>quit;
 ```shell
 root@hadoop2:/usr/local/apache-hive-1.2.2-bin# bin/hive
 ```
+
+如果报错：......Caused by: com.mysql.cj.jdbc.exceptions.CommunicationsException: Communications link failure......
+
+可能是因为把hive和mysql都装在一个主机上了，此时需要在hive-site.xml中将主机名改为localhost
 
 2. 查看数据库
 
@@ -5076,17 +5212,19 @@ cxy@Cxy:~/下载/Java/Hive$ docker cp mysql-connector-java-8.0.20.jar hadoop2:/u
 
 ##### 2. 配置Metastore到MySql
 
+注：后面创建分区表出错，所以没有用mysql作为元数据库，即不用hive-site.xml文件下列内容
+
 1．根据官方文档配置参数，拷贝数据到hive-site.xml文件中
 
 ```xml
-root@hadoop2:/usr/local/apache-hive-1.2.2-bin/conf# vim hive-site.xml
+root@hadoop2:/usr/local/apache-hive-1.2.2-bin/conf# cp hive-default.xml.template hive-site.xml
 #写入:
 <?xml version="1.0"?>
 <?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
 <configuration>
 	<property>
 	  <name>javax.jdo.option.ConnectionURL</name>
-	  <value>jdbc:mysql://hadoop2:3306/metastore?createDatabaseIfNotExist=true</value>
+	  <value>jdbc:mysql://hadoop3:3306/metastore?createDatabaseIfNotExist=true</value>
 	  <description>JDBC connect string for a JDBC metastore</description>
 	</property>
 
@@ -5148,7 +5286,7 @@ mysql> show databases;
 root@hadoop2:/usr/local/apache-hive-1.2.2-bin# bin/hive
 ```
 
-###8.8. Hive常用交互命令
+### 8.8. Hive常用交互命令
 
 ```shell
 #查看帮助命令
@@ -5491,7 +5629,289 @@ hive>set;
 
    
 
-   
+# 26. MAC Python CGI编程
+
+https://www.runoob.com/python/python-cgi.html
+
+你是否想使用Python语言创建一个网页，或者处理用户从web表单输入的数据?这些任务可以通过Python CGI(公用网关接口)脚本以及一个Apache web服务器实现。当用 户请求一个指定URL或者和网页交互(比如点击""提交"按钮)的时候，CGI脚本就会被web服务器启用。CGI脚本调用执行完毕后，它的输出结果就会被web服务器用来创建 显示给用户的网页。
+所有的HTTP服务器执行CGI程序都保存在一个预先配置的目录。这个目录被称为CGI目录，并按照惯例，它被命名为/var/www/cgi-bin目录。
+CGI文件的扩展名为.cgi，python也可以使用.py扩展名。
+默认情况下，Linux服务器配置运行的cgi-bin目录中为/var/www。
+如果你想指定其他运行CGI脚本的目录，可以修改httpd.conf配置文件.
+
+#### 1. 配置Apache web服务器，让其能运行CGI脚本
+
+MAC 上Apache web服务器已经安装好的，我们只需要对Apache 支持CGI 配置：即可使用。
+进入/etc/apache2/httpd.conf`
+
+```shell
+#设置运行主机地址：
+ServerName 127.0.0.1:80
+Listen 80
+
+#通过DocumentRoot指令指定(指定网页文件所在目录)
+#在 AddHandler 中添加 .py 后缀，这样我们就可以访问 .py 结尾的 python 脚本文件：
+<Directory "/var/www/cgi-bin">
+   AllowOverride None
+   Options +ExecCGI
+   Order allow,deny
+   Allow from all
+   AddHandler cgi-script .cgi .py .sh .php
+</Directory>
+
+#为了启用CGI脚本，我们必须指定CGI脚本在web服务器上的位置，需要用到`ScriptAlias`指令:
+ScriptAlias /cgi-bin/ /var/www/cgi-bin/
+```
+
+修改过程中可能会遇到无权修改问题,可以用`chmod -R 777 某文件`进行权限修改
+修改完成之后重启`Apache`:
+
+```shell
+$ sudo apachectl restart
+#查看apache是否启动
+$ ps -ef |grep httpd
+  501 11376  1601   0  3:09下午 ttys001    0:00.00 grep httpd
+```
+
+#### 2. 第一个CGI程序
+
+我们使用 Python 创建第一个 CGI 程序，文件名为 hello.py，文件位于 /var/www/cgi-bin 目录中，内容如下：
+
+```shell
+#!/usr/bin/python3
+# -*- coding: UTF-8 -*-
+
+print "Content-type:text/html"
+print                               # 空行，告诉服务器结束头部
+print '<html>'
+print '<head>'
+print '<meta charset="utf-8">'
+print '<title>Hello World - 我的第一个 CGI 程序！</title>'
+print '</head>'
+print '<body>'
+print '<h2>Hello World! 我是来自菜鸟教程的第一CGI程序</h2>'
+print '</body>'
+print '</html>'
+```
+
+文件保存后修改 hello.py，修改文件权限为 755：
+
+```shell
+chmod 755 hello.py 
+```
+
+以上程序在浏览器访问 **http://localhost/cgi-bin/hello.py** 显示结果如下：
+
+```
+Hello World! 我是来自菜鸟教程的第一CGI程序
+```
+
+这个的hello.py脚本是一个简单的Python脚本，脚本第一行的输出内容"Content-type:text/html"发送到浏览器并告知浏览器显示的内容类型为"text/html"。
+
+用 print 输出一个空行用于告诉服务器结束头部信息。
+
+
+
+
+
+# 27. vscode刷leetcode
+
+https://www.cnblogs.com/techflow/p/12590795.html
+
+## vscode的插件
+
+vscode之所以强大很大的原因是因为**拥抱开源**，我们每个人都可以为它开发插件。也正是因为这点，vscode当中有着非常非常多的插件，无论我们想得到的还是想不到的，可以说是应有尽有。
+
+我们点击左侧边栏的extensions打开插件市场，我们可以当中进行搜索。
+
+
+
+比如你想要写Python，那么我们就输入Python，排名第一的就是Python的解释器：
+
+![img](pic/00831rSTgy1gd9xkwrdksj30sg0lcn1i.jpg)
+
+并且右侧还会有**详细的说明和介绍文档**，介绍这款插件的使用方法或者是配置方法，以及我们可以自己根据需要设置的配置。
+
+换成C++也是一样：
+
+![img](pic/00831rSTgy1gd9xlht6lvj30sg0lcn17.jpg)
+
+这些说明其实**对应github仓库当中的一个repo**，所以当我们点击其中的一些链接会跳转到github当中。另外，如果我们自己开发了相应的插件，同样也可以注册到vscode当中来，给其他人使用。
+
+这也是**开源精神**所在，即使微软家大业大，仅仅靠它一家公司的努力，是不可能同时支持和维护这么多功能和插件的。
+
+另外，需要注意的是大部分插件是安装好了可以直接使用的，但是也**有些插件是需要配置**的，这需要我们在安装和使用之前详细阅读文档。
+
+## leetcode插件
+
+熟悉了vscode的插件之后，我们开始进入本文的正题。和预料的一样，我们在插件市场当中搜索leetcode，然后安装下载量最高的那个即可。
+
+![img](pic/00831rSTgy1gd9xmcsdx5j30sg0lcq5x.jpg)
+
+我们安装之后，按住**shift + ctrl(command) + p**，打开插件搜索栏。输入leetcode，选择第一个sign in，然后输入账号和密码即可。
+
+![img](pic/00831rSTgy1gd9xmudjohj30sg0lcacy.jpg)
+
+但是你会发现**登陆失败了**。
+
+怎么回事，为什么失败了，难道是记错密码了吗？
+
+于是你打开leetcode的网站又尝试了一下，发现密码没有记错，网页可以登陆。
+
+我们打开官网，会发现官方已经知道登陆失败的问题了，这是由于leetcode官网升级了登陆机制导致的。
+
+![img](pic/00831rSTgy1gd9xnqldo9j31he0fc0xt.jpg)
+
+但是leetcode只升级了国际版，对于国内的版本还没有升级，所以如果你使用的是国内的leetcode账号，那么我们只需要更换leetcode版本即可。更换的方式也很简单，点击上方地球形状的按钮进行选择即可：
+
+![img](pic/00831rSTgy1gd9xojaghlj30sg0lcdi2.jpg)
+
+但是，我个人**更推荐使用国际版**，因为英文的题目描述会更加清楚，并且题目的更新也会更加及时。况且以后说不准中文版的leetcode也会升级登陆机制，到时候还是会面临无法登陆的问题。
+
+很遗憾的是，对于无法登陆这个问题，官方很坦率地承认了对于这个问题**没有特别好的解决方法，只能使用cookie来绕开**。
+
+## cookie登陆
+
+cookie在网站当中经常使用，我们可以简单地将它认为是一个**标识身份的令牌或者说证书**。
+
+我们都知道，现在的网站往往有自动登录机制。因为我们每打开一次都要用户输入一次账号密码实在是太反人类了，并且有时候我们打开多个相同网站中的不同站点，也会想要保持登录的状态，而不是再输入账号密码。cookie正是基于整个目的诞生的。
+
+cookie的原理也很简单，我们在登录网站成功之后，网站的服务器**会根据我们的账号id或者是其他信息使用加密算法生成一串密文**。并且将这串密文发送给浏览器，浏览器会将这串密文存储起来，这样下次浏览器在访问网站的时候，只需要携带上这串密文，网站拿到密文进行解密之后就能识别出这是哪一个用户，自动设置成已经登录的状态，并且返回对应的数据。
+
+因此cookie数据非常重要，它**关乎我们许多账号的安全**。如果我们的cookie被黑客获取，我们的账号都会面临被盗的风险。由于对称加密算法几乎不可攻破，所以目前许多针对浏览器账户的攻击手段都和cookie有关。
+
+我猜测登录问题出现的原因应该是leetcode官方人为限制了第三方插件通过账号密码代理登录，所以解决方法很简单，就是我们**使用cookie来进行模拟登录**。
+
+## 前期准备
+
+由于leetcode插件底层是使用的**leetcode-cli**命令行工具，所以我们需要现在本地保证我们的命令行工具的版本正确。
+
+首先，我们需要安装Node.js 8以上的版本，关于Node.js的安装方法网上随便就能搜到，安装也很简单，这里就不赘述了。
+
+接着，我们通过npm工具安装最新版本的leetcode-cli：
+
+```
+# to remove the old version
+npm uninstall -g leetcode-cli
+# to install the up-to-date version(2.6.17+)
+npm install -g leetcode-tools/leetcode-cli
+```
+
+## 操作流程
+
+首先，我们需要通过浏览器获取我们账号的cookie。下面以Google Chrome浏览器举例。
+
+我们先打开leetcode用我们自己的账号和密码登录，然后右击选择inspect：
+
+![img](pic/00831rSTgy1gd9xr4zkbhj312s0rqdje.jpg)
+
+接着选择Network下的XHR：
+
+![img](pic/00831rSTgy1gd9xrdj2g0j31ce0pstba.jpg)
+
+然后我们点击网站导航栏中的problems：
+
+![img](pic/00831rSTgy1gd9xrnhkapj319o0o0djz.jpg)
+
+这时候右边会显示出前端网页跳转的请求信息，我们找到其中一个名叫all的请求，选择Headers，往下拉就能找到cookie：
+
+![img](pic/00831rSTgy1gd9xrxq32cj315z0u011p.jpg)
+
+我们把这一串字符串复制下来。
+
+重新打开vscode，打开leetcode插件，选择sign in，这一次在**选择登录方式的时候我们选择使用cookie登录**：
+
+![img](pic/00831rSTgy1gd9xsevf8kj30sg0lc0v0.jpg)
+
+然后输入账号，粘贴进我们刚才复制下来的cookie即可。
+
+顺利的话，看到下图红框当中的边栏出现，就说明我们已经**成功登录**了。
+
+![img](pic/00831rSTgy1gd9xsxfljqj30sg0lc76q.jpg)
+
+## leetcode插件使用
+
+leetcode的使用很简单，和网页版差距不大，我们**点开all可以看到所有的问题**，我们点击问题的标题会自动为我们加载题目的详细信息，已经通过的问题会打上绿色的勾。
+
+![img](pic/00831rSTgy1gd9xtf7tzzj30sg0lcn1t.jpg)
+
+我们要做题的话就右击选择**Show Problem**
+
+![img](pic/00831rSTgy1gd9xtpsr9zj30gy07amxv.jpg)
+
+之后会弹出语言让我们选择，我们就选择我们最常用的语言就好。比如我最近用Python做题，就选择Python3：
+
+![img](pic/00831rSTgy1gd9xtz95cpj30sg0lcwhf.jpg)
+
+之后选择**Just Open The problem file**
+
+![img](pic/00831rSTgy1gd9xubhp12j30oy05qt9a.jpg)
+
+vscode会自动为我们打开一个分屏。我们就可**以一边看问题一边写代码**了，不得不说实在是非常方便。
+
+![img](pic/00831rSTgy1gd9xunln8hj313s0lc78l.jpg)
+
+## leetcode配置
+
+最后简单讲一下leetcode插件的一些配置。
+
+leetcode这个插件当中的配置还蛮多的，但是我个人觉得最主要的是其中的两个。一个是配置我们每个问题代码存放的文件路径，方便以后我们找到这些写好的代码。
+
+这个配置名字叫做**leetcode.workspaceFolder**，默认的路径是$HOME/.leetcode。这里的HOME是你系统的环境变量，不同的系统这个变量指定的位置不一样。
+
+我们可以打开终端输入
+
+```
+echo$HOME
+```
+
+查看一下我们当前的$HOME目录指向哪里，当然我们**也可以自己修改这个配置**。我们打开vscode的配置文件，搜索leetcode.workspaceFolder，就可以找到vscode当中的配置，我们修改我们想要的path即可。
+
+![img](pic/00831rSTgy1gd9xwihlltj30pr09sgm5.jpg)
+
+另一个配置是**编辑器的快捷方式**，我们仔细观察会发现我们打开的leetcode py文件下面会有两个按钮。我这张图里是三个，因为我设置过。
+
+![img](pic/00831rSTgy1gd9xwvteduj30gl08eglu.jpg)
+
+这些按钮是可以点击的，它们**都有具体的功能**。比如Submit是提交当前的code到leetcode网站，帮我们提交代码。Test是执行样例，看看样例是否能够通过。除了这两个之外还有两个，一个叫做Solution，可以查看当前最高赞的代码。另一个是Description，是显示问题描述。
+
+我们可以在**leetcode.editor.shortcuts**配置当中进行修改：
+
+![img](pic/00831rSTgy1gd9xxe7o7yj30j4087glt.jpg)
+
+
+
+最后，配置你喜欢的编译器：
+
+在设置中搜索leetcode，转到settings，配置路径和默认编译器：
+
+<img src="pic/image-20200905202143731.png" alt="image-20200905202143731" style="zoom:30%;" />
+
+#  28 配置 MySQL 慢查询日志
+
+https://cloud.tencent.com/developer/article/1504292
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

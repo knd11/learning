@@ -598,7 +598,11 @@ He who would climb the ladder must begin at the bottom \cite{31}.
 \listoftables
 ```
 
+
+
 #### 插入流程图
+
+官方文档：https://mermaid-js.github.io/mermaid/#/flowchart?id=graph
 
 ```mermaid
 sequenceDiagram
@@ -627,20 +631,19 @@ sequenceDiagram
 
 从上到下
 
-~~~rust
-```mermaid
+~~~mermaid
 graph TD
-   A --> B
+   A --> B 
 ~~~
 
 从左到右
 
 ```mermaid
 graph LR
-   A --> B 
+   A --text1--> B --text2--> C
 ```
 
-##### 基本图形
+##### 1. 基本图形
 
 - id + [文字描述]矩形
 - id + (文字描述)圆角矩形
@@ -650,8 +653,7 @@ graph LR
 
 示例
 
-~~~objectivec
-```mermaid
+~~~mermaid
 graph TD
     id[带文本的矩形]
     id4(带文本的圆角矩形)
@@ -660,13 +662,7 @@ graph TD
     id2((带文本的圆形))
 ~~~
 
-效果：
-
-
-
-![img](https:////upload-images.jianshu.io/upload_images/128249-957db957d10b0794.png?imageMogr2/auto-orient/strip|imageView2/2/w/730/format/webp)
-
-##### 节点之间的连接
+##### 2. 节点之间的连接
 
 - A --> B     A带箭头指向B
 - A --- B      A不带箭头指向B
@@ -680,8 +676,7 @@ graph TD
 
 示例
 
-```rust
-mermaid
+```mermaid
 graph LR
     A[A] --> B[B] 
     A1[A] --- B1[B] 
@@ -694,17 +689,11 @@ graph LR
     A8[A] == 描述 ==> B8[B] 
 ```
 
-
-
-
-
-![img](https:////upload-images.jianshu.io/upload_images/128249-dce949200b8c4676.png?imageMogr2/auto-orient/strip|imageView2/2/w/173/format/webp)
-
-##### 子流程图
+##### 3. 子流程图
 
 格式
 
-```ruby
+```
 subgraph title
     graph definition
 end
@@ -712,55 +701,53 @@ end
 
 示例
 
-```php
-mermaid
-graph TB
-    c1-->a2
-    subgraph one
-    a1-->a2
-    end
-    subgraph two
-    b1-->b2
-    end
-    subgraph three
-    c1-->c2
-    end
+```mermaid
+graph TB 
+  c1-->a2 
+  subgraph one 
+  a1-->a2 
+  end 
+  subgraph two
+  b1-->b2
+  end 
+  subgraph three
+  c1-->c2
+  end
 ```
 
  效果：
 
+```mermaid
+graph LR
+	subgraph 对象
+	id3[对象]
+	end
+	id1((线程1)) --加锁成功-->id3[对象]
+	id2((线程2)) -->id3[对象]
+```
 
 
-![img](https:////upload-images.jianshu.io/upload_images/128249-a6fcfff9b08d5bbb.png?imageMogr2/auto-orient/strip|imageView2/2/w/411/format/webp)
 
-##### 自定义样式
+##### 4. 自定义样式
 
 语法：style id 具体样式
 
 示例
 
-```css
-mermaid
+```mermaid
 graph LR
     id1(Start)-->id2(Stop)
     style id1 fill:#f9f,stroke:#333,stroke-width:4px,fill-opacity:0.5
     style id2 fill:#ccf,stroke:#f66,stroke-width:2px,stroke-dasharray: 10,5
 ```
 
- 效果：
-
-
-
-![img](https:////upload-images.jianshu.io/upload_images/128249-04455956e16399f5.png?imageMogr2/auto-orient/strip|imageView2/2/w/212/format/webp)
-
-##### demo
+##### 5. demo
 
 绘制一个流程图,找出 A、 B、 C 三个数中最大的一个数。
 
 写法
 
-```rust
-mermaid
+```mermaid
 graph LR
     start[开始] --> input[输入A,B,C]
     input --> conditionA{A是否大于B}
@@ -775,9 +762,88 @@ graph LR
     printB --> stop
 ```
 
- 效果：
+##### 6. 转义字符
 
-![img](https:////upload-images.jianshu.io/upload_images/128249-4011de1612c17bd1.png?imageMogr2/auto-orient/strip|imageView2/2/w/716/format/webp)
+双引号包裹转义字符，支持 Html 转移字符
+
+```mermaid
+graph LR 
+A["A double quote:#quot;"] -->B["A dec char:#9829;"]
+```
+
+##### 7. 多节点之间的连接
+
+- 多节点共同连接
+
+  A-->B & C 等价于 A-->B 和 A-->C 形式
+
+  ```mermaid
+  graph LR
+  a --> b & c--> d
+  ```
+
+- 多节点相互连接
+
+  多节点共同连接的变体形式。A & B --> C & D 等价于 A-->C ,A-->D,B-->C 和 B-->D 四种组合形式
+
+  ```mermaid
+  graph TB
+  A & B--> C & D
+  ```
+
+  
+
+##### 8. gitGraph
+
+```mermaid
+gitGraph:
+options
+{
+    "nodeSpacing": 150,
+    "nodeRadius": 10
+}
+end
+commit
+branch newbranch
+checkout newbranch
+commit
+commit
+checkout master
+commit
+commit
+merge newbranch
+```
+
+
+
+##### 9. [Entity Relationship Diagram - ![:exclamation:](pic/2757.png) experimental](https://mermaid-js.github.io/mermaid/#/entityRelationshipDiagram)
+
+```mermaid
+erDiagram
+    CUSTOMER ||--o{ ORDER : places
+    ORDER ||--|{ LINE-ITEM : contains
+    CUSTOMER }|..|{ DELIVERY-ADDRESS : uses
+```
+
+##### 10. [User Journey Diagram](https://mermaid-js.github.io/mermaid/#/user-journey)
+
+```mermaid
+journey
+    title My working day
+    section Go to work
+      Make tea: 5: Me
+      Go upstairs: 3: Me
+      Do work: 1: Me, Cat
+    section Go home
+      Go downstairs: 5: Me
+      Sit down: 5: Me
+```
+
+
+
+
+
+
 
 #### 加线
 

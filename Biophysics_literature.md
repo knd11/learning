@@ -70,6 +70,116 @@ The error bar denotes the standard deviation of $\langle L(k)\rangle$. In this c
 - 分数维数值D的大小是分形对象复杂程度的一个度量，数值越大分形对象越复杂
 - 对于各种分形来说，即使在不同的尺度上，用分维表示的不规整程度却是一个常量。
 
+
+
+#### ==谢尔宾斯基三角形==
+
+（==Sierpinski triangle==）是一种分形，由波兰数学家谢尔宾斯基在1915年提出。它是[自相似](https://baike.baidu.com/item/自相似)集的例子。它的[豪斯多夫维](https://baike.baidu.com/item/豪斯多夫维/6352968)是log(3)/log(2) ≈ 1.585。
+
+##### 构造
+
+1. 去掉中心
+
+   > 1.取一个实心的三角形。（多数使用[等边三角形](https://baike.baidu.com/item/等边三角形/6409004)）
+   >
+   > 2.沿三边中点的连线，将它分成四个小三角形。
+   >
+   > 3.去掉中间的那一个小三角形。
+   >
+   > 4.对其余三个小三角形重复1。
+   >
+   > 取一个[正方形](https://baike.baidu.com/item/正方形/1019418)或其他形状开始，用类似的方法构作，形状也会和谢尔宾斯基三角形相近。 [1] 
+
+2. Chaos Game
+
+   > 用随机的方法（Chaos Game），都可得到谢尔宾斯基三角形：
+   >
+   > 1. 任意取平面上三点A,B,C，组成一三角形
+   > 2. 任意取三角形ABC内的一点P，画出 该点
+   > 3. 画出 P和三角形其中一个顶点的中点
+   > 4. 重复1
+
+3. L系统
+
+> 下图展示了曲线如何逼近谢尔宾斯基三角形。
+>
+> [![图1.曲线逼近](Biophysics_pic/resize,m_lfit,w_220,h_220,limit_1.png)](https://baike.baidu.com/pic/谢尔宾斯基三角形/1332191/0/d53f8794a4c27d1e8aee74631bd5ad6edcc43848?fr=lemma&ct=single)
+>
+> 图1.曲线逼近
+>
+> 这条曲线以L系统来记述为：
+>
+> 变量: A , B 常数: + , - 公理: A 规则: A → B-A-B B → A+B+A A,B ： 向前
+>
+> \- ： 左转60°
+>
+> \+ ： 右转60°
+
+#### Fractal Dimension
+
+Students (and teachers) are often fascinated by the fact that certain geometric images have fractional dimension. The Sierpinski triangle provides an easy way to explain why this must be so.
+
+To explain the concept of fractal dimension, it is necessary to understand what we mean by dimension in the first place. Obviously, a line has dimension 1, a plane dimension 2, and a cube dimension 3. But why is this? It is interesting to see students struggle to enunciate why these facts are true. And then: What is the dimension of the Sierpinski triangle?
+
+They often say that a line has dimension 1 because there is only 1 way to move on a line. Similarly, the plane has dimension 2 because there are 2 directions in which to move. Of course, there really are 2 directions in a line -- backward and forward -- and infinitely many in the plane. What the students really are trying to say is there are 2 linearly independent directions in the plane. Of course, they are right. But the notion of linear independence is quite sophisticated and difficult to articulate. Students often say that the plane is two-dimensional because it has ``two dimensions,'' meaning length and width. Similarly, a cube is three-dimensional because it has ``three dimensions,'' length, width, and height. Again, this is a valid notion, though not expressed in particularly rigorous mathematical language.
+
+Another pitfall occurs when trying to determine the dimension of a curve in the plane or in three-dimensional space. An interesting debate occurs when a teacher suggests that these curves are actually one-dimensional. But they have 2 or 3 dimensions, the students object.
+
+So why is a line one-dimensional and the plane two-dimensional? Note that both of these objects are self-similar. We may break a line segment into 4 self-similar intervals, each with the same length, and ecah of which can be magnified by a factor of 4 to yield the original segment. We can also break a line segment into 7 self-similar pieces, each with magnification factor 7, or 20 self-similar pieces with magnification factor 20. In general, we can break a line segment into **N** self-similar pieces, each with magnification factor **N**.
+
+A square is different. We can decompose a square into 4 self-similar sub-squares, and the magnification factor here is 2. Alternatively, we can break the square into 9 self-similar pieces with magnification factor 3, or 25 self-similar pieces with magnification factor 5. Clearly, the square may be broken into **N^2** self-similar copies of itself, each of which must be magnified by a factor of **N** to yield the original figure. See Figure 8. Finally, we can decompose a cube into **N^3** self-similar pieces, each of which has magnification factor **N**.
+
+
+
+![img](http://math.bu.edu/DYSYS/chaos-game/GRAPHICS/square.GIF)
+**Figure 8:** A square may be broken into **N^2** self-similar pieces, each with magnification factor **N**
+
+
+
+Now we see an alternative way to specify the dimension of a self-similar object: The dimension is simply the exponent of the number of self-similar pieces with magnification factor **N** into which the figure may be broken.
+
+So what is the dimension of the Sierpinski triangle? How do we find the exponent in this case? For this, we need logarithms. Note that, for the square, we have **N^2** self-similar pieces, each with magnification factor **N**. So we can write
+
+![img](Biophysics_pic/img20.gif)
+
+Similarly, the dimension of a cube is
+
+![img](Biophysics_pic/img21.gif)
+
+Thus, we take as the *definition* of the fractal dimension of a self-similar object
+
+![img](Biophysics_pic/img22.gif)
+
+
+
+Now we can compute the dimension of **S**. For the Sierpinski triangle consists of 3 self-similar pieces, each with magnification factor 2. So the fractal dimension is
+
+![img](http://math.bu.edu/DYSYS/chaos-game/img23.gif)
+
+
+
+![img](Biophysics_pic/img24.gif)
+
+so the dimension of **S** is somewhere between 1 and 2, just as our ``eye'' is telling us.
+
+But wait a moment, **S** also consists of 9 self-similar pieces with magnification factor 4. No problem -- we have
+
+![img](Biophysics_pic/img25.gif)
+
+as before. Similarly, **S** breaks into **3^N** self-similar pieces with magnification factors **2^N**, so we again have
+
+![img](Biophysics_pic/img28.gif)
+
+
+
+Fractal dimension is a measure of how "complicated" a self-similar figure is. In a rough sense, it measures "how many points" lie in a given set. A plane is "larger" than a line, while **S** sits somewhere in between these two sets.
+
+On the other hand, all three of these sets have the same number of points in the sense that each set is uncountable. Somehow, though, fractal dimension captures the notion of "how large a set is" quite nicely, as we will see below.
+
+### 
+
+
+
 ### 6. A new approach for EEG signal classification of schizophrenic and control participants
 
 ​	This paper is concerned with a two stage procedure for analysis and classification of electroencephalogram(EEG) signals for twenty schizophrenic patients and twenty age-matched control participants.
@@ -203,19 +313,79 @@ How does cognition emerge from neural dynamics? The dominant hypothesis states t
 
 
 
+### 16. Complex network measures of brain connectivity: Uses and interpretations
+
+Brain connectivity datasets comprise networks of brain regions connected by anatomical tracts or by functional associations. Complex network analysis—a new multidisciplinary approach to the study of complex systems—aims to characterize these brain networks with a small number of neurobiologically meaningful and easily computable measures. In this article, we discuss construction of brain networks from connectivity data and describe the most commonly used network measures of structural and functional connectivity. We describe measures that variously detect functional integration and segregation, quantify centrality of individual brain regions or pathways, characterize patterns of local anatomical circuitry, and test resilience of networks to insult. We discuss the issues surrounding comparison of structural and functional network connectivity, as well as comparison of networks across subjects. Finally, we describe a Matlab toolbox (http://www.brain-connectivity-toolbox.net) accompanying this article and containing a collection of complex network measures and large-scale neuroanatomical connectivity datasets.
+
+#### Introduction
+
+Modern brain mapping techniques—such as diffusion MRI, functional MRI, EEG, and MEG—produce increasingly large datasets of anatomical or functional connection patterns. Concurrent techno- logical advancements are generating similarly large connection datasets in biological, technological, social, and other scientiﬁc ﬁelds. Attempts to characterize these datasets have, over the last decade, led to the emergence of a new, multidisciplinary approach to the study of complex systems (Strogatz, 2001; Newman, 2003; Boccaletti et al., 2006). This approach, known as complex network analysis, describes important properties of complex systems by quantifying topologies of their respective network representations. Complex network analysis has its origins in the mathematical study of networks, known as graph theory. However, unlike classical graph theory, the analysis primarily deals with real-life networks that are large and complex—neither uniformly random nor ordered. 
+Brain connectivity datasets comprise networks of brain regions connected by anatomical tracts or by functional associations. Brain networks are invariably complex, share a number of common features with networks from other biological and physical systems, and may hence be characterized using complex network methods. Network characterization of structural and functional connectivity data is increasing (Bassett and Bullmore, 2006, 2009; Stam and Reijneveld, 2007; Bullmore and Sporns, 2009) and rests on several important motivations. First, complex network analysis promises to reliably (Deuker et al., 2009) quantify brain networks with a small number of neurobiologically meaningful and easily computable measures (Sporns and Zwi, 2004; Achard et al., 2006; Bassett et al., 2006; He et al., 2007; Hagmann et al., 2008). Second, by explicitly deﬁning anatomical and functional connections on the same map of brain regions, network analysis may be a useful setting for exploring structural–functional connectivity relationships (Zhou et al., 2006; Honey et al., 2007, 2009). Third, comparisons of structural or functional network topologies between subject populations appear to reveal presumed connectivity abnormalities in neurological and psychiatric disorders (Stam et al., 2007, 2009; Bassett et al., 2008; Leistedt et al., 2009; Ponten et al., 2009; Wang et al., 2009b). 
+In this article, we provide a non-technical introduction to complex network analysis of brain connectivity and outline important conceptual issues associated with its use. We begin by discussing the construction of structural and functional brain connectivity networks. We then describe the most commonly used measures of local and global connectivity, as well as their neurobiological interpretations. We focus on recently developed network measures (Boccaletti et al., 2006; Costa et al., 2007b) and provide a freely available Matlab toolbox, containing these measures, as well as their weighted and directed variants (Table A1). Finally, we discuss some of the issues associated with comparing structural and functional connectivity in the same subject and comparing connectivity patterns between subjects.
+
+![image-20200731171228191](Biophysics_pic/image-20200731171228191.png)
+
+![image-20200731174503975](Biophysics_pic/image-20200731174503975.png)
+
+![IMG_6AD34EAAEB5B-1](Biophysics_pic/IMG_6AD34EAAEB5B-1.jpeg)
+
+### 17. Decoding  EEG  by Visual-guided  Deep Neural  Networks
+
+Decoding visual stimuli from brain activities is an interdisciplinary study of neuroscience and com- puter vision. With the emerging of Human-AI Col- laboration, Human-Computer Interaction, and the development of advanced machine learning mod- els, brain decoding based on deep learning attracts more attention. Electroencephalogram (EEG) is a widely used neurophysiology tool. Inspired by the success of deep learning on image representation and neural decoding, we proposed a visual-guided EEG decoding method that contains a decoding stage and a generation stage. In the classiﬁcation stage, we designed a visual-guided convolutional neural network (CNN) to obtain more discrimina- tive representations from EEG, which are applied to achieve the classiﬁcation results. In the genera- tion stage, the visual-guided EEG features are input to our improved deep generative model with a vi- sual consistence module to generate corresponding visual stimuli. With the help of our visual-guided strategies, the proposed method outperforms tradi- tional machine learning methods and deep learning models in the EEG decoding task.
+
+![image-20200802165927734](Biophysics_pic/image-20200802165927734.png)
+
+https://vimsky.com/article/4400.html
+
+http://bindog.github.io/blog/2016/06/04/from-sne-to-tsne-to-largevis/
+
+https://blog.csdn.net/xieshangxin/article/details/89682607
+
+https://www.mathworks.com/help/stats/t-sne.html
+
+https://www.mathworks.com/help/stats/visualize-high-dimensional-data-using-t-sne.html
+
+https://distill.pub/2016/misread-tsne/
+
+https://blog.csdn.net/xiaobian_/article/details/106131181?utm_medium=distribute.pc_aggpage_search_result.none-task-blog-2~all~first_rank_v2~rank_v25-15-106131181.nonecase
+
+简单地理解，流形学习方法可以用来对高维数据降维，如果将维度降到2维或3维，我们就能将原始数据可视化，从而对数据的分布有直观的了解，发现一些可能存在的规律。
+
+### 18. Multiclass Seizure Classification from EEG with Graph Convolutional Recurrent Neural Networks
+
+#### Abstract
+
+Traditionally, seizure classiﬁcation from electroencephalogram (EEG) is performed by clinical experts’ visual analyses of EEG signals. Recent advances in deep learn- ing have enabled the development of automated seizure classiﬁcation frameworks. Most of previous efforts on modeling EEG with deep learning utilized convolu- tional neural networks (CNNs) and/or recurrent neural networks (RNNs), ignoring the inherent graphical structure in EEG. In this paper, we propose to model the spatiotemporal dependencies in EEG data with a graph convolutional recurrent neural network. Speciﬁcally, the spatial dependency is characterized by graph convolutions on the EEG electrode graph, and the temporal dependency is captured by a recurrent neural network. We explore various graph structures, and show that our graph-based approach improves multiclass seizure classiﬁcation compared to RNN or CNN-based methods.
+
+#### Introduction
+
+==Epileptic seizure is a transient occurrence of signs and symptoms due to abnormal excessive or synchronous neuronal activities in the brain==.Around 50 million people worldwide have epilepsy, making it one of the most common neurological diseases globally. Due to its unpredictable nature, patients with epilepsy and their family often suffer from low quality of life, stigma, and discrimination. However, it is estimated that up to 70% of people living with epilepsy could live seizure-free if properly diagnosed and treated [1]. 
+The traditional method for epilepsy diagnosis and treatment is based on a clinical expert’s analysis of electroencephalogram (EEG) signals. However, seizure detection from time-series EEG signals is a challenging task that requires an experienced clinician’s knowledge and substantial amount of time. Classifying seizures into ﬁner classes is even more challenging. ==In fact, it could take an experienced neurologist several hours to evaluate a single patient’s EEG record, not to mention the fact that EEG data is often collected over hours to days==[2]. As such, algorithms to automatically classify seizure types would be beneﬁcial for overcoming the bottleneck in diagnosis of epilepsy and thus accelerating the clinical workﬂows. Automatic seizure type classiﬁcation may also allow remote monitoring of patients, as well as timely diagnosis and treatment to improve patient care [3]. Although much effort has gone into developing seizure detection algorithms [4–6, 2], little has been done for seizure classiﬁcation [7, 8].
+
+Feature extraction from EEG signals is the most crucial step in building an automatic seizure classiﬁcation system. Downstream classiﬁcation task will beneﬁt if the model can successfully extract features that capture discriminative characteristics of the neural patterns of different types of seizures. Previous works have used recurrent neural networks (RNNs) and/or convolutional neural networks (CNNs) to model EEG data [8, 9]. ==However, such methods either ignore spatial dependencies or assumes regular grid structures in EEG signals. In contrast, EEG signals are recorded from multiple electrodes placed on a patient’s scalp, and thus have an inherent graph structure. Hence, we hypothesize that a graph convolutional recurrent neural network would be better at capturing the spatiotemporal dependencies in EEG signals than CNNs or RNNs.==
+In this study, we aim to develop a deep learning framework for multiclass seizure classiﬁcation. We focus on the following seven common seizure classes: focal non-speciﬁc seizure (FN), generalized non-speciﬁc seizure (GN), simple partial seizure (SP), complex partial seizure (CP), absence seizure (AB), tonic seizure (TN) and tonic-clonic seizure (TC). We use graph convolutions [10, 11] to leverage the graph structure in EEG, and a recurrent neural network to capture the temporal dynamics. In the remainder of this paper, we use EEG electrodes, EEG channels and nodes interchangeably. 
+Our main  contributions are as follows: 
+
+- We  propose  to  model  the  EEG  signals  with  a  graph  convolutional  recurrent  neural  network, capturing  the spatial  and  temporal  dependencies  in EEG. 
+- We investigate various graph structures, leveraging the physical structures in EEG electrodes and  correlations in  EEG signals. 
+- We show that our graph-based models out-perform RNN or CNN-based models on the multiclass seizure classiﬁcation task, demonstrating the beneﬁts of modeling EEG data with graphs.
+
+![image-20200804193034488](Biophysics_pic/image-20200804193034488.png)
 
 
 
+### 19. EEG-Based 3D Visual Fatigue Evaluation Using CNN
 
+Abstract: Visual fatigue evaluation plays an important role in applications such as virtual reality since the visual fatigue symptoms always affect the user experience seriously. Existing visual evaluation methods require hand-crafted features for classiﬁcation, and conduct feature extraction and classiﬁcation in a separated manner. In this paper, we conduct a designed experiment to collect electroencephalogram (EEG) signals of various visual fatigue levels, and present a multi-scale convolutional neural network (CNN) architecture named MorletInceptionNet to detect visual fatigue using EEG as input, which exploits the spatial-temporal structure of multichannel EEG signals. Our MorletInceptionNet adopts a joint space-time-frequency features extraction scheme in which Morlet wavelet-like kernels are used for time-frequency raw feature extraction and inception architecture are further used to extract multi-scale temporal features. Then, the multi-scale temporal features are concatenated and fed to the fully connected layer for visual fatigue evaluation using classiﬁcation. In experiment evaluation, we compare our method with ﬁve state-of-the-art methods, and the results demonstrate that our model achieve overally the best performance better performance for two widely used evaluation metrics, i.e., classiﬁcation accuracy and kappa value. Furthermore, we use input-perturbation network-prediction correlation maps to conduct in-depth analysis into the reason why the proposed method outperforms other methods. The results suggest that our model is sensitive to the perturbation of β (14–30 Hz) and γ (30–40 Hz) bands. Furthermore, their spatial patterns are of high correlation with that of the corresponding power spectral densities which are used as evaluation features traditionally. This ﬁnding provides evidence of the hypothesis that the proposed model can learn the joint time-frequency-space features to distinguish fatigue levels automatically. 
+Keywords:  EEG;  visual  fatigue; CNN
 
+![image-20200804200143046](Biophysics_pic/image-20200804200143046.png)
 
+![image-20200804200354874](Biophysics_pic/image-20200804200354874.png)
 
+### 20. Novel functional brain network methods based on CNN with an application in proficiency evaluation
 
-
-
-
-
-
+![image-20200804201755624](Biophysics_pic/image-20200804201755624.png)
 
 
 
