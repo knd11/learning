@@ -3698,7 +3698,7 @@ $ sudo docker push registry.cn-chengdu.aliyuncs.com/cxy_explore/cxy-hadoop:2.6.0
   >   > done
   >   > ```
   >   >
-  >   > 建立群起集群的脚本：start-dfs.sh
+  >   > 建立群起集群的脚本：start-cluster.sh 
   >   >
   >   > ```shell
   >   > #!/bin/bash
@@ -4193,6 +4193,8 @@ SYNC_HWCLOCK=yes
 
 ## 5. 配置Zookeeper集群
 
+#### ZK安装
+
 1. 上传文件到hadoop2
 
    ```shell
@@ -4267,7 +4269,7 @@ SYNC_HWCLOCK=yes
    2
    ```
 
-6. 分发zookeeper配置, 并分别修改myid文件中内容为3、4
+6. 分发zookeeper配置, ==并分别修改myid文件中内容为3、4==
 
    ```shell
    #注意在此之前,先检查hosts和xsync,还有ssh是否启动
@@ -4295,6 +4297,84 @@ SYNC_HWCLOCK=yes
    Error contacting service. It is probably not running.
    ```
 
+
+
+#### ZK集群启动停止脚本
+
+1. 在hadoop102的/home/atguigu/bin目录下创建脚本
+
+   ```shell
+   $ vim zk.sh
+   ```
+
+   在脚本中编写如下内容
+
+   ```shell
+   #! /bin/bash
+   
+   case $1 in
+   "start"){
+   	for i in hadoop2 hadoop3 hadoop4
+   	do
+   		ssh $i "/usr/local/apache-zookeeper-3.6.2-bin/bin/zkServer.sh start"
+   	done
+   };;
+   "stop"){
+   	for i in hadoop2 hadoop3 hadoop4
+   	do
+   		ssh $i "/usr/local/apache-zookeeper-3.6.2-bin/bin/zkServer.sh stop"
+   	done
+   };;
+   "status"){
+   	for i in hadoop2 hadoop3 hadoop4
+   	do
+   		ssh $i "/usr/local/apache-zookeeper-3.6.2-bin/bin/zkServer.sh status"
+   	done
+   };;
+   esac
+   
+   ```
+
+2. 增加脚本执行权限
+
+   ```shell
+   $chmod 777 zk.sh
+   ```
+
+3. Zookeeper集群启动脚本
+
+   ```shell
+   $ zk.sh start
+   ```
+
+4. Zookeeper集群停止脚本
+
+   ```shell
+   $ zk.sh stop
+   ```
+
+   如果报错：
+
+   Error: JAVA_HOME is not set and java could not be found in PATH.
+
+   解决：
+
+   打开zookeeper安装文件中`bin`路径下的zkEnv.sh文件，配置JAVA_HOME
+
+   ```shell
+   export JAVA_HOME=/usr/local/jdk1.8.0_231
+   export PATH=$PATH:$JAVA_HOME/bin
+   ```
+
+   或者把Java的全路径写上
+
+   ```shell
+   /usr/local/jdk1.8.0_231/bin/java
+   ```
+
+   
+
+   
 
 ## 6. 配置HDFS-HA集群
 
@@ -5889,17 +5969,199 @@ echo$HOME
 
 #  28 配置 MySQL 慢查询日志
 
+#### 1. 配置慢查询日志
+
 https://cloud.tencent.com/developer/article/1504292
 
+与慢查询日志有关的变量：
+
+```mysql
+#是否开启慢查询日志
+slow_query_log = OFF 
+
+#最大时间限制，超过此时间，再记录
+long_query_time = 10   
+
+#日志文件位置
+slow_query_log_file = /usr/slow.log
+
+#没有使用索引的搜索是否记录
+log_queries_not_using_indexes = OFF
+```
+
+如何配置
+
+```mysql
+#查看配置
+SHOW VARIABLES LIKE '%slow%';
+
+#开启慢查询日志
+SET GLOBAL slow_query_log=ON;
+
+#查看慢查询时间阈值
+SHOW VARIABLES LIKE '%long_query_time%'
+```
 
 
 
+#### 2. MYSQL 慢查询日志分析工具
+
+1. 安装==percona工具集==
+
+```mysql
+$ brew install percona-toolkit
+```
+
+2. 安装完成后，使用下面命令，检测是否安装成功：
+
+```shell
+$ pt-query-digest --help
+$ pt-table-checksum --help
+```
 
 
 
+# 29. Mac 环境下安装 Flume
+
+#### 1. 下载
+
+1. Flume官网地址：http://flume.apache.org/
+
+2. 文档查看地址 ：http://flume.apache.org/FlumeUserGuide.html
+
+3. 下载地址：http://archive.apache.org/dist/flume/
+
+   
+
+#### 1.2 安装部署
+
+将安装包拷贝到自己需要安装的位置，如：我需要在集群里用到Flume，就把安装包上传的docker容器内
+
+1. 将apache-flume-1.9.0-bin.tar.gz上传到linux的/usr/local目录下
+2. 解压apache-flume-1.9.0-bin.tar.gz到/usr/local 目录下
+
+```shell
+/usr/local# tar -zxvf apache-flume-1.9.0-bin.tar.gz
+```
+
+3. 将apache-flume-1.9.0-bin/conf下的flume-env.sh.template文件修改为flume-env.sh，并配置flume-env.sh文件
+
+```sh
+export JAVA_HOME=/usr/local/jdk1.8.0_231
+```
+
+4. 添加环境变量
+
+```sh
+$ vi ~/.bashrc 
+#加上：
+export FLUME_HOME=/usr/local/apache-flume-1.9.0-bin
+export FLUME_CONF_DIR=$FLUME_HOME/conf
+export PATH=$FLUME_HOME/bin:$PATH
+
+#使配置生效：
+source ~/.bashrc 
+```
+
+5. 查看版本号
+
+```shell
+$ cd $FLUME_HOME/conf
+$ flume-ng version
+```
 
 
 
+6. 测试监听本地端口号
+
+   下载安装netcat
+
+   ```shell
+   $ apt-get install netcat
+   ```
+
+   
+
+在hadoop2和hadoop3中都安装netcat；假设hadoop3作为服务器端，hadoop2作为客户端去与其通信，
+
+Hadoop2执行
+
+```shell
+$ nc -l -p 44444
+#进入阻塞状态
+```
+
+Hadoop2执行
+
+```shell
+$ nc hadoop2 44444
+#进入阻塞状态
+```
+
+此时在hadoop2或者hadoop3中给对方发消息，双方都能看到
+
+
+
+#### 1. 安装
+
+```shell
+brew install flume
+1
+```
+
+#### 2. 配置环境变量
+
+vi ~/.bash_profile
+
+```shell
+export FLUME_HOME=/usr/local/Cellar/flume/1.9.0_1/libexec
+export FLUME_CONF_DIR=$FLUME_HOME/conf
+export PATH=$FLUME_HOME/bin:$PATH
+123
+```
+
+source ~/.bash_profile
+
+#### 3. 配置flume-env.sh
+
+```
+cp flume-env.sh.template flume-env.sh
+export JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk1.8.0_141.jdk/Contents/Home
+export JAVA_OPTS="-Xms100m -Xmx2000m -Dcom.sun.management.jmxremote"
+12
+```
+
+如果不配置JAVA_OPTS会报错Exception in thread “main” java.lang.OutOfMemoryError: Java heap space
+
+#### 4. 查看版本号
+
+```shell
+cd $FLUME_HOME/conf
+
+flume-ng version
+123
+```
+
+错误: 找不到或无法加载主类 org.apache.flume.tools.GetJavaProperty
+
+解决办法一：可能是机器上安装HBase了，将libexec/conf/hbase-env.sh配置文件中的HBASE_CLASSPATH注释掉。
+
+```shell
+# export HBASE_CLASSPATH=/usr/local/Cellar/hadoop/3.2.1/libexec/etc/hadoop
+1
+```
+
+解决办法二：HBASE_CLASSPATH改为JAVA_CLASSPATH
+
+```
+export JAVA_CLASSPATH=.:$JAVA_HOME/lib/dt.jar:$JAVA_HOME/lib/tools.jar
+```
+
+#### 5. 启动
+
+###### 1. netcat
+
+libexec/conf/netcat.conf
 
 
 
